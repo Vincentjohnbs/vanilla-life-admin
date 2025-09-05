@@ -17,6 +17,15 @@
         .timeline-item::before { content: ''; position: absolute; left: 15px; top: 40px; bottom: -20px; width: 2px; background: #e5e7eb; }
         .timeline-item:last-child::before { display: none; }
     </style>
+
+    <style>
+        /* 隐藏侧边栏 */
+        #sidebar, .sidebar-hidden { display: none !important; }
+        /* 调整主内容区域 */
+        .lg\:ml-64 { margin-left: 0 !important; }
+        /* 隐藏侧边栏切换按钮 */
+        #sidebarToggle, #sidebar-toggle { display: none !important; }
+    </style>
 </head>
 <body class="bg-gray-50">
     <!-- 侧边栏 -->

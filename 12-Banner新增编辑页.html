@@ -16,6 +16,15 @@
         .tab-content.active { display: block; }
         .tab-button.active { background-color: #10b981; color: white; }
     </style>
+
+    <style>
+        /* 隐藏侧边栏 */
+        #sidebar, .sidebar-hidden { display: none !important; }
+        /* 调整主内容区域 */
+        .lg\:ml-64 { margin-left: 0 !important; }
+        /* 隐藏侧边栏切换按钮 */
+        #sidebarToggle, #sidebar-toggle { display: none !important; }
+    </style>
 </head>
 <body class="bg-gray-50">
     <!-- 侧边栏 -->
@@ -657,7 +666,16 @@
                 const previewWindow = window.open('', '_blank', 'width=375,height=667');
                 previewWindow.document.write(`
                     <html>
-                        <head><title>Banner预览</title></head>
+                        <head><title>Banner预览</title>
+    <style>
+        /* 隐藏侧边栏 */
+        #sidebar, .sidebar-hidden { display: none !important; }
+        /* 调整主内容区域 */
+        .lg\:ml-64 { margin-left: 0 !important; }
+        /* 隐藏侧边栏切换按钮 */
+        #sidebarToggle, #sidebar-toggle { display: none !important; }
+    </style>
+</head>
                         <body style="margin:0;padding:20px;background:#f5f5f5;">
                             <div style="max-width:335px;margin:0 auto;">
                                 <img src="${previewImg.src}" style="width:100%;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">

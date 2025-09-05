@@ -15,6 +15,15 @@
         .status-badge { animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
     </style>
+
+    <style>
+        /* 隐藏侧边栏 */
+        #sidebar, .sidebar-hidden { display: none !important; }
+        /* 调整主内容区域 */
+        .lg\:ml-64 { margin-left: 0 !important; }
+        /* 隐藏侧边栏切换按钮 */
+        #sidebarToggle, #sidebar-toggle { display: none !important; }
+    </style>
 </head>
 <body class="bg-gray-50">
     <!-- 侧边栏 -->
