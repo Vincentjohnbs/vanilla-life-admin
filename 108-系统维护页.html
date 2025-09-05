@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统维护 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .maintenance-card:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease;
+        }
+        .status-indicator {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg sidebar-transition z-30">
+        <!-- Logo -->
+        <div class="p-6 border-b">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 导航菜单 -->
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                        <i class="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
+                        <span>仪表盘</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                        <i class="fas fa-users w-5 h-5 mr-3"></i>
+                        <span>用户画像</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                        <i class="fas fa-shield-alt w-5 h-5 mr-3"></i>
+                        <span>权限管理</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 bg-blue-50 text-blue-600 rounded-lg">
+                        <i class="fas fa-tools w-5 h-5 mr-3"></i>
+                        <span>系统维护</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">系统维护</h2>
+                        <p class="text-sm text-gray-500">监控系统状态和执行维护任务</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 px-3 py-1 bg-green-100 text-green-800 rounded-full">
+                        <div class="w-2 h-2 bg-green-500 rounded-full status-indicator"></div>
+                        <span class="text-sm font-medium">系统正常</span>
+                    </div>
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="Avatar" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 系统状态概览 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">系统运行时间</p>
+                            <p class="text-2xl font-bold text-gray-900">15天</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600">99.9%</span>
+                        <span class="text-gray-500 ml-1">可用性</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">CPU使用率</p>
+                            <p class="text-2xl font-bold text-gray-900">45%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-microchip text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">内存使用率</p>
+                            <p class="text-2xl font-bold text-gray-900">68%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-memory text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-yellow-600 h-2 rounded-full" style="width: 68%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">磁盘使用率</p>
+                            <p class="text-2xl font-bold text-gray-900">32%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hdd text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-purple-600 h-2 rounded-full" style="width: 32%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快速操作 -->
+            <div class="bg-white rounded-lg shadow mb-6">
+                <div class="p-4 border-b">
+                    <h3 class="text-lg font-semibold">快速操作</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <button onclick="clearCache()" class="maintenance-card p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-broom text-blue-600 text-xl"></i>
+                                </div>
+                                <h4 class="font-medium text-gray-900">清理缓存</h4>
+                                <p class="text-sm text-gray-500 mt-1">清空系统缓存</p>
+                            </div>
+                        </button>
+                        
+                        <button onclick="backupDatabase()" class="maintenance-card p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-database text-green-600 text-xl"></i>
+                                </div>
+                                <h4 class="font-medium text-gray-900">数据备份</h4>
+                                <p class="text-sm text-gray-500 mt-1">备份数据库</p>
+                            </div>
+                        </button>
+                        
+                        <button onclick="optimizeDatabase()" class="maintenance-card p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-cogs text-yellow-600 text-xl"></i>
+                                </div>
+                                <h4 class="font-medium text-gray-900">数据库优化</h4>
+                                <p class="text-sm text-gray-500 mt-1">优化数据库性能</p>
+                            </div>
+                        </button>
+                        
+                        <button onclick="restartServices()" class="maintenance-card p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-redo text-red-600 text-xl"></i>
+                                </div>
+                                <h4 class="font-medium text-gray-900">重启服务</h4>
+                                <p class="text-sm text-gray-500 mt-1">重启系统服务</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="border-b">
+                    <nav class="flex space-x-8 px-6" id="maintenanceTabs">
+                        <button data-tab="monitor" class="py-4 px-1 border-b-2 border-blue-500 text-blue-600 font-medium text-sm">
+                            系统监控
+                        </button>
+                        <button data-tab="backup" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                            备份管理
+                        </button>
+                        <button data-tab="logs" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                            系统日志
+                        </button>
+                        <button data-tab="services" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                            服务管理
+                        </button>
+                        <button data-tab="tasks" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                            定时任务
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- 系统监控标签页 -->
+                <div id="monitorTab" class="tab-content active p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold mb-4">性能监控</h3>
+                            <canvas id="performanceChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold mb-4">网络流量</h3>
+                            <canvas id="networkChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold mb-4">服务状态</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="servicesStatus">
+                            <!-- 服务状态将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 备份管理标签页 -->
+                <div id="backupTab" class="tab-content p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold">备份记录</h3>
+                        <button onclick="createBackup()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-plus mr-2"></i>创建备份
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">备份名称</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">大小</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="backupTableBody">
+                                <!-- 备份记录将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 系统日志标签页 -->
+                <div id="logsTab" class="tab-content p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center space-x-4">
+                            <select class="px-4 py-2 border border-gray-300 rounded-lg">
+                                <option>全部日志</option>
+                                <option>错误日志</option>
+                                <option>警告日志</option>
+                                <option>信息日志</option>
+                            </select>
+                            <input type="date" class="px-4 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="clearLogs()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                                <i class="fas fa-trash mr-2"></i>清空日志
+                            </button>
+                            <button onclick="exportLogs()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                                <i class="fas fa-download mr-2"></i>导出日志
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-gray-900 rounded-lg p-4 h-96 overflow-y-auto" id="logContainer">
+                        <!-- 日志内容将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 服务管理标签页 -->
+                <div id="servicesTab" class="tab-content p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="servicesGrid">
+                        <!-- 服务卡片将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 定时任务标签页 -->
+                <div id="tasksTab" class="tab-content p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold">定时任务</h3>
+                        <button onclick="createTask()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-plus mr-2"></i>创建任务
+                        </button>
+                    </div>
+                    <div class="space-y-4" id="tasksList">
+                        <!-- 任务列表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 标签页切换
+        function initTabs() {
+            const tabs = document.querySelectorAll('#maintenanceTabs button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // 移除所有活跃状态
+                    tabs.forEach(t => {
+                        t.classList.remove('border-blue-500', 'text-blue-600');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    
+                    // 添加当前标签活跃状态
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    this.classList.add('border-blue-500', 'text-blue-600');
+                    
+                    // 隐藏所有标签页内容
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // 显示目标标签页内容
+                    const targetContent = document.getElementById(targetTab + 'Tab');
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // 初始化性能监控图表
+        function initPerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    datasets: [{
+                        label: 'CPU使用率',
+                        data: [30, 45, 60, 55, 48, 42],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: '内存使用率',
+                        data: [50, 55, 70, 68, 65, 62],
+                        borderColor: 'rgb(245, 158, 11)',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 初始化网络流量图表
+        function initNetworkChart() {
+            const ctx = document.getElementById('networkChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['上传', '下载'],
+                    datasets: [{
+                        label: '流量 (MB/s)',
+                        data: [12.5, 45.8],
+                        backgroundColor: [
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(168, 85, 247, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(34, 197, 94)',
+                            'rgb(168, 85, 247)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染服务状态
+        function renderServicesStatus() {
+            const services = [
+                { name: 'Web服务器', status: 'running', uptime: '15天' },
+                { name: '数据库', status: 'running', uptime: '15天' },
+                { name: 'Redis缓存', status: 'running', uptime: '12天' },
+                { name: '消息队列', status: 'stopped', uptime: '0天' },
+                { name: '文件服务', status: 'running', uptime: '8天' },
+                { name: '搜索引擎', status: 'warning', uptime: '3天' }
+            ];
+
+            const servicesStatus = document.getElementById('servicesStatus');
+            servicesStatus.innerHTML = services.map(service => `
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-medium text-gray-900">${service.name}</h4>
+                        <div class="flex items-center space-x-1">
+                            <div class="w-2 h-2 rounded-full ${
+                                service.status === 'running' ? 'bg-green-500' :
+                                service.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+                            }"></div>
+                            <span class="text-xs text-gray-500">${
+                                service.status === 'running' ? '运行中' :
+                                service.status === 'warning' ? '警告' : '已停止'
+                            }</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500">运行时间: ${service.uptime}</p>
+                    <div class="mt-3 flex space-x-2">
+                        <button onclick="restartService('${service.name}')" class="flex-1 px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100">
+                            重启
+                        </button>
+                        <button onclick="viewServiceLogs('${service.name}')" class="flex-1 px-2 py-1 text-xs bg-gray-50 text-gray-600 rounded hover:bg-gray-100">
+                            日志
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 渲染备份记录
+        function renderBackupTable() {
+            const backups = [
+                {
+                    name: 'database_backup_20240120',
+                    type: '完整备份',
+                    size: '2.5 GB',
+                    time: '2024-01-20 02:00:00',
+                    status: 'success'
+                },
+                {
+                    name: 'database_backup_20240119',
+                    type: '增量备份',
+                    size: '450 MB',
+                    time: '2024-01-19 02:00:00',
+                    status: 'success'
+                },
+                {
+                    name: 'database_backup_20240118',
+                    type: '完整备份',
+                    size: '2.4 GB',
+                    time: '2024-01-18 02:00:00',
+                    status: 'failed'
+                }
+            ];
+
+            const backupTableBody = document.getElementById('backupTableBody');
+            backupTableBody.innerHTML = backups.map(backup => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${backup.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${backup.type}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${backup.size}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${backup.time}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full ${
+                            backup.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }">
+                            ${backup.status === 'success' ? '成功' : '失败'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <button onclick="downloadBackup('${backup.name}')" class="text-blue-600 hover:text-blue-900">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button onclick="restoreBackup('${backup.name}')" class="text-green-600 hover:text-green-900">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button onclick="deleteBackup('${backup.name}')" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 渲染系统日志
+        function renderSystemLogs() {
+            const logs = [
+                '[2024-01-20 14:30:25] INFO: 用户登录成功 - 用户ID: 1001',
+                '[2024-01-20 14:28:15] WARNING: 内存使用率超过70%',
+                '[2024-01-20 14:25:42] INFO: 数据库连接池已满，等待连接释放',
+                '[2024-01-20 14:20:18] ERROR: 文件上传失败 - 磁盘空间不足',
+                '[2024-01-20 14:15:33] INFO: 定时任务执行完成 - 数据清理任务',
+                '[2024-01-20 14:10:25] INFO: 缓存刷新完成',
+                '[2024-01-20 14:05:42] WARNING: API调用频率过高 - IP: 192.168.1.100',
+                '[2024-01-20 14:00:18] INFO: 系统备份任务开始执行'
+            ];
+
+            const logContainer = document.getElementById('logContainer');
+            logContainer.innerHTML = logs.map(log => {
+                const level = log.includes('ERROR') ? 'text-red-400' : 
+                             log.includes('WARNING') ? 'text-yellow-400' : 'text-green-400';
+                return `<div class="${level} font-mono text-sm mb-1">${log}</div>`;
+            }).join('');
+        }
+
+        // 渲染服务管理
+        function renderServicesGrid() {
+            const services = [
+                {
+                    name: 'Nginx',
+                    description: 'Web服务器',
+                    status: 'running',
+                    port: 80,
+                    memory: '45 MB',
+                    cpu: '2.1%'
+                },
+                {
+                    name: 'MySQL',
+                    description: '数据库服务',
+                    status: 'running',
+                    port: 3306,
+                    memory: '512 MB',
+                    cpu: '8.5%'
+                },
+                {
+                    name: 'Redis',
+                    description: '缓存服务',
+                    status: 'running',
+                    port: 6379,
+                    memory: '128 MB',
+                    cpu: '1.2%'
+                },
+                {
+                    name: 'Elasticsearch',
+                    description: '搜索引擎',
+                    status: 'warning',
+                    port: 9200,
+                    memory: '1.2 GB',
+                    cpu: '15.3%'
+                }
+            ];
+
+            const servicesGrid = document.getElementById('servicesGrid');
+            servicesGrid.innerHTML = services.map(service => `
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-semibold text-gray-900">${service.name}</h3>
+                            <p class="text-sm text-gray-500">${service.description}</p>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <div class="w-3 h-3 rounded-full ${
+                                service.status === 'running' ? 'bg-green-500' :
+                                service.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+                            }"></div>
+                            <span class="text-sm text-gray-500">${
+                                service.status === 'running' ? '运行中' :
+                                service.status === 'warning' ? '警告' : '已停止'
+                            }</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex justify-between">
+                            <span>端口:</span>
+                            <span>${service.port}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>内存:</span>
+                            <span>${service.memory}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>CPU:</span>
+                            <span>${service.cpu}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex space-x-2">
+                        <button onclick="startService('${service.name}')" class="flex-1 px-3 py-2 text-sm bg-green-50 text-green-600 rounded hover:bg-green-100">
+                            <i class="fas fa-play mr-1"></i>启动
+                        </button>
+                        <button onclick="stopService('${service.name}')" class="flex-1 px-3 py-2 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100">
+                            <i class="fas fa-stop mr-1"></i>停止
+                        </button>
+                        <button onclick="restartService('${service.name}')" class="flex-1 px-3 py-2 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100">
+                            <i class="fas fa-redo mr-1"></i>重启
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 渲染定时任务
+        function renderTasksList() {
+            const tasks = [
+                {
+                    name: '数据库备份',
+                    schedule: '每天 02:00',
+                    status: 'active',
+                    lastRun: '2024-01-20 02:00:00',
+                    nextRun: '2024-01-21 02:00:00'
+                },
+                {
+                    name: '日志清理',
+                    schedule: '每周日 03:00',
+                    status: 'active',
+                    lastRun: '2024-01-14 03:00:00',
+                    nextRun: '2024-01-21 03:00:00'
+                },
+                {
+                    name: '缓存预热',
+                    schedule: '每小时',
+                    status: 'inactive',
+                    lastRun: '2024-01-20 13:00:00',
+                    nextRun: '-'
+                }
+            ];
+
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = tasks.map(task => `
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3">
+                                <h3 class="font-semibold text-gray-900">${task.name}</h3>
+                                <span class="px-2 py-1 text-xs rounded-full ${
+                                    task.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                }">
+                                    ${task.status === 'active' ? '启用' : '禁用'}
+                                </span>
+                            </div>
+                            <div class="mt-2 grid grid-cols-3 gap-4 text-sm text-gray-600">
+                                <div>
+                                    <span class="text-gray-500">执行频率:</span>
+                                    <div class="font-medium">${task.schedule}</div>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">上次执行:</span>
+                                    <div class="font-medium">${task.lastRun}</div>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">下次执行:</span>
+                                    <div class="font-medium">${task.nextRun}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="runTask('${task.name}')" class="px-3 py-2 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100">
+                                <i class="fas fa-play mr-1"></i>立即执行
+                            </button>
+                            <button onclick="editTask('${task.name}')" class="px-3 py-2 text-sm bg-gray-50 text-gray-600 rounded hover:bg-gray-100">
+                                <i class="fas fa-edit mr-1"></i>编辑
+                            </button>
+                            <button onclick="toggleTask('${task.name}')" class="px-3 py-2 text-sm ${
+                                task.status === 'active' ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-600 hover:bg-green-100'
+                            } rounded">
+                                <i class="fas fa-${task.status === 'active' ? 'pause' : 'play'} mr-1"></i>${task.status === 'active' ? '禁用' : '启用'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 快速操作函数
+        function clearCache() {
+            if (confirm('确定要清理系统缓存吗？')) {
+                showNotification('正在清理缓存...', 'info');
+                setTimeout(() => {
+                    showNotification('缓存清理完成！', 'success');
+                }, 2000);
+            }
+        }
+
+        function backupDatabase() {
+            if (confirm('确定要立即备份数据库吗？')) {
+                showNotification('正在备份数据库...', 'info');
+                setTimeout(() => {
+                    showNotification('数据库备份完成！', 'success');
+                }, 3000);
+            }
+        }
+
+        function optimizeDatabase() {
+            if (confirm('确定要优化数据库吗？此操作可能需要较长时间。')) {
+                showNotification('正在优化数据库...', 'info');
+                setTimeout(() => {
+                    showNotification('数据库优化完成！', 'success');
+                }, 5000);
+            }
+        }
+
+        function restartServices() {
+            if (confirm('确定要重启系统服务吗？这将暂时中断服务。')) {
+                showNotification('正在重启服务...', 'warning');
+                setTimeout(() => {
+                    showNotification('服务重启完成！', 'success');
+                }, 4000);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // 其他操作函数（占位符）
+        function restartService(name) { console.log('重启服务:', name); }
+        function viewServiceLogs(name) { console.log('查看服务日志:', name); }
+        function createBackup() { console.log('创建备份'); }
+        function downloadBackup(name) { console.log('下载备份:', name); }
+        function restoreBackup(name) { console.log('恢复备份:', name); }
+        function deleteBackup(name) { console.log('删除备份:', name); }
+        function clearLogs() { console.log('清空日志'); }
+        function exportLogs() { console.log('导出日志'); }
+        function startService(name) { console.log('启动服务:', name); }
+        function stopService(name) { console.log('停止服务:', name); }
+        function createTask() { console.log('创建任务'); }
+        function runTask(name) { console.log('执行任务:', name); }
+        function editTask(name) { console.log('编辑任务:', name); }
+        function toggleTask(name) { console.log('切换任务状态:', name); }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initTabs();
+            initPerformanceChart();
+            initNetworkChart();
+            renderServicesStatus();
+            renderBackupTable();
+            renderSystemLogs();
+            renderServicesGrid();
+            renderTasksList();
+        });
+    </script>
+</body>
+</html>

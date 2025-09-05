@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>对账管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .metric-card.blue {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .metric-card.green {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .metric-card.orange {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-processing { background: #dbeafe; color: #1e40af; }
+        .status-completed { background: #dcfce7; color: #166534; }
+        .status-disputed { background: #fed7d7; color: #991b1b; }
+        .status-cancelled { background: #f3f4f6; color: #374151; }
+        .filter-tag {
+            transition: all 0.2s ease;
+        }
+        .filter-tag.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .reconciliation-item {
+            border-left: 4px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        .reconciliation-item.matched {
+            border-left-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .reconciliation-item.unmatched {
+            border-left-color: #ef4444;
+            background-color: #fef2f2;
+        }
+        .reconciliation-item.pending {
+            border-left-color: #f59e0b;
+            background-color: #fffbeb;
+        }
+        .diff-highlight {
+            background-color: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .diff-positive {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .diff-negative {
+            background-color: #fed7d7;
+            color: #991b1b;
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            transition: stroke-dasharray 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">供应商管理</h3>
+                <ul class="space-y-1">
+                    <li><a href="71-供应商详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-building mr-3"></i>供应商详情</a></li>
+                    <li><a href="72-商品供应管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-boxes mr-3"></i>商品供应管理</a></li>
+                    <li><a href="73-结算管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-calculator mr-3"></i>结算管理</a></li>
+                    <li><a href="74-合作协议.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-handshake mr-3"></i>合作协议</a></li>
+                    <li><a href="75-资质管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-certificate mr-3"></i>资质管理</a></li>
+                    <li><a href="76-评级管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-star mr-3"></i>评级管理</a></li>
+                    <li><a href="77-采购订单.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-shopping-cart mr-3"></i>采购订单</a></li>
+                    <li><a href="78-对账管理.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-balance-scale mr-3"></i>对账管理</a></li>
+                    <li><a href="79-付款记录.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-credit-card mr-3"></i>付款记录</a></li>
+                    <li><a href="80-供应商统计.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-chart-bar mr-3"></i>供应商统计</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-800">对账管理</h2>
+                        <p class="text-sm text-gray-600">管理供应商对账单和账务核对</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="createReconciliation" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>新建对账
+                    </button>
+                    <button id="autoReconcile" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-magic mr-2"></i>自动对账
+                    </button>
+                    <button id="exportReport" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-file-export mr-2"></i>导出报告
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="metric-card rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">对账单总数</p>
+                            <p class="text-2xl font-bold mt-1">342</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8 本月新增
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-file-invoice text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card blue rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">待处理对账</p>
+                            <p class="text-2xl font-bold mt-1">15</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-clock mr-1"></i>需要核对
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hourglass-half text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card green rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">对账准确率</p>
+                            <p class="text-2xl font-bold mt-1">98.5%</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+0.3% 提升
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card orange rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">差异金额</p>
+                            <p class="text-2xl font-bold mt-1">¥2.8万</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-arrow-down mr-1"></i>-15% 减少
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 对账进度概览 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">本月对账进度</h3>
+                    <div class="flex items-center justify-center">
+                        <div class="relative w-32 h-32">
+                            <svg class="w-32 h-32 progress-ring">
+                                <circle cx="64" cy="64" r="56" stroke="#e5e7eb" stroke-width="8" fill="transparent"></circle>
+                                <circle cx="64" cy="64" r="56" stroke="#3b82f6" stroke-width="8" fill="transparent" 
+                                        stroke-dasharray="351.86" stroke-dashoffset="70.37" class="progress-ring-circle"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-gray-900">80%</div>
+                                    <div class="text-sm text-gray-500">已完成</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">已完成：</span>
+                            <span class="font-medium text-green-600">274 单</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">处理中：</span>
+                            <span class="font-medium text-blue-600">53 单</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">待处理：</span>
+                            <span class="font-medium text-orange-600">15 单</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">对账差异分析</h3>
+                    <canvas id="differenceChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- 筛选和搜索 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="搜索对账单号、供应商..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        
+                        <select id="supplierFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">全部供应商</option>
+                            <option value="绿野香草农场">绿野香草农场</option>
+                            <option value="天然香草园">天然香草园</option>
+                            <option value="有机香草基地">有机香草基地</option>
+                        </select>
+                        
+                        <select id="periodFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">全部周期</option>
+                            <option value="2024-06">2024年6月</option>
+                            <option value="2024-05">2024年5月</option>
+                            <option value="2024-04">2024年4月</option>
+                        </select>
+                        
+                        <input type="date" id="dateFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">状态筛选：</span>
+                        <button class="filter-tag active px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="all">全部</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="pending">待处理</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="processing">处理中</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="completed">已完成</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="disputed">有争议</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 对账单列表 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">对账单列表</h3>
+                        <div class="flex items-center space-x-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-600">全选</span>
+                            </label>
+                            <div class="relative">
+                                <button id="batchActions" class="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                                    <i class="fas fa-ellipsis-v mr-1"></i>批量操作
+                                </button>
+                                <div id="batchMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">批量确认</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">批量导出</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">批量删除</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="divide-y divide-gray-200" id="reconciliationList">
+                    <!-- 对账单数据将通过JavaScript动态生成 -->
+                </div>
+                
+                <!-- 分页 -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">86</span> 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50" disabled>
+                                上一页
+                            </button>
+                            <button class="px-3 py-2 text-sm text-white bg-blue-500 border border-blue-500 rounded-lg">1</button>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                            <span class="px-3 py-2 text-sm text-gray-500">...</span>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">9</button>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 对账详情模态框 -->
+    <div id="reconciliationDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-6xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">对账单详情</h3>
+            </div>
+            <div class="p-6">
+                <div id="reconciliationDetailContent">
+                    <!-- 对账详情内容将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-4">
+                <button id="closeReconciliationDetail" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    关闭
+                </button>
+                <button id="confirmReconciliation" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-check mr-2"></i>确认对账
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建对账模态框 -->
+    <div id="createReconciliationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">新建对账单</h3>
+            </div>
+            <div class="p-6">
+                <form class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">供应商 *</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">请选择供应商</option>
+                                <option value="绿野香草农场">绿野香草农场</option>
+                                <option value="天然香草园">天然香草园</option>
+                                <option value="有机香草基地">有机香草基地</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">对账周期 *</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="2024-06">2024年6月</option>
+                                <option value="2024-05">2024年5月</option>
+                                <option value="2024-04">2024年4月</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">开始日期 *</label>
+                            <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">结束日期 *</label>
+                            <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">对账类型 *</label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="reconciliationType" value="purchase" class="mr-3">
+                                <div>
+                                    <div class="font-medium text-gray-900">采购对账</div>
+                                    <div class="text-sm text-gray-500">核对采购订单和发票</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="reconciliationType" value="payment" class="mr-3">
+                                <div>
+                                    <div class="font-medium text-gray-900">付款对账</div>
+                                    <div class="text-sm text-gray-500">核对付款记录和账单</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="reconciliationType" value="settlement" class="mr-3">
+                                <div>
+                                    <div class="font-medium text-gray-900">结算对账</div>
+                                    <div class="text-sm text-gray-500">核对结算单和财务记录</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">备注说明</label>
+                        <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入对账说明和特殊要求"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-4">
+                <button id="cancelCreateReconciliation" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    取消
+                </button>
+                <button id="submitReconciliation" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    创建对账单
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟对账数据
+        const reconciliationData = [
+            {
+                id: 'RC202406001',
+                supplier: '绿野香草农场',
+                period: '2024-06',
+                type: 'purchase',
+                status: 'pending',
+                createTime: '2024-06-15 10:30',
+                ourAmount: 125800.00,
+                supplierAmount: 125800.00,
+                difference: 0.00,
+                orderCount: 15,
+                matchedCount: 15,
+                unmatchedCount: 0,
+                items: [
+                    { type: 'order', id: 'PO202406001', ourAmount: 10900.00, supplierAmount: 10900.00, status: 'matched' },
+                    { type: 'order', id: 'PO202406002', ourAmount: 7800.00, supplierAmount: 7800.00, status: 'matched' },
+                    { type: 'order', id: 'PO202406003', ourAmount: 10740.00, supplierAmount: 10740.00, status: 'matched' }
+                ]
+            },
+            {
+                id: 'RC202406002',
+                supplier: '天然香草园',
+                period: '2024-06',
+                type: 'payment',
+                status: 'processing',
+                createTime: '2024-06-14 14:20',
+                ourAmount: 89600.00,
+                supplierAmount: 89850.00,
+                difference: -250.00,
+                orderCount: 12,
+                matchedCount: 11,
+                unmatchedCount: 1,
+                items: [
+                    { type: 'payment', id: 'PAY202406001', ourAmount: 25000.00, supplierAmount: 25000.00, status: 'matched' },
+                    { type: 'payment', id: 'PAY202406002', ourAmount: 18600.00, supplierAmount: 18850.00, status: 'unmatched' },
+                    { type: 'payment', id: 'PAY202406003', ourAmount: 46000.00, supplierAmount: 46000.00, status: 'matched' }
+                ]
+            },
+            {
+                id: 'RC202406003',
+                supplier: '有机香草基地',
+                period: '2024-05',
+                type: 'settlement',
+                status: 'completed',
+                createTime: '2024-06-01 09:15',
+                ourAmount: 156200.00,
+                supplierAmount: 156200.00,
+                difference: 0.00,
+                orderCount: 20,
+                matchedCount: 20,
+                unmatchedCount: 0,
+                items: [
+                    { type: 'settlement', id: 'ST202405001', ourAmount: 45600.00, supplierAmount: 45600.00, status: 'matched' },
+                    { type: 'settlement', id: 'ST202405002', ourAmount: 38900.00, supplierAmount: 38900.00, status: 'matched' },
+                    { type: 'settlement', id: 'ST202405003', ourAmount: 71700.00, supplierAmount: 71700.00, status: 'matched' }
+                ]
+            },
+            {
+                id: 'RC202406004',
+                supplier: '绿色包装材料公司',
+                period: '2024-06',
+                type: 'purchase',
+                status: 'disputed',
+                createTime: '2024-06-12 16:45',
+                ourAmount: 28400.00,
+                supplierAmount: 29200.00,
+                difference: -800.00,
+                orderCount: 8,
+                matchedCount: 6,
+                unmatchedCount: 2,
+                items: [
+                    { type: 'order', id: 'PO202406010', ourAmount: 4100.00, supplierAmount: 4100.00, status: 'matched' },
+                    { type: 'order', id: 'PO202406011', ourAmount: 6800.00, supplierAmount: 7200.00, status: 'unmatched' },
+                    { type: 'order', id: 'PO202406012', ourAmount: 8500.00, supplierAmount: 8900.00, status: 'unmatched' }
+                ]
+            },
+            {
+                id: 'RC202406005',
+                supplier: '快运物流服务',
+                period: '2024-06',
+                type: 'payment',
+                status: 'cancelled',
+                createTime: '2024-06-10 11:20',
+                ourAmount: 12000.00,
+                supplierAmount: 12000.00,
+                difference: 0.00,
+                orderCount: 1,
+                matchedCount: 0,
+                unmatchedCount: 0,
+                items: []
+            }
+        ];
+
+        let filteredData = [...reconciliationData];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 状态筛选标签
+        function initStatusFilters() {
+            const filterTags = document.querySelectorAll('.filter-tag');
+            filterTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    // 移除所有active类
+                    filterTags.forEach(t => t.classList.remove('active'));
+                    // 添加active类到当前标签
+                    this.classList.add('active');
+                    
+                    const status = this.getAttribute('data-status');
+                    filterReconciliations(status);
+                });
+            });
+        }
+
+        // 筛选对账单
+        function filterReconciliations(status = 'all') {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const supplierFilter = document.getElementById('supplierFilter').value;
+            const periodFilter = document.getElementById('periodFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+
+            filteredData = reconciliationData.filter(item => {
+                const matchesSearch = item.id.toLowerCase().includes(searchTerm) || 
+                                    item.supplier.toLowerCase().includes(searchTerm);
+                const matchesSupplier = !supplierFilter || item.supplier === supplierFilter;
+                const matchesPeriod = !periodFilter || item.period === periodFilter;
+                const matchesStatus = status === 'all' || item.status === status;
+                const matchesDate = !dateFilter || item.createTime.includes(dateFilter);
+
+                return matchesSearch && matchesSupplier && matchesPeriod && matchesStatus && matchesDate;
+            });
+
+            renderReconciliationList();
+            updateTotalCount();
+        }
+
+        // 渲染对账单列表
+        function renderReconciliationList() {
+            const container = document.getElementById('reconciliationList');
+            container.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            pageData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `reconciliation-item p-6 ${getReconciliationClass(item)}`;
+                
+                // 状态样式
+                const statusClass = `status-${item.status}`;
+                const statusText = {
+                    'pending': '待处理',
+                    'processing': '处理中',
+                    'completed': '已完成',
+                    'disputed': '有争议',
+                    'cancelled': '已取消'
+                }[item.status];
+                
+                // 类型文本
+                const typeText = {
+                    'purchase': '采购对账',
+                    'payment': '付款对账',
+                    'settlement': '结算对账'
+                }[item.type];
+
+                div.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <h4 class="text-lg font-semibold text-gray-900">${item.id}</h4>
+                                    <span class="status-badge ${statusClass}">${statusText}</span>
+                                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${typeText}</span>
+                                </div>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-600">供应商：</span>
+                                        <span class="font-medium text-gray-900">${item.supplier}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">对账周期：</span>
+                                        <span class="font-medium text-gray-900">${item.period}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">订单数量：</span>
+                                        <span class="font-medium text-gray-900">${item.orderCount} 单</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">创建时间：</span>
+                                        <span class="font-medium text-gray-900">${item.createTime}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-6">
+                            <div class="text-right">
+                                <div class="text-sm text-gray-600">我方金额</div>
+                                <div class="text-lg font-semibold text-gray-900">¥${item.ourAmount.toLocaleString()}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm text-gray-600">供应商金额</div>
+                                <div class="text-lg font-semibold text-gray-900">¥${item.supplierAmount.toLocaleString()}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm text-gray-600">差异金额</div>
+                                <div class="text-lg font-semibold ${item.difference === 0 ? 'text-green-600' : item.difference > 0 ? 'text-blue-600' : 'text-red-600'}">
+                                    ${item.difference === 0 ? '¥0' : (item.difference > 0 ? '+' : '') + '¥' + Math.abs(item.difference).toLocaleString()}
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm" onclick="viewReconciliationDetail('${item.id}')">
+                                    <i class="fas fa-eye mr-1"></i>查看
+                                </button>
+                                <button class="text-green-600 hover:text-green-800 text-sm" onclick="processReconciliation('${item.id}')">
+                                    <i class="fas fa-check mr-1"></i>处理
+                                </button>
+                                <button class="text-red-600 hover:text-red-800 text-sm" onclick="deleteReconciliation('${item.id}')">
+                                    <i class="fas fa-trash mr-1"></i>删除
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center space-x-6">
+                                <span class="text-green-600">
+                                    <i class="fas fa-check-circle mr-1"></i>已匹配：${item.matchedCount} 单
+                                </span>
+                                ${item.unmatchedCount > 0 ? `
+                                    <span class="text-red-600">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>未匹配：${item.unmatchedCount} 单
+                                    </span>
+                                ` : ''}
+                            </div>
+                            <div class="text-gray-500">
+                                匹配率：${item.orderCount > 0 ? Math.round((item.matchedCount / item.orderCount) * 100) : 0}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        // 获取对账单样式类
+        function getReconciliationClass(item) {
+            if (item.difference === 0 && item.unmatchedCount === 0) {
+                return 'matched';
+            } else if (item.difference !== 0 || item.unmatchedCount > 0) {
+                return 'unmatched';
+            } else {
+                return 'pending';
+            }
+        }
+
+        // 更新总数显示
+        function updateTotalCount() {
+            console.log(`当前显示 ${filteredData.length} 条对账单`);
+        }
+
+        // 查看对账详情
+        function viewReconciliationDetail(reconciliationId) {
+            const item = reconciliationData.find(r => r.id === reconciliationId);
+            if (!item) return;
+
+            const content = document.getElementById('reconciliationDetailContent');
+            content.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">对账信息</h4>
+                        <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <span class="text-sm text-gray-600">对账单号：</span>
+                                    <span class="font-medium text-gray-900">${item.id}</span>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600">供应商：</span>
+                                    <span class="font-medium text-gray-900">${item.supplier}</span>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600">对账周期：</span>
+                                    <span class="font-medium text-gray-900">${item.period}</span>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600">对账类型：</span>
+                                    <span class="font-medium text-gray-900">${{
+                                        'purchase': '采购对账',
+                                        'payment': '付款对账',
+                                        'settlement': '结算对账'
+                                    }[item.type]}</span>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600">创建时间：</span>
+                                    <span class="font-medium text-gray-900">${item.createTime}</span>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600">状态：</span>
+                                    <span class="status-badge status-${item.status}">${{
+                                        'pending': '待处理',
+                                        'processing': '处理中',
+                                        'completed': '已完成',
+                                        'disputed': '有争议',
+                                        'cancelled': '已取消'
+                                    }[item.status]}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">对账明细</h4>
+                        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">单据号</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">我方金额</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">供应商金额</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">差异</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    ${item.items.map(detail => {
+                                        const difference = detail.ourAmount - detail.supplierAmount;
+                                        return `
+                                            <tr class="${detail.status === 'matched' ? 'bg-green-50' : 'bg-red-50'}">
+                                                <td class="px-4 py-3 text-sm text-gray-900">${detail.id}</td>
+                                                <td class="px-4 py-3 text-sm text-gray-900">¥${detail.ourAmount.toFixed(2)}</td>
+                                                <td class="px-4 py-3 text-sm text-gray-900">¥${detail.supplierAmount.toFixed(2)}</td>
+                                                <td class="px-4 py-3 text-sm ${difference === 0 ? 'text-green-600' : 'text-red-600'}">
+                                                    ${difference === 0 ? '¥0.00' : (difference > 0 ? '+' : '') + '¥' + Math.abs(difference).toFixed(2)}
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <span class="status-badge ${detail.status === 'matched' ? 'status-completed' : 'status-disputed'}">
+                                                        ${detail.status === 'matched' ? '已匹配' : '未匹配'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">对账汇总</h4>
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <div class="text-sm text-blue-600 mb-1">我方总金额</div>
+                                <div class="text-2xl font-bold text-blue-900">¥${item.ourAmount.toLocaleString()}</div>
+                            </div>
+                            <div class="bg-purple-50 rounded-lg p-4">
+                                <div class="text-sm text-purple-600 mb-1">供应商总金额</div>
+                                <div class="text-2xl font-bold text-purple-900">¥${item.supplierAmount.toLocaleString()}</div>
+                            </div>
+                            <div class="${item.difference === 0 ? 'bg-green-50' : 'bg-red-50'} rounded-lg p-4">
+                                <div class="text-sm ${item.difference === 0 ? 'text-green-600' : 'text-red-600'} mb-1">差异金额</div>
+                                <div class="text-2xl font-bold ${item.difference === 0 ? 'text-green-900' : 'text-red-900'}">
+                                    ${item.difference === 0 ? '¥0' : (item.difference > 0 ? '+' : '') + '¥' + Math.abs(item.difference).toLocaleString()}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-4">匹配统计</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">总单据数：</span>
+                                    <span class="font-medium text-gray-900">${item.orderCount} 单</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">已匹配：</span>
+                                    <span class="font-medium text-green-600">${item.matchedCount} 单</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">未匹配：</span>
+                                    <span class="font-medium text-red-600">${item.unmatchedCount} 单</span>
+                                </div>
+                                <div class="flex justify-between text-sm border-t border-gray-200 pt-3">
+                                    <span class="text-gray-900 font-medium">匹配率：</span>
+                                    <span class="font-bold text-blue-600">${item.orderCount > 0 ? Math.round((item.matchedCount / item.orderCount) * 100) : 0}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('reconciliationDetailModal').classList.remove('hidden');
+            document.getElementById('reconciliationDetailModal').classList.add('flex');
+        }
+
+        // 处理对账
+        function processReconciliation(reconciliationId) {
+            alert(`处理对账：${reconciliationId}`);
+        }
+
+        // 删除对账
+        function deleteReconciliation(reconciliationId) {
+            if (confirm('确定要删除这个对账单吗？')) {
+                alert(`删除对账：${reconciliationId}`);
+            }
+        }
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function() {
+            filterReconciliations(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        // 筛选器变化
+        document.getElementById('supplierFilter').addEventListener('change', function() {
+            filterReconciliations(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        document.getElementById('periodFilter').addEventListener('change', function() {
+            filterReconciliations(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        document.getElementById('dateFilter').addEventListener('change', function() {
+            filterReconciliations(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        // 全选功能
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('#reconciliationList input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // 批量操作菜单
+        document.getElementById('batchActions').addEventListener('click', function() {
+            const menu = document.getElementById('batchMenu');
+            menu.classList.toggle('hidden');
+        });
+
+        // 新建对账模态框
+        document.getElementById('createReconciliation').addEventListener('click', function() {
+            document.getElementById('createReconciliationModal').classList.remove('hidden');
+            document.getElementById('createReconciliationModal').classList.add('flex');
+        });
+
+        document.getElementById('cancelCreateReconciliation').addEventListener('click', function() {
+            document.getElementById('createReconciliationModal').classList.add('hidden');
+            document.getElementById('createReconciliationModal').classList.remove('flex');
+        });
+
+        document.getElementById('submitReconciliation').addEventListener('click', function() {
+            alert('对账单已创建');
+            document.getElementById('createReconciliationModal').classList.add('hidden');
+            document.getElementById('createReconciliationModal').classList.remove('flex');
+        });
+
+        // 关闭对账详情模态框
+        document.getElementById('closeReconciliationDetail').addEventListener('click', function() {
+            document.getElementById('reconciliationDetailModal').classList.add('hidden');
+            document.getElementById('reconciliationDetailModal').classList.remove('flex');
+        });
+
+        document.getElementById('confirmReconciliation').addEventListener('click', function() {
+            alert('对账已确认');
+        });
+
+        // 自动对账
+        document.getElementById('autoReconcile').addEventListener('click', function() {
+            alert('自动对账功能');
+        });
+
+        // 导出报告
+        document.getElementById('exportReport').addEventListener('click', function() {
+            alert('导出报告功能');
+        });
+
+        // 初始化图表
+        function initCharts() {
+            const ctx = document.getElementById('differenceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['无差异', '金额差异', '数量差异', '其他差异'],
+                    datasets: [{
+                        data: [75, 15, 8, 2],
+                        backgroundColor: [
+                            '#10b981',
+                            '#ef4444',
+                            '#f59e0b',
+                            '#6b7280'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initStatusFilters();
+            renderReconciliationList();
+            updateTotalCount();
+            initCharts();
+        });
+    </script>
+</body>
+</html>

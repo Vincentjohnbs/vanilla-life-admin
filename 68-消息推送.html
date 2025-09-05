@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消息推送 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .message-item {
+            transition: all 0.3s ease;
+        }
+        .message-item:hover {
+            background-color: #f9fafb;
+        }
+        .status-badge {
+            transition: all 0.3s ease;
+        }
+        .template-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .template-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .progress-ring {
+            transition: stroke-dasharray 0.3s ease;
+        }
+        .emoji-picker {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">用户管理</h3>
+                <ul class="space-y-1">
+                    <li><a href="61-用户详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-user mr-3"></i>用户详情</a></li>
+                    <li><a href="62-会员管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-crown mr-3"></i>会员管理</a></li>
+                    <li><a href="63-用户标签管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-tags mr-3"></i>用户标签</a></li>
+                    <li><a href="64-积分管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-coins mr-3"></i>积分管理</a></li>
+                    <li><a href="65-权限配置.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-shield-alt mr-3"></i>权限配置</a></li>
+                    <li><a href="66-用户分群.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-users mr-3"></i>用户分群</a></li>
+                    <li><a href="67-行为分析.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-chart-line mr-3"></i>行为分析</a></li>
+                    <li><a href="68-消息推送.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-bell mr-3"></i>消息推送</a></li>
+                    <li><a href="69-黑名单管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-ban mr-3"></i>黑名单管理</a></li>
+                    <li><a href="70-用户导出.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-download mr-3"></i>用户导出</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-800">消息推送管理</h2>
+                        <p class="text-sm text-gray-600">精准推送，提升用户活跃度和转化率</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="createMessage" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>创建推送
+                    </button>
+                    <button id="messageTemplates" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-file-alt mr-2"></i>消息模板
+                    </button>
+                    <button id="pushSettings" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-cog mr-2"></i>推送设置
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 推送统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">今日推送</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">12,345</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+23.5%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-paper-plane text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">送达率</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">94.2%</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+1.8%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">点击率</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">8.7%</p>
+                            <p class="text-sm text-red-600 mt-1">
+                                <i class="fas fa-arrow-down mr-1"></i>-0.5%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mouse-pointer text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">转化率</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">3.2%</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+0.3%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- 推送效果趋势 -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">推送效果趋势</h3>
+                            <div class="flex items-center space-x-2">
+                                <button class="px-3 py-1 text-sm bg-green-500 text-white rounded" id="trendSent">发送量</button>
+                                <button class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded" id="trendClick">点击率</button>
+                                <button class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded" id="trendConversion">转化率</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <canvas id="pushTrendChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- 推送渠道分布 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">推送渠道分布</h3>
+                    </div>
+                    <div class="p-6">
+                        <canvas id="channelChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 消息列表 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">推送记录</h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <input type="text" id="searchMessages" placeholder="搜索消息..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                            <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="">全部状态</option>
+                                <option value="draft">草稿</option>
+                                <option value="scheduled">已安排</option>
+                                <option value="sending">发送中</option>
+                                <option value="sent">已发送</option>
+                                <option value="failed">发送失败</option>
+                            </select>
+                            <select id="channelFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="">全部渠道</option>
+                                <option value="push">APP推送</option>
+                                <option value="sms">短信</option>
+                                <option value="email">邮件</option>
+                                <option value="wechat">微信</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">消息内容</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">推送渠道</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">目标用户</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发送时间</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">效果</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="messagesList" class="bg-white divide-y divide-gray-200">
+                            <!-- 消息列表将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <select id="batchAction" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="">批量操作</option>
+                                <option value="delete">删除</option>
+                                <option value="duplicate">复制</option>
+                                <option value="export">导出</option>
+                            </select>
+                            <button id="executeBatch" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">执行</button>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-700">共 156 条记录</span>
+                            <div class="flex items-center space-x-1">
+                                <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-50">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="px-3 py-2 text-white bg-green-500 border border-green-500">1</button>
+                                <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 hover:bg-gray-50">2</button>
+                                <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 hover:bg-gray-50">3</button>
+                                <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-50">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 创建推送模态框 -->
+    <div id="createMessageModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">创建推送消息</h3>
+                    <button id="closeCreateModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form id="messageForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">消息标题</label>
+                            <input type="text" id="messageTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="请输入消息标题" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">推送渠道</label>
+                            <select id="messageChannel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                <option value="">请选择推送渠道</option>
+                                <option value="push">APP推送</option>
+                                <option value="sms">短信</option>
+                                <option value="email">邮件</option>
+                                <option value="wechat">微信</option>
+                                <option value="all">全渠道</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">消息内容</label>
+                        <div class="relative">
+                            <textarea id="messageContent" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="请输入消息内容" required></textarea>
+                            <div class="absolute bottom-2 right-2 flex items-center space-x-2">
+                                <button type="button" id="addEmoji" class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-smile"></i>
+                                </button>
+                                <span class="text-xs text-gray-500" id="contentLength">0/200</span>
+                            </div>
+                        </div>
+                        <div id="emojiPicker" class="hidden mt-2 p-3 border border-gray-300 rounded-lg bg-white emoji-picker">
+                            <div class="grid grid-cols-8 gap-2">
+                                <!-- 表情符号将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">目标用户</label>
+                            <select id="targetUsers" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                <option value="">请选择目标用户</option>
+                                <option value="all">全部用户</option>
+                                <option value="active">活跃用户</option>
+                                <option value="inactive">非活跃用户</option>
+                                <option value="vip">VIP用户</option>
+                                <option value="new">新用户</option>
+                                <option value="custom">自定义分群</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">发送时间</label>
+                            <select id="sendTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                <option value="now">立即发送</option>
+                                <option value="scheduled">定时发送</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="scheduledTimeContainer" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">定时发送时间</label>
+                        <input type="datetime-local" id="scheduledTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">跳转链接（可选）</label>
+                        <input type="url" id="messageLink" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="https://example.com">
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="enableTracking" class="rounded border-gray-300 text-green-600 focus:ring-green-500" checked>
+                            <span class="ml-2 text-sm text-gray-700">启用效果追踪</span>
+                        </label>
+                        
+                        <label class="flex items-center">
+                            <input type="checkbox" id="enableABTest" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <span class="ml-2 text-sm text-gray-700">启用A/B测试</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="saveDraft" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">保存草稿</button>
+                <button id="previewMessage" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">预览</button>
+                <button id="sendMessage" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息模板模态框 -->
+    <div id="templatesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-6xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">消息模板库</h3>
+                    <div class="flex items-center space-x-3">
+                        <button id="createTemplate" class="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                            <i class="fas fa-plus mr-2"></i>新建模板
+                        </button>
+                        <button id="closeTemplatesModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="templatesList">
+                    <!-- 模板列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        const pushData = {
+            trend: {
+                sent: [8500, 9200, 8800, 10500, 9800, 11200, 10800],
+                click: [8.5, 9.2, 8.1, 10.5, 9.3, 11.2, 8.7],
+                conversion: [2.8, 3.1, 2.5, 3.5, 3.0, 3.8, 3.2]
+            },
+            channels: {
+                labels: ['APP推送', '短信', '邮件', '微信'],
+                data: [45, 25, 20, 10]
+            },
+            messages: [
+                {
+                    id: 1,
+                    title: '新品上架通知',
+                    content: '🌿 香草新品震撼上市！限时优惠，立即查看',
+                    channel: 'push',
+                    target: '全部用户',
+                    sendTime: '2024-01-15 10:00',
+                    status: 'sent',
+                    sent: 12500,
+                    clicked: 1087,
+                    converted: 234
+                },
+                {
+                    id: 2,
+                    title: '会员专享优惠',
+                    content: 'VIP会员专享8折优惠，仅限今日！',
+                    channel: 'sms',
+                    target: 'VIP用户',
+                    sendTime: '2024-01-15 09:30',
+                    status: 'sent',
+                    sent: 3456,
+                    clicked: 456,
+                    converted: 89
+                },
+                {
+                    id: 3,
+                    title: '种植技巧分享',
+                    content: '掌握这些技巧，让你的香草长得更茂盛',
+                    channel: 'email',
+                    target: '活跃用户',
+                    sendTime: '2024-01-15 08:00',
+                    status: 'sent',
+                    sent: 8765,
+                    clicked: 765,
+                    converted: 123
+                },
+                {
+                    id: 4,
+                    title: '签到提醒',
+                    content: '别忘了每日签到，积分奖励等你来拿！',
+                    channel: 'push',
+                    target: '非活跃用户',
+                    sendTime: '2024-01-16 20:00',
+                    status: 'scheduled',
+                    sent: 0,
+                    clicked: 0,
+                    converted: 0
+                },
+                {
+                    id: 5,
+                    title: '购物车提醒',
+                    content: '您的购物车还有商品未结算，快来完成购买吧',
+                    channel: 'push',
+                    target: '自定义分群',
+                    sendTime: '2024-01-15 15:30',
+                    status: 'sending',
+                    sent: 2340,
+                    clicked: 187,
+                    converted: 23
+                }
+            ],
+            templates: [
+                {
+                    id: 1,
+                    name: '新品推广模板',
+                    category: '营销推广',
+                    title: '🌿 新品上架通知',
+                    content: '亲爱的用户，我们的新品{product_name}已经上架，现在购买享受{discount}折优惠！',
+                    channel: 'push',
+                    usage: 156
+                },
+                {
+                    id: 2,
+                    name: '会员关怀模板',
+                    category: '用户关怀',
+                    title: '感谢您的支持',
+                    content: '亲爱的{user_name}，感谢您成为我们的VIP会员，专属优惠等您来享受！',
+                    channel: 'email',
+                    usage: 89
+                },
+                {
+                    id: 3,
+                    name: '活动邀请模板',
+                    category: '活动邀请',
+                    title: '精彩活动邀请',
+                    content: '🎉 {activity_name}即将开始，诚邀您的参与！活动时间：{start_time}',
+                    channel: 'sms',
+                    usage: 234
+                },
+                {
+                    id: 4,
+                    name: '订单状态模板',
+                    category: '订单通知',
+                    title: '订单状态更新',
+                    content: '您的订单{order_no}状态已更新为{status}，请及时查看。',
+                    channel: 'push',
+                    usage: 567
+                },
+                {
+                    id: 5,
+                    name: '生日祝福模板',
+                    category: '用户关怀',
+                    title: '生日快乐',
+                    content: '🎂 亲爱的{user_name}，生日快乐！特为您准备了生日礼品，快来领取吧！',
+                    channel: 'all',
+                    usage: 78
+                },
+                {
+                    id: 6,
+                    name: '签到提醒模板',
+                    category: '用户激活',
+                    title: '每日签到提醒',
+                    content: '⏰ 别忘了今日签到哦，连续签到{days}天可获得额外奖励！',
+                    channel: 'push',
+                    usage: 345
+                }
+            ]
+        };
+
+        const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕'];
+
+        let currentChart = null;
+        let channelChart = null;
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 初始化推送趋势图表
+        function initPushTrendChart(type = 'sent') {
+            const ctx = document.getElementById('pushTrendChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            let data, label, color;
+            
+            switch(type) {
+                case 'sent':
+                    data = pushData.trend.sent;
+                    label = '发送量';
+                    color = 'rgb(34, 197, 94)';
+                    break;
+                case 'click':
+                    data = pushData.trend.click;
+                    label = '点击率(%)';
+                    color = 'rgb(59, 130, 246)';
+                    break;
+                case 'conversion':
+                    data = pushData.trend.conversion;
+                    label = '转化率(%)';
+                    color = 'rgb(168, 85, 247)';
+                    break;
+            }
+            
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 初始化渠道分布图表
+        function initChannelChart() {
+            const ctx = document.getElementById('channelChart').getContext('2d');
+            
+            channelChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: pushData.channels.labels,
+                    datasets: [{
+                        data: pushData.channels.data,
+                        backgroundColor: [
+                            'rgb(34, 197, 94)',
+                            'rgb(59, 130, 246)',
+                            'rgb(168, 85, 247)',
+                            'rgb(245, 158, 11)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染消息列表
+        function renderMessagesList() {
+            const tbody = document.getElementById('messagesList');
+            tbody.innerHTML = '';
+            
+            pushData.messages.forEach(message => {
+                const row = document.createElement('tr');
+                row.className = 'message-item hover:bg-gray-50';
+                
+                let statusBadge, statusColor;
+                switch(message.status) {
+                    case 'sent':
+                        statusBadge = '已发送';
+                        statusColor = 'bg-green-100 text-green-800';
+                        break;
+                    case 'sending':
+                        statusBadge = '发送中';
+                        statusColor = 'bg-blue-100 text-blue-800';
+                        break;
+                    case 'scheduled':
+                        statusBadge = '已安排';
+                        statusColor = 'bg-yellow-100 text-yellow-800';
+                        break;
+                    case 'draft':
+                        statusBadge = '草稿';
+                        statusColor = 'bg-gray-100 text-gray-800';
+                        break;
+                    case 'failed':
+                        statusBadge = '发送失败';
+                        statusColor = 'bg-red-100 text-red-800';
+                        break;
+                }
+                
+                let channelIcon, channelName;
+                switch(message.channel) {
+                    case 'push':
+                        channelIcon = 'fa-mobile-alt';
+                        channelName = 'APP推送';
+                        break;
+                    case 'sms':
+                        channelIcon = 'fa-sms';
+                        channelName = '短信';
+                        break;
+                    case 'email':
+                        channelIcon = 'fa-envelope';
+                        channelName = '邮件';
+                        break;
+                    case 'wechat':
+                        channelIcon = 'fa-weixin';
+                        channelName = '微信';
+                        break;
+                }
+                
+                const clickRate = message.sent > 0 ? ((message.clicked / message.sent) * 100).toFixed(1) : '0.0';
+                const conversionRate = message.clicked > 0 ? ((message.converted / message.clicked) * 100).toFixed(1) : '0.0';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="max-w-xs">
+                            <div class="text-sm font-medium text-gray-900 truncate">${message.title}</div>
+                            <div class="text-sm text-gray-500 truncate">${message.content}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <i class="fas ${channelIcon} text-gray-400 mr-2"></i>
+                            <span class="text-sm text-gray-900">${channelName}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm text-gray-900">${message.target}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="text-sm text-gray-900">${message.sendTime}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColor}">
+                            ${statusBadge}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">
+                            <div>发送: ${message.sent.toLocaleString()}</div>
+                            <div>点击: ${clickRate}%</div>
+                            <div>转化: ${conversionRate}%</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex items-center space-x-2">
+                            <button class="text-blue-600 hover:text-blue-900" onclick="viewMessage(${message.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="text-green-600 hover:text-green-900" onclick="editMessage(${message.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-purple-600 hover:text-purple-900" onclick="duplicateMessage(${message.id})">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-900" onclick="deleteMessage(${message.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染模板列表
+        function renderTemplatesList() {
+            const container = document.getElementById('templatesList');
+            container.innerHTML = '';
+            
+            pushData.templates.forEach(template => {
+                const templateCard = document.createElement('div');
+                templateCard.className = 'template-card bg-white border border-gray-200 rounded-lg p-4';
+                
+                let channelIcon, channelName;
+                switch(template.channel) {
+                    case 'push':
+                        channelIcon = 'fa-mobile-alt';
+                        channelName = 'APP推送';
+                        break;
+                    case 'sms':
+                        channelIcon = 'fa-sms';
+                        channelName = '短信';
+                        break;
+                    case 'email':
+                        channelIcon = 'fa-envelope';
+                        channelName = '邮件';
+                        break;
+                    case 'wechat':
+                        channelIcon = 'fa-weixin';
+                        channelName = '微信';
+                        break;
+                    case 'all':
+                        channelIcon = 'fa-broadcast-tower';
+                        channelName = '全渠道';
+                        break;
+                }
+                
+                templateCard.innerHTML = `
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-medium text-gray-900 mb-1">${template.name}</h4>
+                            <span class="inline-flex px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">${template.category}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="text-blue-600 hover:text-blue-800" onclick="useTemplate(${template.id})">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="text-green-600 hover:text-green-800" onclick="editTemplate(${template.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-800" onclick="deleteTemplate(${template.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="text-sm font-medium text-gray-700 mb-1">${template.title}</div>
+                        <div class="text-sm text-gray-600 line-clamp-2">${template.content}</div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <i class="fas ${channelIcon} mr-1"></i>
+                            <span>${channelName}</span>
+                        </div>
+                        <span>使用 ${template.usage} 次</span>
+                    </div>
+                `;
+                
+                templateCard.addEventListener('click', function() {
+                    useTemplate(template.id);
+                });
+                
+                container.appendChild(templateCard);
+            });
+        }
+
+        // 生成表情选择器
+        function generateEmojiPicker() {
+            const container = document.getElementById('emojiPicker').querySelector('.grid');
+            container.innerHTML = '';
+            
+            emojis.forEach(emoji => {
+                const emojiBtn = document.createElement('button');
+                emojiBtn.type = 'button';
+                emojiBtn.className = 'p-2 hover:bg-gray-100 rounded text-lg';
+                emojiBtn.textContent = emoji;
+                emojiBtn.addEventListener('click', function() {
+                    const textarea = document.getElementById('messageContent');
+                    const cursorPos = textarea.selectionStart;
+                    const textBefore = textarea.value.substring(0, cursorPos);
+                    const textAfter = textarea.value.substring(cursorPos);
+                    textarea.value = textBefore + emoji + textAfter;
+                    textarea.focus();
+                    textarea.setSelectionRange(cursorPos + emoji.length, cursorPos + emoji.length);
+                    updateContentLength();
+                    document.getElementById('emojiPicker').classList.add('hidden');
+                });
+                container.appendChild(emojiBtn);
+            });
+        }
+
+        // 更新内容长度
+        function updateContentLength() {
+            const content = document.getElementById('messageContent').value;
+            const length = content.length;
+            document.getElementById('contentLength').textContent = `${length}/200`;
+            
+            if (length > 200) {
+                document.getElementById('contentLength').className = 'text-xs text-red-500';
+            } else if (length > 180) {
+                document.getElementById('contentLength').className = 'text-xs text-yellow-500';
+            } else {
+                document.getElementById('contentLength').className = 'text-xs text-gray-500';
+            }
+        }
+
+        // 设置活跃按钮
+        function setActiveButton(activeBtn, buttonIds) {
+            buttonIds.forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn === activeBtn) {
+                    btn.className = 'px-3 py-1 text-sm bg-green-500 text-white rounded';
+                } else {
+                    btn.className = 'px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded';
+                }
+            });
+        }
+
+        // 消息操作函数
+        function viewMessage(id) {
+            alert(`查看消息 ID: ${id}`);
+        }
+
+        function editMessage(id) {
+            alert(`编辑消息 ID: ${id}`);
+        }
+
+        function duplicateMessage(id) {
+            alert(`复制消息 ID: ${id}`);
+        }
+
+        function deleteMessage(id) {
+            if (confirm('确定要删除这条消息吗？')) {
+                alert(`删除消息 ID: ${id}`);
+            }
+        }
+
+        // 模板操作函数
+        function useTemplate(id) {
+            const template = pushData.templates.find(t => t.id === id);
+            if (template) {
+                document.getElementById('messageTitle').value = template.title;
+                document.getElementById('messageContent').value = template.content;
+                document.getElementById('messageChannel').value = template.channel;
+                updateContentLength();
+                document.getElementById('templatesModal').classList.add('hidden');
+                document.getElementById('templatesModal').classList.remove('flex');
+                document.getElementById('createMessageModal').classList.remove('hidden');
+                document.getElementById('createMessageModal').classList.add('flex');
+            }
+        }
+
+        function editTemplate(id) {
+            alert(`编辑模板 ID: ${id}`);
+        }
+
+        function deleteTemplate(id) {
+            if (confirm('确定要删除这个模板吗？')) {
+                alert(`删除模板 ID: ${id}`);
+            }
+        }
+
+        // 事件绑定
+        document.getElementById('trendSent').addEventListener('click', function() {
+            setActiveButton(this, ['trendSent', 'trendClick', 'trendConversion']);
+            initPushTrendChart('sent');
+        });
+
+        document.getElementById('trendClick').addEventListener('click', function() {
+            setActiveButton(this, ['trendSent', 'trendClick', 'trendConversion']);
+            initPushTrendChart('click');
+        });
+
+        document.getElementById('trendConversion').addEventListener('click', function() {
+            setActiveButton(this, ['trendSent', 'trendClick', 'trendConversion']);
+            initPushTrendChart('conversion');
+        });
+
+        document.getElementById('createMessage').addEventListener('click', function() {
+            document.getElementById('createMessageModal').classList.remove('hidden');
+            document.getElementById('createMessageModal').classList.add('flex');
+        });
+
+        document.getElementById('messageTemplates').addEventListener('click', function() {
+            document.getElementById('templatesModal').classList.remove('hidden');
+            document.getElementById('templatesModal').classList.add('flex');
+        });
+
+        document.getElementById('closeCreateModal').addEventListener('click', function() {
+            document.getElementById('createMessageModal').classList.add('hidden');
+            document.getElementById('createMessageModal').classList.remove('flex');
+        });
+
+        document.getElementById('closeTemplatesModal').addEventListener('click', function() {
+            document.getElementById('templatesModal').classList.add('hidden');
+            document.getElementById('templatesModal').classList.remove('flex');
+        });
+
+        document.getElementById('addEmoji').addEventListener('click', function() {
+            const picker = document.getElementById('emojiPicker');
+            picker.classList.toggle('hidden');
+        });
+
+        document.getElementById('messageContent').addEventListener('input', updateContentLength);
+
+        document.getElementById('sendTime').addEventListener('change', function() {
+            const container = document.getElementById('scheduledTimeContainer');
+            if (this.value === 'scheduled') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('sendMessage').addEventListener('click', function() {
+            alert('消息发送成功！');
+            document.getElementById('createMessageModal').classList.add('hidden');
+            document.getElementById('createMessageModal').classList.remove('flex');
+        });
+
+        document.getElementById('saveDraft').addEventListener('click', function() {
+            alert('草稿保存成功！');
+        });
+
+        document.getElementById('previewMessage').addEventListener('click', function() {
+            alert('消息预览功能');
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initPushTrendChart('sent');
+            initChannelChart();
+            renderMessagesList();
+            renderTemplatesList();
+            generateEmojiPicker();
+            console.log('消息推送页面初始化完成');
+        });
+    </script>
+</body>
+</html>

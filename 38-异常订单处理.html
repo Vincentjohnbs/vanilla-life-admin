@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>异常订单处理 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .exception-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        .exception-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .exception-card.high-priority {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+        }
+        .exception-card.medium-priority {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+        }
+        .exception-card.low-priority {
+            border-left-color: #10b981;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        }
+        .status-urgent {
+            background: #fee2e2;
+            color: #991b1b;
+            animation: pulse 2s infinite;
+        }
+        .status-processing {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .status-resolved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0.5rem;
+            width: 0.5rem;
+            height: 0.5rem;
+            background: #10b981;
+            border-radius: 50%;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 1rem;
+            width: 1px;
+            height: calc(100% - 0.5rem);
+            background: #e5e7eb;
+        }
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        .filter-tab {
+            transition: all 0.2s ease;
+        }
+        .filter-tab.active {
+            background: #10b981;
+            color: white;
+        }
+        .exception-type-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .type-payment {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .type-logistics {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        .type-product {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .type-system {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+        .type-customer {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        .action-button {
+            transition: all 0.2s ease;
+        }
+        .action-button:hover {
+            transform: translateY(-1px);
+        }
+        .modal {
+            backdrop-filter: blur(4px);
+        }
+        .solution-step {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .solution-step:hover {
+            background: #f9fafb;
+        }
+        .solution-step.completed {
+            background: #f0fdf4;
+            border-color: #10b981;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transition-all duration-300 z-50">
+        <div class="p-6 border-b">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div id="logo-text">
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-tachometer-alt w-5"></i>
+                        <span class="nav-text">仪表盘</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-box w-5"></i>
+                        <span class="nav-text">商品管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-green-50 text-green-600 rounded-lg">
+                        <i class="fas fa-shopping-cart w-5"></i>
+                        <span class="nav-text">订单管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-users w-5"></i>
+                        <span class="nav-text">用户管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-seedling w-5"></i>
+                        <span class="nav-text">香草图鉴</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-comments w-5"></i>
+                        <span class="nav-text">香草阳台</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <a href="#" class="hover:text-green-600">订单管理</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-green-600">异常订单处理</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700 relative">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 页面标题和统计 -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">异常订单处理</h1>
+                    <p class="text-gray-600 mt-1">监控和处理各类异常订单，确保订单流程顺畅</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="refreshData()" class="px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                    </button>
+                    <button onclick="exportExceptions()" class="px-4 py-2 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出异常
+                    </button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">待处理异常</p>
+                            <p class="text-2xl font-bold text-red-600 mt-1">23</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <i class="fas fa-arrow-up text-red-500 mr-1"></i>
+                        <span class="text-red-500">+3</span>
+                        <span class="text-gray-500 ml-1">较昨日</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">处理中</p>
+                            <p class="text-2xl font-bold text-blue-600 mt-1">15</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-cog fa-spin text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <i class="fas fa-arrow-down text-green-500 mr-1"></i>
+                        <span class="text-green-500">-2</span>
+                        <span class="text-gray-500 ml-1">较昨日</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">今日已解决</p>
+                            <p class="text-2xl font-bold text-green-600 mt-1">42</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                        <span class="text-green-500">+8</span>
+                        <span class="text-gray-500 ml-1">较昨日</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">平均处理时间</p>
+                            <p class="text-2xl font-bold text-purple-600 mt-1">2.5h</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <i class="fas fa-arrow-down text-green-500 mr-1"></i>
+                        <span class="text-green-500">-0.3h</span>
+                        <span class="text-gray-500 ml-1">较昨日</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">解决率</p>
+                            <p class="text-2xl font-bold text-indigo-600 mt-1">94.2%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-indigo-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                        <span class="text-green-500">+1.2%</span>
+                        <span class="text-gray-500 ml-1">较昨日</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和搜索 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <button class="filter-tab active px-4 py-2 rounded-lg text-sm font-medium transition-colors" onclick="filterByStatus('all')">全部</button>
+                            <button class="filter-tab px-4 py-2 rounded-lg text-sm font-medium transition-colors" onclick="filterByStatus('urgent')">紧急</button>
+                            <button class="filter-tab px-4 py-2 rounded-lg text-sm font-medium transition-colors" onclick="filterByStatus('processing')">处理中</button>
+                            <button class="filter-tab px-4 py-2 rounded-lg text-sm font-medium transition-colors" onclick="filterByStatus('pending')">待处理</button>
+                            <button class="filter-tab px-4 py-2 rounded-lg text-sm font-medium transition-colors" onclick="filterByStatus('resolved')">已解决</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <input type="text" placeholder="搜索订单号、客户信息..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-64">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option>异常类型</option>
+                            <option>支付异常</option>
+                            <option>物流异常</option>
+                            <option>商品异常</option>
+                            <option>系统异常</option>
+                            <option>客户异常</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 异常订单列表 -->
+            <div class="space-y-4">
+                <!-- 紧急异常订单 -->
+                <div class="exception-card high-priority bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start space-x-4">
+                            <div class="exception-type-icon type-payment">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900">支付异常</h3>
+                                    <span class="status-urgent px-3 py-1 text-xs rounded-full font-medium">紧急</span>
+                                    <span class="text-sm text-gray-500">#ORD202401210001</span>
+                                </div>
+                                <p class="text-gray-600 mb-3">客户支付成功但系统未收到回调，订单状态异常，需要人工核实处理</p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-500">客户：</span>
+                                        <span class="text-gray-900">张小花</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">订单金额：</span>
+                                        <span class="text-gray-900 font-medium">¥299.00</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">异常时间：</span>
+                                        <span class="text-gray-900">2024-01-21 14:30</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="viewOrderDetail('ORD202401210001')" class="action-button px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-sm">
+                                <i class="fas fa-eye mr-1"></i>查看详情
+                            </button>
+                            <button onclick="handleException('ORD202401210001')" class="action-button px-3 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors text-sm">
+                                <i class="fas fa-wrench mr-1"></i>立即处理
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中等优先级异常 -->
+                <div class="exception-card medium-priority bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start space-x-4">
+                            <div class="exception-type-icon type-logistics">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900">物流异常</h3>
+                                    <span class="status-processing px-3 py-1 text-xs rounded-full font-medium">处理中</span>
+                                    <span class="text-sm text-gray-500">#ORD202401210002</span>
+                                </div>
+                                <p class="text-gray-600 mb-3">快递包裹在运输途中丢失，客户投诉未收到商品，需要联系快递公司核实</p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-500">客户：</span>
+                                        <span class="text-gray-900">李园丁</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">快递单号：</span>
+                                        <span class="text-gray-900 font-medium">SF1234567890</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">处理人：</span>
+                                        <span class="text-gray-900">客服小王</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="viewOrderDetail('ORD202401210002')" class="action-button px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-sm">
+                                <i class="fas fa-eye mr-1"></i>查看详情
+                            </button>
+                            <button onclick="updateProgress('ORD202401210002')" class="action-button px-3 py-2 text-orange-600 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-sm">
+                                <i class="fas fa-edit mr-1"></i>更新进度
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 低优先级异常 -->
+                <div class="exception-card low-priority bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start space-x-4">
+                            <div class="exception-type-icon type-product">
+                                <i class="fas fa-box-open"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900">商品异常</h3>
+                                    <span class="status-pending px-3 py-1 text-xs rounded-full font-medium">待处理</span>
+                                    <span class="text-sm text-gray-500">#ORD202401210003</span>
+                                </div>
+                                <p class="text-gray-600 mb-3">客户收到商品与描述不符，申请退换货，需要核实商品质量问题</p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-500">客户：</span>
+                                        <span class="text-gray-900">陈绿植</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">商品：</span>
+                                        <span class="text-gray-900 font-medium">薄荷盆栽套装</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">异常时间：</span>
+                                        <span class="text-gray-900">2024-01-21 10:15</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="viewOrderDetail('ORD202401210003')" class="action-button px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-sm">
+                                <i class="fas fa-eye mr-1"></i>查看详情
+                            </button>
+                            <button onclick="assignHandler('ORD202401210003')" class="action-button px-3 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-sm">
+                                <i class="fas fa-user-plus mr-1"></i>分配处理
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统异常 -->
+                <div class="exception-card medium-priority bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start space-x-4">
+                            <div class="exception-type-icon type-system">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900">系统异常</h3>
+                                    <span class="status-resolved px-3 py-1 text-xs rounded-full font-medium">已解决</span>
+                                    <span class="text-sm text-gray-500">#ORD202401210004</span>
+                                </div>
+                                <p class="text-gray-600 mb-3">订单数据同步异常，库存扣减失败，已通过手动调整库存解决</p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-500">影响订单：</span>
+                                        <span class="text-gray-900">3个订单</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">处理人：</span>
+                                        <span class="text-gray-900 font-medium">技术小李</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">解决时间：</span>
+                                        <span class="text-gray-900">2024-01-21 16:45</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="viewSolution('ORD202401210004')" class="action-button px-3 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-sm">
+                                <i class="fas fa-check-circle mr-1"></i>查看解决方案
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 客户异常 -->
+                <div class="exception-card low-priority bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start space-x-4">
+                            <div class="exception-type-icon type-customer">
+                                <i class="fas fa-user-times"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900">客户异常</h3>
+                                    <span class="status-pending px-3 py-1 text-xs rounded-full font-medium">待处理</span>
+                                    <span class="text-sm text-gray-500">#ORD202401210005</span>
+                                </div>
+                                <p class="text-gray-600 mb-3">客户联系方式错误，无法联系确认订单信息，需要通过其他方式联系客户</p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-500">客户：</span>
+                                        <span class="text-gray-900">王花匠</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">错误信息：</span>
+                                        <span class="text-gray-900 font-medium">手机号码无效</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">订单金额：</span>
+                                        <span class="text-gray-900">¥158.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="contactCustomer('ORD202401210005')" class="action-button px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-sm">
+                                <i class="fas fa-phone mr-1"></i>联系客户
+                            </button>
+                            <button onclick="handleException('ORD202401210005')" class="action-button px-3 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-sm">
+                                <i class="fas fa-wrench mr-1"></i>处理异常
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="flex items-center justify-between mt-6">
+                <div class="text-sm text-gray-500">
+                    显示 1-5 条，共 23 条异常订单
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="px-3 py-2 text-white bg-green-600 border border-green-600 rounded-lg">1</button>
+                    <button class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">2</button>
+                    <button class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">3</button>
+                    <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 异常处理模态框 -->
+    <div id="exceptionModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-900">异常订单处理</h2>
+                    <button onclick="closeExceptionModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 左侧：订单信息 -->
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">订单信息</h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">订单号：</span>
+                                    <span class="text-gray-900 font-medium">#ORD202401210001</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">客户姓名：</span>
+                                    <span class="text-gray-900">张小花</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">联系电话：</span>
+                                    <span class="text-gray-900">138****5678</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">订单金额：</span>
+                                    <span class="text-gray-900 font-medium">¥299.00</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">支付方式：</span>
+                                    <span class="text-gray-900">微信支付</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">异常类型：</span>
+                                    <span class="text-red-600 font-medium">支付异常</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">异常描述</h3>
+                            <p class="text-gray-700">客户通过微信支付成功支付订单，但系统未收到支付回调通知，导致订单状态仍显示为"待支付"。客户已提供支付截图证明，需要人工核实并更新订单状态。</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">处理时间线</h3>
+                            <div class="space-y-3">
+                                <div class="timeline-item">
+                                    <div class="text-sm">
+                                        <span class="text-gray-900 font-medium">异常发现</span>
+                                        <span class="text-gray-500 ml-2">2024-01-21 14:30</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mt-1">系统自动检测到支付异常</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="text-sm">
+                                        <span class="text-gray-900 font-medium">客户联系</span>
+                                        <span class="text-gray-500 ml-2">2024-01-21 14:45</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mt-1">客户通过客服反馈支付问题</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="text-sm">
+                                        <span class="text-gray-900 font-medium">开始处理</span>
+                                        <span class="text-gray-500 ml-2">2024-01-21 15:00</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mt-1">分配给客服小张处理</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧：处理方案 -->
+                    <div class="space-y-6">
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">推荐解决方案</h3>
+                            <div class="space-y-3">
+                                <div class="solution-step border border-blue-200 rounded-lg p-3" onclick="toggleStep(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium text-gray-900">1. 核实支付记录</span>
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mt-2 hidden">登录支付平台后台，查询该订单的支付流水记录，确认支付是否真实完成</p>
+                                </div>
+                                <div class="solution-step border border-gray-200 rounded-lg p-3" onclick="toggleStep(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium text-gray-900">2. 检查回调日志</span>
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mt-2 hidden">查看系统回调日志，确认是否收到支付回调，如未收到需要手动触发</p>
+                                </div>
+                                <div class="solution-step border border-gray-200 rounded-lg p-3" onclick="toggleStep(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium text-gray-900">3. 更新订单状态</span>
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mt-2 hidden">确认支付无误后，手动将订单状态更新为"已支付"，并触发后续流程</p>
+                                </div>
+                                <div class="solution-step border border-gray-200 rounded-lg p-3" onclick="toggleStep(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium text-gray-900">4. 通知客户</span>
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mt-2 hidden">向客户发送订单状态更新通知，告知问题已解决</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">处理记录</h3>
+                            <div class="space-y-3">
+                                <textarea placeholder="请输入处理过程和结果..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none" rows="4"></textarea>
+                                <div class="flex items-center space-x-3">
+                                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option>处理结果</option>
+                                        <option>已解决</option>
+                                        <option>部分解决</option>
+                                        <option>转交他人</option>
+                                        <option>需要跟进</option>
+                                    </select>
+                                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option>优先级</option>
+                                        <option>紧急</option>
+                                        <option>高</option>
+                                        <option>中</option>
+                                        <option>低</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-end space-x-3">
+                            <button onclick="closeExceptionModal()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                取消
+                            </button>
+                            <button onclick="saveExceptionHandle()" class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-save mr-2"></i>保存处理结果
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const logoText = document.getElementById('logo-text');
+            const navTexts = document.querySelectorAll('.nav-text');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+            
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                logoText.style.display = 'none';
+                navTexts.forEach(text => text.style.display = 'none');
+            } else {
+                logoText.style.display = 'block';
+                navTexts.forEach(text => text.style.display = 'inline');
+            }
+        });
+
+        // 状态筛选
+        function filterByStatus(status) {
+            const tabs = document.querySelectorAll('.filter-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            console.log('筛选状态:', status);
+            // 这里可以添加实际的筛选逻辑
+        }
+
+        // 查看订单详情
+        function viewOrderDetail(orderId) {
+            alert(`查看订单详情: ${orderId}`);
+            console.log('查看订单详情:', orderId);
+        }
+
+        // 处理异常
+        function handleException(orderId) {
+            document.getElementById('exceptionModal').classList.remove('hidden');
+            document.getElementById('exceptionModal').classList.add('flex');
+            console.log('处理异常订单:', orderId);
+        }
+
+        // 关闭异常处理模态框
+        function closeExceptionModal() {
+            document.getElementById('exceptionModal').classList.add('hidden');
+            document.getElementById('exceptionModal').classList.remove('flex');
+        }
+
+        // 更新处理进度
+        function updateProgress(orderId) {
+            alert(`更新处理进度: ${orderId}`);
+            console.log('更新处理进度:', orderId);
+        }
+
+        // 分配处理人
+        function assignHandler(orderId) {
+            alert(`分配处理人: ${orderId}`);
+            console.log('分配处理人:', orderId);
+        }
+
+        // 查看解决方案
+        function viewSolution(orderId) {
+            alert(`查看解决方案: ${orderId}`);
+            console.log('查看解决方案:', orderId);
+        }
+
+        // 联系客户
+        function contactCustomer(orderId) {
+            alert(`联系客户: ${orderId}`);
+            console.log('联系客户:', orderId);
+        }
+
+        // 切换解决方案步骤
+        function toggleStep(element) {
+            const content = element.querySelector('p');
+            const icon = element.querySelector('i');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+                element.classList.add('completed');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+                element.classList.remove('completed');
+            }
+        }
+
+        // 保存异常处理结果
+        function saveExceptionHandle() {
+            alert('异常处理结果已保存');
+            closeExceptionModal();
+            console.log('保存异常处理结果');
+        }
+
+        // 刷新数据
+        function refreshData() {
+            alert('数据已刷新');
+            console.log('刷新异常订单数据');
+        }
+
+        // 导出异常数据
+        function exportExceptions() {
+            alert('开始导出异常订单数据');
+            console.log('导出异常订单数据');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('异常订单处理页面加载完成');
+        });
+    </script>
+</body>
+</html>

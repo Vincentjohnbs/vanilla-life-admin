@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表单构建器 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <style>
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .sidebar-item.active { background-color: #10b981; color: white; }
+        .field-component { transition: all 0.3s ease; cursor: grab; }
+        .field-component:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .field-component.dragging { opacity: 0.5; }
+        .drop-zone { min-height: 400px; transition: all 0.3s ease; }
+        .drop-zone.drag-over { background-color: #f0fdf4; border-color: #10b981; }
+        .form-field { border: 2px solid transparent; transition: all 0.3s ease; }
+        .form-field:hover { border-color: #10b981; }
+        .form-field.selected { border-color: #10b981; background-color: #f0fdf4; }
+        .property-panel { max-height: calc(100vh - 200px); overflow-y: auto; }
+        .preview-phone { width: 375px; height: 667px; background: #000; border-radius: 25px; padding: 8px; }
+        .preview-screen { width: 100%; height: 100%; background: #fff; border-radius: 18px; overflow-y: auto; }
+        .sortable-ghost { opacity: 0.4; }
+        .sortable-chosen { transform: rotate(5deg); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50">
+        <div class="flex items-center justify-center h-16 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>仪表盘
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-box mr-3"></i>商品管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>订单管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>用户管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-bullhorn mr-3"></i>营销活动
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-calendar-plus mr-3"></i>活动报名
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-truck mr-3"></i>供应商管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>香草图鉴
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>香草阳台
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-images mr-3"></i>Banner管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-cog mr-3"></i>系统设置
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 flex-1">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <a href="#" class="text-gray-500 hover:text-gray-700">活动报名</a>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                        <span class="text-gray-900 font-medium">表单构建器</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="save-form-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-save mr-2"></i>保存表单
+                    </button>
+                    <button id="preview-form-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        <i class="fas fa-eye mr-2"></i>预览
+                    </button>
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面头部 -->
+        <div class="p-6">
+            <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-xl mb-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">可视化表单构建器</h1>
+                        <p class="text-purple-100">拖拽组件快速构建报名表单，支持多种字段类型和验证规则</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">12</div>
+                            <div class="text-sm text-purple-100">组件类型</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">5</div>
+                            <div class="text-sm text-purple-100">表单字段</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-12 gap-6">
+                <!-- 左侧组件库 -->
+                <div class="col-span-3">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="p-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">组件库</h3>
+                            <p class="text-sm text-gray-600 mt-1">拖拽组件到表单区域</p>
+                        </div>
+                        
+                        <!-- 基础组件 -->
+                        <div class="p-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">基础组件</h4>
+                            <div class="space-y-2">
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="text">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-font text-blue-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">单行文本</div>
+                                            <div class="text-xs text-gray-500">输入框</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="textarea">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-align-left text-blue-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">多行文本</div>
+                                            <div class="text-xs text-gray-500">文本域</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="number">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-hashtag text-blue-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">数字输入</div>
+                                            <div class="text-xs text-gray-500">数值</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="email">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-envelope text-blue-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">邮箱</div>
+                                            <div class="text-xs text-gray-500">邮箱地址</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="phone">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-phone text-blue-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">手机号</div>
+                                            <div class="text-xs text-gray-500">电话号码</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 选择组件 -->
+                        <div class="p-4 border-t border-gray-200">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">选择组件</h4>
+                            <div class="space-y-2">
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="select">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-list text-green-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">下拉选择</div>
+                                            <div class="text-xs text-gray-500">单选下拉</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="radio">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-dot-circle text-green-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">单选按钮</div>
+                                            <div class="text-xs text-gray-500">单选项</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="checkbox">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-check-square text-green-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">多选框</div>
+                                            <div class="text-xs text-gray-500">多选项</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 高级组件 -->
+                        <div class="p-4 border-t border-gray-200">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">高级组件</h4>
+                            <div class="space-y-2">
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="date">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar text-purple-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">日期选择</div>
+                                            <div class="text-xs text-gray-500">日期时间</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="file">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-upload text-purple-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">文件上传</div>
+                                            <div class="text-xs text-gray-500">附件上传</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="address">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-map-marker-alt text-purple-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">地址选择</div>
+                                            <div class="text-xs text-gray-500">省市区</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="field-component bg-gray-50 p-3 rounded-lg border border-gray-200 cursor-grab" data-type="divider">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-minus text-purple-600 mr-3"></i>
+                                        <div>
+                                            <div class="text-sm font-medium">分割线</div>
+                                            <div class="text-xs text-gray-500">分隔符</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中间表单设计区域 -->
+                <div class="col-span-6">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="p-4 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">表单设计</h3>
+                                    <p class="text-sm text-gray-600 mt-1">拖拽组件到此区域构建表单</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button id="clear-form-btn" class="px-3 py-1 text-sm text-red-600 border border-red-300 rounded hover:bg-red-50">
+                                        <i class="fas fa-trash mr-1"></i>清空
+                                    </button>
+                                    <button id="undo-btn" class="px-3 py-1 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50">
+                                        <i class="fas fa-undo mr-1"></i>撤销
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div id="form-builder" class="drop-zone border-2 border-dashed border-gray-300 rounded-lg p-6 min-h-96">
+                                <div class="text-center text-gray-500">
+                                    <i class="fas fa-mouse-pointer text-4xl mb-4"></i>
+                                    <p class="text-lg font-medium mb-2">开始构建表单</p>
+                                    <p class="text-sm">从左侧拖拽组件到此处，或点击组件添加</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧属性面板和预览 -->
+                <div class="col-span-3">
+                    <!-- 属性设置面板 -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                        <div class="p-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">属性设置</h3>
+                            <p class="text-sm text-gray-600 mt-1">选择字段进行配置</p>
+                        </div>
+                        
+                        <div id="property-panel" class="property-panel p-4">
+                            <div class="text-center text-gray-500 py-8">
+                                <i class="fas fa-hand-pointer text-3xl mb-3"></i>
+                                <p class="text-sm">请选择一个字段<br>进行属性配置</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 手机预览 -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="p-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">手机预览</h3>
+                        </div>
+                        
+                        <div class="p-4 flex justify-center">
+                            <div class="preview-phone">
+                                <div class="preview-screen p-4">
+                                    <div id="mobile-preview">
+                                        <div class="text-center py-8">
+                                            <i class="fas fa-mobile-alt text-3xl text-gray-400 mb-3"></i>
+                                            <p class="text-sm text-gray-500">表单预览</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 字段属性模态框 -->
+    <div id="field-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">字段属性</h3>
+                        <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="modal-content">
+                        <!-- 动态内容 -->
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button id="cancel-btn" class="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50">
+                            取消
+                        </button>
+                        <button id="confirm-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            确定
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let formFields = [];
+        let selectedField = null;
+        let fieldCounter = 0;
+
+        // 初始化拖拽功能
+        function initDragAndDrop() {
+            const formBuilder = document.getElementById('form-builder');
+            
+            // 使用SortableJS实现拖拽排序
+            new Sortable(formBuilder, {
+                group: 'form-fields',
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                onAdd: function(evt) {
+                    const fieldType = evt.item.getAttribute('data-type');
+                    if (fieldType) {
+                        addFormField(fieldType, evt.newIndex);
+                        evt.item.remove(); // 移除拖拽的组件
+                    }
+                },
+                onUpdate: function(evt) {
+                    // 更新字段顺序
+                    updateFieldOrder();
+                }
+            });
+
+            // 组件库拖拽
+            document.querySelectorAll('.field-component').forEach(component => {
+                component.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', this.getAttribute('data-type'));
+                });
+            });
+        }
+
+        // 添加表单字段
+        function addFormField(type, index = -1) {
+            fieldCounter++;
+            const fieldId = `field_${fieldCounter}`;
+            const field = {
+                id: fieldId,
+                type: type,
+                label: getDefaultLabel(type),
+                placeholder: getDefaultPlaceholder(type),
+                required: false,
+                options: type === 'select' || type === 'radio' || type === 'checkbox' ? ['选项1', '选项2'] : [],
+                validation: {}
+            };
+
+            if (index === -1) {
+                formFields.push(field);
+            } else {
+                formFields.splice(index, 0, field);
+            }
+
+            renderFormBuilder();
+            updateMobilePreview();
+        }
+
+        // 获取默认标签
+        function getDefaultLabel(type) {
+            const labels = {
+                'text': '单行文本',
+                'textarea': '多行文本',
+                'number': '数字输入',
+                'email': '邮箱地址',
+                'phone': '手机号码',
+                'select': '下拉选择',
+                'radio': '单选按钮',
+                'checkbox': '多选框',
+                'date': '日期选择',
+                'file': '文件上传',
+                'address': '地址选择',
+                'divider': '分割线'
+            };
+            return labels[type] || '字段';
+        }
+
+        // 获取默认占位符
+        function getDefaultPlaceholder(type) {
+            const placeholders = {
+                'text': '请输入内容',
+                'textarea': '请输入详细内容',
+                'number': '请输入数字',
+                'email': '请输入邮箱地址',
+                'phone': '请输入手机号码'
+            };
+            return placeholders[type] || '';
+        }
+
+        // 渲染表单构建器
+        function renderFormBuilder() {
+            const formBuilder = document.getElementById('form-builder');
+            
+            if (formFields.length === 0) {
+                formBuilder.innerHTML = `
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-mouse-pointer text-4xl mb-4"></i>
+                        <p class="text-lg font-medium mb-2">开始构建表单</p>
+                        <p class="text-sm">从左侧拖拽组件到此处，或点击组件添加</p>
+                    </div>
+                `;
+                return;
+            }
+
+            formBuilder.innerHTML = formFields.map(field => generateFieldHtml(field)).join('');
+            
+            // 绑定字段事件
+            bindFieldEvents();
+        }
+
+        // 生成字段HTML
+        function generateFieldHtml(field) {
+            const fieldHtml = {
+                'text': `<input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}>`,
+                'textarea': `<textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg" rows="3" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}></textarea>`,
+                'number': `<input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}>`,
+                'email': `<input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}>`,
+                'phone': `<input type="tel" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}>`,
+                'select': `<select class="w-full px-3 py-2 border border-gray-300 rounded-lg" ${field.required ? 'required' : ''}>${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}</select>`,
+                'radio': `<div class="space-y-2">${field.options.map((opt, i) => `<label class="flex items-center"><input type="radio" name="${field.id}" value="${opt}" class="mr-2" ${field.required ? 'required' : ''}>${opt}</label>`).join('')}</div>`,
+                'checkbox': `<div class="space-y-2">${field.options.map(opt => `<label class="flex items-center"><input type="checkbox" value="${opt}" class="mr-2">${opt}</label>`).join('')}</div>`,
+                'date': `<input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg" ${field.required ? 'required' : ''}>`,
+                'file': `<input type="file" class="w-full px-3 py-2 border border-gray-300 rounded-lg" ${field.required ? 'required' : ''}>`,
+                'address': `<div class="grid grid-cols-3 gap-2"><select class="px-3 py-2 border border-gray-300 rounded-lg"><option>省份</option></select><select class="px-3 py-2 border border-gray-300 rounded-lg"><option>城市</option></select><select class="px-3 py-2 border border-gray-300 rounded-lg"><option>区县</option></select></div>`,
+                'divider': `<hr class="border-gray-300">`
+            };
+
+            return `
+                <div class="form-field mb-4 p-4 border-2 border-transparent rounded-lg hover:border-blue-300 cursor-pointer" data-field-id="${field.id}">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-medium text-gray-700">
+                            ${field.label}
+                            ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <button class="edit-field text-gray-500 hover:text-blue-600" data-field-id="${field.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-field text-gray-500 hover:text-red-600" data-field-id="${field.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${fieldHtml[field.type] || ''}
+                </div>
+            `;
+        }
+
+        // 绑定字段事件
+        function bindFieldEvents() {
+            // 字段选择
+            document.querySelectorAll('.form-field').forEach(field => {
+                field.addEventListener('click', function(e) {
+                    if (e.target.closest('.edit-field') || e.target.closest('.delete-field')) return;
+                    
+                    document.querySelectorAll('.form-field').forEach(f => f.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const fieldId = this.getAttribute('data-field-id');
+                    selectField(fieldId);
+                });
+            });
+
+            // 编辑字段
+            document.querySelectorAll('.edit-field').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const fieldId = this.getAttribute('data-field-id');
+                    editField(fieldId);
+                });
+            });
+
+            // 删除字段
+            document.querySelectorAll('.delete-field').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const fieldId = this.getAttribute('data-field-id');
+                    deleteField(fieldId);
+                });
+            });
+        }
+
+        // 选择字段
+        function selectField(fieldId) {
+            selectedField = formFields.find(f => f.id === fieldId);
+            renderPropertyPanel();
+        }
+
+        // 渲染属性面板
+        function renderPropertyPanel() {
+            const panel = document.getElementById('property-panel');
+            
+            if (!selectedField) {
+                panel.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-hand-pointer text-3xl mb-3"></i>
+                        <p class="text-sm">请选择一个字段<br>进行属性配置</p>
+                    </div>
+                `;
+                return;
+            }
+
+            panel.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">字段标签</label>
+                        <input type="text" id="field-label" value="${selectedField.label}" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    </div>
+                    
+                    ${selectedField.type !== 'divider' ? `
+                        <div>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" id="field-required" ${selectedField.required ? 'checked' : ''}>
+                                <span class="text-sm font-medium text-gray-700">必填字段</span>
+                            </label>
+                        </div>
+                    ` : ''}
+                    
+                    ${['text', 'textarea', 'number', 'email', 'phone'].includes(selectedField.type) ? `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">占位符</label>
+                            <input type="text" id="field-placeholder" value="${selectedField.placeholder}" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        </div>
+                    ` : ''}
+                    
+                    ${['select', 'radio', 'checkbox'].includes(selectedField.type) ? `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">选项设置</label>
+                            <div id="options-list" class="space-y-2">
+                                ${selectedField.options.map((opt, i) => `
+                                    <div class="flex items-center space-x-2">
+                                        <input type="text" value="${opt}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm option-input" data-index="${i}">
+                                        <button class="text-red-500 hover:text-red-700 delete-option" data-index="${i}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button id="add-option" class="mt-2 text-sm text-blue-600 hover:text-blue-700">
+                                <i class="fas fa-plus mr-1"></i>添加选项
+                            </button>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="pt-4 border-t border-gray-200">
+                        <button id="update-field" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                            更新字段
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            bindPropertyEvents();
+        }
+
+        // 绑定属性面板事件
+        function bindPropertyEvents() {
+            // 更新字段
+            const updateBtn = document.getElementById('update-field');
+            if (updateBtn) {
+                updateBtn.addEventListener('click', updateSelectedField);
+            }
+
+            // 添加选项
+            const addOptionBtn = document.getElementById('add-option');
+            if (addOptionBtn) {
+                addOptionBtn.addEventListener('click', function() {
+                    selectedField.options.push('新选项');
+                    renderPropertyPanel();
+                });
+            }
+
+            // 删除选项
+            document.querySelectorAll('.delete-option').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    selectedField.options.splice(index, 1);
+                    renderPropertyPanel();
+                });
+            });
+
+            // 选项输入变化
+            document.querySelectorAll('.option-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    selectedField.options[index] = this.value;
+                });
+            });
+        }
+
+        // 更新选中字段
+        function updateSelectedField() {
+            if (!selectedField) return;
+
+            const labelInput = document.getElementById('field-label');
+            const requiredInput = document.getElementById('field-required');
+            const placeholderInput = document.getElementById('field-placeholder');
+
+            if (labelInput) selectedField.label = labelInput.value;
+            if (requiredInput) selectedField.required = requiredInput.checked;
+            if (placeholderInput) selectedField.placeholder = placeholderInput.value;
+
+            renderFormBuilder();
+            updateMobilePreview();
+        }
+
+        // 删除字段
+        function deleteField(fieldId) {
+            if (confirm('确定要删除这个字段吗？')) {
+                formFields = formFields.filter(f => f.id !== fieldId);
+                if (selectedField && selectedField.id === fieldId) {
+                    selectedField = null;
+                }
+                renderFormBuilder();
+                renderPropertyPanel();
+                updateMobilePreview();
+            }
+        }
+
+        // 更新手机预览
+        function updateMobilePreview() {
+            const preview = document.getElementById('mobile-preview');
+            
+            if (formFields.length === 0) {
+                preview.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-mobile-alt text-3xl text-gray-400 mb-3"></i>
+                        <p class="text-sm text-gray-500">表单预览</p>
+                    </div>
+                `;
+                return;
+            }
+
+            preview.innerHTML = `
+                <div class="space-y-4">
+                    <div class="text-center mb-4">
+                        <h3 class="font-bold text-lg">报名表单</h3>
+                    </div>
+                    ${formFields.map(field => generateMobileFieldHtml(field)).join('')}
+                    <button class="w-full py-3 bg-blue-600 text-white rounded-lg font-medium">
+                        提交报名
+                    </button>
+                </div>
+            `;
+        }
+
+        // 生成手机端字段HTML
+        function generateMobileFieldHtml(field) {
+            if (field.type === 'divider') {
+                return '<hr class="border-gray-300 my-4">';
+            }
+
+            const mobileFieldHtml = {
+                'text': `<input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="${field.placeholder}">`,
+                'textarea': `<textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows="2" placeholder="${field.placeholder}"></textarea>`,
+                'number': `<input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="${field.placeholder}">`,
+                'email': `<input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="${field.placeholder}">`,
+                'phone': `<input type="tel" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="${field.placeholder}">`,
+                'select': `<select class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">${field.options.map(opt => `<option>${opt}</option>`).join('')}</select>`,
+                'radio': `<div class="space-y-1">${field.options.map(opt => `<label class="flex items-center text-sm"><input type="radio" name="${field.id}" class="mr-2">${opt}</label>`).join('')}</div>`,
+                'checkbox': `<div class="space-y-1">${field.options.map(opt => `<label class="flex items-center text-sm"><input type="checkbox" class="mr-2">${opt}</label>`).join('')}</div>`,
+                'date': `<input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">`,
+                'file': `<input type="file" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">`,
+                'address': `<div class="grid grid-cols-1 gap-2"><select class="px-3 py-2 border border-gray-300 rounded-lg text-sm"><option>选择省份</option></select><select class="px-3 py-2 border border-gray-300 rounded-lg text-sm"><option>选择城市</option></select></div>`
+            };
+
+            return `
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        ${field.label}
+                        ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                    </label>
+                    ${mobileFieldHtml[field.type] || ''}
+                </div>
+            `;
+        }
+
+        // 清空表单
+        document.getElementById('clear-form-btn').addEventListener('click', function() {
+            if (confirm('确定要清空所有字段吗？')) {
+                formFields = [];
+                selectedField = null;
+                renderFormBuilder();
+                renderPropertyPanel();
+                updateMobilePreview();
+            }
+        });
+
+        // 保存表单
+        document.getElementById('save-form-btn').addEventListener('click', function() {
+            console.log('保存表单:', formFields);
+            alert('表单已保存！');
+        });
+
+        // 预览表单
+        document.getElementById('preview-form-btn').addEventListener('click', function() {
+            console.log('预览表单:', formFields);
+            // 打开预览窗口
+        });
+
+        // 组件点击添加
+        document.querySelectorAll('.field-component').forEach(component => {
+            component.addEventListener('click', function() {
+                const fieldType = this.getAttribute('data-type');
+                addFormField(fieldType);
+            });
+        });
+
+        // 初始化
+        initDragAndDrop();
+        renderFormBuilder();
+        renderPropertyPanel();
+        updateMobilePreview();
+    </script>
+</body>
+</html>

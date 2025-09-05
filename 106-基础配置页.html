@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基础配置 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .config-card {
+            transition: all 0.2s ease;
+        }
+        .config-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #4F46E5;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        .modal {
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-tachometer-alt w-5"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-users w-5"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-user-tag w-5"></i>
+                    <span>用户画像</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-lg">
+                    <i class="fas fa-cog w-5"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-0 transition-all duration-300 ease-in-out" id="main-content">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="p-2 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-bars text-gray-600"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">基础配置</h1>
+                        <p class="text-sm text-gray-500">管理系统的基础设置和配置</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-lg hover:bg-gray-100 relative">
+                        <i class="fas fa-bell text-gray-600"></i>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm">配置项目</p>
+                            <p class="text-2xl font-bold mt-1">156</p>
+                            <p class="text-blue-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +8
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-cogs text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm">系统状态</p>
+                            <p class="text-2xl font-bold mt-1">正常</p>
+                            <p class="text-green-100 text-xs mt-2">
+                                <i class="fas fa-check mr-1"></i>运行稳定
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-heartbeat text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm">最后更新</p>
+                            <p class="text-2xl font-bold mt-1">2小时前</p>
+                            <p class="text-purple-100 text-xs mt-2">
+                                <i class="fas fa-clock mr-1"></i>自动同步
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-sync-alt text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-100 text-sm">备份状态</p>
+                            <p class="text-2xl font-bold mt-1">已完成</p>
+                            <p class="text-orange-100 text-xs mt-2">
+                                <i class="fas fa-shield-alt mr-1"></i>数据安全
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-database text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作栏 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                    <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" placeholder="搜索配置项..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>全部分类</option>
+                            <option>系统设置</option>
+                            <option>业务配置</option>
+                            <option>安全设置</option>
+                            <option>性能优化</option>
+                        </select>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>全部状态</option>
+                            <option>已启用</option>
+                            <option>已禁用</option>
+                            <option>待配置</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                            <i class="fas fa-download mr-2"></i>导出配置
+                        </button>
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            <i class="fas fa-save mr-2"></i>保存配置
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 配置标签页 -->
+            <div class="bg-white rounded-xl shadow-sm mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6" id="configTabs">
+                        <button class="py-4 px-2 border-b-2 border-blue-500 text-blue-600 font-medium text-sm" data-tab="system">系统设置</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="business">业务配置</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="security">安全设置</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="performance">性能优化</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="notification">通知配置</button>
+                    </nav>
+                </div>
+
+                <!-- 标签页内容 -->
+                <div class="p-6">
+                    <!-- 系统设置 -->
+                    <div id="systemTab" class="tab-content">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- 基本信息 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>基本信息
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">系统名称</label>
+                                        <input type="text" value="香草生活后台管理系统" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">系统版本</label>
+                                        <input type="text" value="v2.1.0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">系统描述</label>
+                                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="3">专业的香草生活电商平台后台管理系统</textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 系统参数 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-sliders-h text-green-500 mr-2"></i>系统参数
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">调试模式</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="debugMode">
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">维护模式</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="maintenanceMode">
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">自动备份</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="autoBackup" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">会话超时(分钟)</label>
+                                        <input type="number" value="30" min="5" max="120" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 时区设置 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-globe text-purple-500 mr-2"></i>时区设置
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">系统时区</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option value="Asia/Shanghai" selected>Asia/Shanghai (UTC+8)</option>
+                                            <option value="UTC">UTC (UTC+0)</option>
+                                            <option value="America/New_York">America/New_York (UTC-5)</option>
+                                            <option value="Europe/London">Europe/London (UTC+0)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">日期格式</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option value="YYYY-MM-DD" selected>YYYY-MM-DD</option>
+                                            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                            <option value="YYYY年MM月DD日">YYYY年MM月DD日</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">时间格式</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option value="24" selected>24小时制</option>
+                                            <option value="12">12小时制</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 日志设置 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-file-alt text-orange-500 mr-2"></i>日志设置
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">日志级别</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option value="DEBUG">DEBUG</option>
+                                            <option value="INFO" selected>INFO</option>
+                                            <option value="WARN">WARN</option>
+                                            <option value="ERROR">ERROR</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">日志保留天数</label>
+                                        <input type="number" value="30" min="1" max="365" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用访问日志</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="accessLog" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用错误日志</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="errorLog" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 业务配置 -->
+                    <div id="businessTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- 商品设置 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-box text-blue-500 mr-2"></i>商品设置
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">商品审核</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option value="auto">自动审核</option>
+                                            <option value="manual" selected>人工审核</option>
+                                            <option value="mixed">混合审核</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">库存预警阈值</label>
+                                        <input type="number" value="10" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">允许零库存销售</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="allowZeroStock">
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">自动下架过期商品</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="autoOfflineExpired" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 订单设置 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-shopping-cart text-green-500 mr-2"></i>订单设置
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">订单自动取消时间(分钟)</label>
+                                        <input type="number" value="30" min="5" max="1440" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">自动确认收货天数</label>
+                                        <input type="number" value="7" min="1" max="30" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">允许用户取消订单</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="allowUserCancel" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用订单评价</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableOrderReview" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 用户设置 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-users text-purple-500 mr-2"></i>用户设置
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">新用户注册</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option value="open" selected>开放注册</option>
+                                            <option value="invite">邀请注册</option>
+                                            <option value="closed">关闭注册</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">密码最小长度</label>
+                                        <input type="number" value="6" min="4" max="20" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">需要邮箱验证</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="requireEmailVerify" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">需要手机验证</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="requirePhoneVerify">
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 支付设置 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-credit-card text-orange-500 mr-2"></i>支付设置
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">支付宝支付</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableAlipay" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">微信支付</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableWechatPay" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">银行卡支付</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableBankPay">
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">最小支付金额</label>
+                                        <input type="number" value="0.01" min="0.01" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 安全设置 -->
+                    <div id="securityTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- 登录安全 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-shield-alt text-blue-500 mr-2"></i>登录安全
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">最大登录失败次数</label>
+                                        <input type="number" value="5" min="3" max="10" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">账户锁定时间(分钟)</label>
+                                        <input type="number" value="30" min="5" max="1440" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用验证码</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableCaptcha" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用双因子认证</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enable2FA">
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 数据安全 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-database text-green-500 mr-2"></i>数据安全
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">数据加密</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableEncryption" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">自动备份</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="autoBackupSecurity" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">备份频率</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option value="daily" selected>每日</option>
+                                            <option value="weekly">每周</option>
+                                            <option value="monthly">每月</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">备份保留数量</label>
+                                        <input type="number" value="7" min="1" max="30" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- IP白名单 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-list text-purple-500 mr-2"></i>IP白名单
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用IP白名单</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableIPWhitelist">
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">白名单IP地址</label>
+                                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="4" placeholder="每行一个IP地址或IP段\n例如：192.168.1.1\n192.168.1.0/24"></textarea>
+                                    </div>
+                                    <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                        <i class="fas fa-plus mr-2"></i>添加当前IP
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 安全日志 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-file-shield text-orange-500 mr-2"></i>安全日志
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">记录登录日志</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="logLogin" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">记录操作日志</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="logOperation" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">记录异常日志</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="logException" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">日志保留天数</label>
+                                        <input type="number" value="90" min="30" max="365" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 性能优化 -->
+                    <div id="performanceTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- 缓存设置 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-tachometer-alt text-blue-500 mr-2"></i>缓存设置
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用Redis缓存</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableRedis" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用页面缓存</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enablePageCache" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">缓存过期时间(秒)</label>
+                                        <input type="number" value="3600" min="60" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <button class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                                        <i class="fas fa-trash mr-2"></i>清空所有缓存
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 数据库优化 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-database text-green-500 mr-2"></i>数据库优化
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用查询缓存</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableQueryCache" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用慢查询日志</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableSlowLog" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">慢查询阈值(秒)</label>
+                                        <input type="number" value="2" min="0.1" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                        <i class="fas fa-chart-line mr-2"></i>查看性能报告
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- CDN设置 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-cloud text-purple-500 mr-2"></i>CDN设置
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用CDN</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableCDN" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">CDN域名</label>
+                                        <input type="text" value="cdn.vanillalife.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">图片CDN</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableImageCDN" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">静态资源CDN</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableStaticCDN" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 压缩设置 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-compress text-orange-500 mr-2"></i>压缩设置
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用Gzip压缩</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableGzip" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用Brotli压缩</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableBrotli">
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">压缩级别</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option value="1">1 - 最快</option>
+                                            <option value="6" selected>6 - 平衡</option>
+                                            <option value="9">9 - 最小</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">最小压缩文件大小(KB)</label>
+                                        <input type="number" value="1" min="0.1" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 通知配置 -->
+                    <div id="notificationTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- 邮件通知 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-envelope text-blue-500 mr-2"></i>邮件通知
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用邮件通知</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableEmail" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">SMTP服务器</label>
+                                        <input type="text" value="smtp.qq.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">端口</label>
+                                            <input type="number" value="587" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">加密方式</label>
+                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                                <option value="tls" selected>TLS</option>
+                                                <option value="ssl">SSL</option>
+                                                <option value="none">无</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">发件人邮箱</label>
+                                        <input type="email" value="noreply@vanillalife.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 短信通知 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-sms text-green-500 mr-2"></i>短信通知
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用短信通知</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enableSMS" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">短信服务商</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option value="aliyun" selected>阿里云</option>
+                                            <option value="tencent">腾讯云</option>
+                                            <option value="huawei">华为云</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">AccessKey ID</label>
+                                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="请输入AccessKey ID">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">AccessKey Secret</label>
+                                        <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="请输入AccessKey Secret">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 推送通知 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-bell text-purple-500 mr-2"></i>推送通知
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">启用推送通知</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enablePush" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">订单状态推送</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="pushOrderStatus" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">营销活动推送</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="pushMarketing">
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">系统通知推送</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="pushSystem" checked>
+                                            <span class="slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 通知模板 -->
+                            <div class="config-card bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-file-alt text-orange-500 mr-2"></i>通知模板
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">注册欢迎邮件</label>
+                                        <div class="flex space-x-2">
+                                            <input type="text" value="欢迎加入香草生活" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <button class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">订单确认短信</label>
+                                        <div class="flex space-x-2">
+                                            <input type="text" value="您的订单已确认，正在处理中" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <button class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">发货通知</label>
+                                        <div class="flex space-x-2">
+                                            <input type="text" value="您的订单已发货，请注意查收" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <button class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                                        <i class="fas fa-plus mr-2"></i>添加新模板
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                mainContent.classList.remove('ml-64');
+            } else {
+                mainContent.classList.add('ml-64');
+            }
+        });
+
+        // 标签页切换
+        function initTabs() {
+            const tabs = document.querySelectorAll('#configTabs button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // 移除所有活跃状态
+                    tabs.forEach(t => {
+                        t.classList.remove('border-blue-500', 'text-blue-600');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    
+                    // 添加当前标签活跃状态
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    this.classList.add('border-blue-500', 'text-blue-600');
+                    
+                    // 隐藏所有标签页内容
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // 显示目标标签页内容
+                    const targetContent = document.getElementById(targetTab + 'Tab');
+                    if (targetContent) {
+                        targetContent.classList.remove('hidden');
+                    }
+                });
+            });
+        }
+
+        // 配置保存
+        function saveConfig() {
+            // 收集所有配置数据
+            const configData = {
+                system: {
+                    name: document.querySelector('input[value="香草生活后台管理系统"]').value,
+                    version: document.querySelector('input[value="v2.1.0"]').value,
+                    debugMode: document.getElementById('debugMode').checked,
+                    maintenanceMode: document.getElementById('maintenanceMode').checked,
+                    autoBackup: document.getElementById('autoBackup').checked
+                },
+                business: {
+                    allowZeroStock: document.getElementById('allowZeroStock').checked,
+                    autoOfflineExpired: document.getElementById('autoOfflineExpired').checked,
+                    allowUserCancel: document.getElementById('allowUserCancel').checked,
+                    enableOrderReview: document.getElementById('enableOrderReview').checked
+                },
+                security: {
+                    enableCaptcha: document.getElementById('enableCaptcha').checked,
+                    enable2FA: document.getElementById('enable2FA').checked,
+                    enableEncryption: document.getElementById('enableEncryption').checked,
+                    enableIPWhitelist: document.getElementById('enableIPWhitelist').checked
+                },
+                performance: {
+                    enableRedis: document.getElementById('enableRedis').checked,
+                    enablePageCache: document.getElementById('enablePageCache').checked,
+                    enableCDN: document.getElementById('enableCDN').checked,
+                    enableGzip: document.getElementById('enableGzip').checked
+                },
+                notification: {
+                    enableEmail: document.getElementById('enableEmail').checked,
+                    enableSMS: document.getElementById('enableSMS').checked,
+                    enablePush: document.getElementById('enablePush').checked
+                }
+            };
+            
+            console.log('保存配置:', configData);
+            
+            // 显示保存成功提示
+            showNotification('配置保存成功！', 'success');
+        }
+
+        // 导出配置
+        function exportConfig() {
+            const configData = {
+                exportTime: new Date().toISOString(),
+                systemInfo: {
+                    name: '香草生活后台管理系统',
+                    version: 'v2.1.0'
+                },
+                configurations: {
+                    // 这里可以添加实际的配置数据
+                }
+            };
+            
+            const dataStr = JSON.stringify(configData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'system-config-' + new Date().toISOString().split('T')[0] + '.json';
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            showNotification('配置导出成功！', 'success');
+        }
+
+        // 清空缓存
+        function clearCache() {
+            if (confirm('确定要清空所有缓存吗？此操作不可撤销。')) {
+                // 模拟清空缓存
+                setTimeout(() => {
+                    showNotification('缓存清空成功！', 'success');
+                }, 1000);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initTabs();
+            
+            // 绑定保存按钮事件
+            document.querySelector('button:contains("保存配置")')?.addEventListener('click', saveConfig);
+            
+            // 绑定导出按钮事件
+            document.querySelector('button:contains("导出配置")')?.addEventListener('click', exportConfig);
+            
+            // 绑定清空缓存按钮事件
+            document.querySelector('button:contains("清空所有缓存")')?.addEventListener('click', clearCache);
+        });
+    </script>
+</body>
+</html>

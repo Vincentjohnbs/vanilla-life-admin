@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库存管理页 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#f3f4f6'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-500">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-home mr-3"></i>
+                        首页仪表板
+                    </a>
+                    <div class="space-y-1">
+                        <div class="flex items-center px-4 py-2 text-primary bg-green-50 rounded-lg">
+                            <i class="fas fa-box mr-3"></i>
+                            商品管理
+                        </div>
+                        <div class="ml-6 space-y-1">
+                            <a href="02-商品列表页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">商品列表</a>
+                            <a href="21-商品编辑页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">商品编辑</a>
+                            <a href="22-商品分类管理.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">分类管理</a>
+                            <a href="23-库存管理页.html" class="block px-4 py-1 text-sm text-primary font-medium bg-green-100 rounded">库存管理</a>
+                            <a href="24-规格管理.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">规格管理</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden mr-4 text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold text-gray-800">库存管理</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">总库存商品</p>
+                            <p class="text-2xl font-bold text-gray-900">1,234</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-boxes text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-green-500 text-sm font-medium">+5.2%</span>
+                        <span class="text-gray-500 text-sm ml-2">较上月</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">库存不足</p>
+                            <p class="text-2xl font-bold text-red-600">23</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-red-500 text-sm font-medium">需要补货</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">库存总值</p>
+                            <p class="text-2xl font-bold text-gray-900">¥89,456</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-green-500 text-sm font-medium">+12.3%</span>
+                        <span class="text-gray-500 text-sm ml-2">较上月</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">待入库</p>
+                            <p class="text-2xl font-bold text-orange-600">156</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-truck text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-orange-500 text-sm font-medium">等待处理</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和操作栏 -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="搜索商品名称、SKU..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-64">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">全部分类</option>
+                            <option value="seeds">种子类</option>
+                            <option value="plants">植物类</option>
+                            <option value="tools">工具类</option>
+                            <option value="fertilizer">肥料类</option>
+                        </select>
+                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">全部状态</option>
+                            <option value="normal">正常</option>
+                            <option value="low">库存不足</option>
+                            <option value="out">缺货</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="batchInbound()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>批量入库
+                        </button>
+                        <button onclick="exportInventory()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-download mr-2"></i>导出
+                        </button>
+                        <button onclick="refreshData()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>刷新
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 库存列表 -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商品信息</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">分类</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前库存</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">安全库存</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">成本价</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img src="https://via.placeholder.com/40x40/10b981/ffffff?text=薄荷" alt="商品图片" class="w-10 h-10 rounded-lg object-cover">
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">有机薄荷种子套装</div>
+                                            <div class="text-sm text-gray-500">标准套装</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">MINT-STD-001</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">种子类</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm font-medium text-gray-900">150</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">50</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥15.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">正常</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button onclick="adjustStock('MINT-STD-001')" class="text-primary hover:text-green-600">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="viewHistory('MINT-STD-001')" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-history"></i>
+                                    </button>
+                                    <button onclick="inboundStock('MINT-STD-001')" class="text-green-600 hover:text-green-800">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img src="https://via.placeholder.com/40x40/10b981/ffffff?text=薄荷" alt="商品图片" class="w-10 h-10 rounded-lg object-cover">
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">有机薄荷种子套装</div>
+                                            <div class="text-sm text-gray-500">豪华套装</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">MINT-LUX-001</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">种子类</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm font-medium text-red-600">15</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">30</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥25.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">库存不足</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button onclick="adjustStock('MINT-LUX-001')" class="text-primary hover:text-green-600">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="viewHistory('MINT-LUX-001')" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-history"></i>
+                                    </button>
+                                    <button onclick="inboundStock('MINT-LUX-001')" class="text-green-600 hover:text-green-800">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img src="https://via.placeholder.com/40x40/10b981/ffffff?text=罗勒" alt="商品图片" class="w-10 h-10 rounded-lg object-cover">
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">意大利罗勒种子</div>
+                                            <div class="text-sm text-gray-500">单包装</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">BASIL-ITA-001</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">种子类</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm font-medium text-gray-900">89</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">40</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥8.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">正常</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button onclick="adjustStock('BASIL-ITA-001')" class="text-primary hover:text-green-600">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="viewHistory('BASIL-ITA-001')" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-history"></i>
+                                    </button>
+                                    <button onclick="inboundStock('BASIL-ITA-001')" class="text-green-600 hover:text-green-800">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img src="https://via.placeholder.com/40x40/10b981/ffffff?text=工具" alt="商品图片" class="w-10 h-10 rounded-lg object-cover">
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">园艺工具套装</div>
+                                            <div class="text-sm text-gray-500">基础版</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">TOOL-BAS-001</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">工具类</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm font-medium text-orange-600">0</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥45.00</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">缺货</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button onclick="adjustStock('TOOL-BAS-001')" class="text-primary hover:text-green-600">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="viewHistory('TOOL-BAS-001')" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-history"></i>
+                                    </button>
+                                    <button onclick="inboundStock('TOOL-BAS-001')" class="text-green-600 hover:text-green-800">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">上一页</button>
+                        <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">下一页</button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">97</span> 条记录</p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="bg-primary border-primary text-white relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</button>
+                                <button class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">2</button>
+                                <button class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">3</button>
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 库存调整模态框 -->
+    <div id="adjustModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">库存调整</h3>
+            </div>
+            <div class="px-6 py-4">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">商品信息</label>
+                        <div class="flex items-center space-x-3">
+                            <img src="https://via.placeholder.com/40x40/10b981/ffffff?text=商品" alt="商品图片" class="w-10 h-10 rounded-lg object-cover">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900" id="adjustProductName">有机薄荷种子套装</div>
+                                <div class="text-sm text-gray-500" id="adjustProductSku">MINT-STD-001</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">当前库存</label>
+                        <input type="number" id="currentStock" value="150" readonly class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">调整类型</label>
+                        <select id="adjustType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="in">入库</option>
+                            <option value="out">出库</option>
+                            <option value="set">设置</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">调整数量</label>
+                        <input type="number" id="adjustQuantity" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入数量">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">调整原因</label>
+                        <textarea id="adjustReason" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入调整原因"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-2">
+                <button onclick="closeAdjustModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">取消</button>
+                <button onclick="confirmAdjust()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors">确认调整</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 入库模态框 -->
+    <div id="inboundModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">商品入库</h3>
+            </div>
+            <div class="px-6 py-4">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">入库数量</label>
+                        <input type="number" id="inboundQuantity" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入入库数量">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">供应商</label>
+                        <select id="supplier" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">选择供应商</option>
+                            <option value="supplier1">绿色农场</option>
+                            <option value="supplier2">有机种植基地</option>
+                            <option value="supplier3">香草园艺</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">采购单价</label>
+                        <input type="number" id="purchasePrice" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入采购单价">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">入库备注</label>
+                        <textarea id="inboundNote" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入入库备注"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-2">
+                <button onclick="closeInboundModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">取消</button>
+                <button onclick="confirmInbound()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors">确认入库</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 全选功能
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function() {
+            console.log('搜索:', this.value);
+        });
+
+        // 筛选功能
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            console.log('分类筛选:', this.value);
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            console.log('状态筛选:', this.value);
+        });
+
+        // 功能函数
+        function batchInbound() {
+            alert('正在打开批量入库页面...');
+        }
+
+        function exportInventory() {
+            alert('正在导出库存数据...');
+        }
+
+        function refreshData() {
+            alert('正在刷新数据...');
+        }
+
+        function adjustStock(sku) {
+            document.getElementById('adjustProductSku').textContent = sku;
+            document.getElementById('adjustModal').classList.remove('hidden');
+            document.getElementById('adjustModal').classList.add('flex');
+        }
+
+        function closeAdjustModal() {
+            document.getElementById('adjustModal').classList.add('hidden');
+            document.getElementById('adjustModal').classList.remove('flex');
+        }
+
+        function confirmAdjust() {
+            const type = document.getElementById('adjustType').value;
+            const quantity = document.getElementById('adjustQuantity').value;
+            const reason = document.getElementById('adjustReason').value;
+            
+            if (!quantity) {
+                alert('请输入调整数量');
+                return;
+            }
+            
+            if (!reason.trim()) {
+                alert('请输入调整原因');
+                return;
+            }
+            
+            alert(`库存调整成功：${type === 'in' ? '入库' : type === 'out' ? '出库' : '设置'} ${quantity} 件`);
+            closeAdjustModal();
+        }
+
+        function viewHistory(sku) {
+            alert(`正在查看 ${sku} 的库存历史...`);
+        }
+
+        function inboundStock(sku) {
+            document.getElementById('inboundModal').classList.remove('hidden');
+            document.getElementById('inboundModal').classList.add('flex');
+        }
+
+        function closeInboundModal() {
+            document.getElementById('inboundModal').classList.add('hidden');
+            document.getElementById('inboundModal').classList.remove('flex');
+        }
+
+        function confirmInbound() {
+            const quantity = document.getElementById('inboundQuantity').value;
+            const supplier = document.getElementById('supplier').value;
+            const price = document.getElementById('purchasePrice').value;
+            
+            if (!quantity) {
+                alert('请输入入库数量');
+                return;
+            }
+            
+            if (!supplier) {
+                alert('请选择供应商');
+                return;
+            }
+            
+            if (!price) {
+                alert('请输入采购单价');
+                return;
+            }
+            
+            alert(`入库成功：${quantity} 件，单价 ¥${price}`);
+            closeInboundModal();
+        }
+    </script>
+</body>
+</html>

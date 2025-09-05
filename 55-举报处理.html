@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>举报处理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .stat-card {
+            transition: all 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        .report-item {
+            transition: all 0.2s ease;
+        }
+        .report-item:hover {
+            background-color: #f9fafb;
+        }
+        .modal {
+            display: none;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .filter-tag {
+            transition: all 0.2s ease;
+        }
+        .filter-tag.active {
+            background-color: #10b981;
+            color: white;
+        }
+        .priority-high {
+            border-left: 4px solid #ef4444;
+        }
+        .priority-medium {
+            border-left: 4px solid #f59e0b;
+        }
+        .priority-low {
+            border-left: 4px solid #10b981;
+        }
+        .evidence-image {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg sidebar-transition">
+        <div class="flex items-center justify-center h-16 bg-green-600">
+            <h1 class="text-xl font-bold text-white">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    仪表盘
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 bg-green-50 text-green-600 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>
+                    香草阳台
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>
+                    香草图鉴
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>
+                    商品管理
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>
+                    用户管理
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700 mr-4">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <nav class="flex items-center space-x-2 text-sm text-gray-600">
+                        <a href="#" class="hover:text-green-600">香草阳台</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-gray-900 font-medium">举报处理</span>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="export-reports-btn" class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-download mr-2"></i>导出数据
+                    </button>
+                    <button id="refresh-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 统计卡片 -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="stat-card bg-white rounded-lg shadow p-6 cursor-pointer">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-flag text-red-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">待处理举报</p>
+                            <p class="text-2xl font-bold text-gray-900">45</p>
+                            <p class="text-sm text-red-600">需要处理</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-white rounded-lg shadow p-6 cursor-pointer">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-orange-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">高优先级</p>
+                            <p class="text-2xl font-bold text-gray-900">12</p>
+                            <p class="text-sm text-orange-600">紧急处理</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-white rounded-lg shadow p-6 cursor-pointer">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">已处理</p>
+                            <p class="text-2xl font-bold text-gray-900">1,234</p>
+                            <p class="text-sm text-green-600">本月处理</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-white rounded-lg shadow p-6 cursor-pointer">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">处理效率</p>
+                            <p class="text-2xl font-bold text-gray-900">95%</p>
+                            <p class="text-sm text-blue-600">24小时内</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和操作栏 -->
+            <div class="bg-white rounded-lg shadow mb-6">
+                <div class="p-6">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                        <!-- 筛选标签 -->
+                        <div class="flex flex-wrap gap-2">
+                            <button class="filter-tag active px-3 py-1 rounded-full text-sm border border-gray-300 hover:bg-green-600 hover:text-white" data-filter="all">
+                                全部举报
+                            </button>
+                            <button class="filter-tag px-3 py-1 rounded-full text-sm border border-gray-300 hover:bg-green-600 hover:text-white" data-filter="pending">
+                                待处理
+                            </button>
+                            <button class="filter-tag px-3 py-1 rounded-full text-sm border border-gray-300 hover:bg-green-600 hover:text-white" data-filter="processing">
+                                处理中
+                            </button>
+                            <button class="filter-tag px-3 py-1 rounded-full text-sm border border-gray-300 hover:bg-green-600 hover:text-white" data-filter="resolved">
+                                已解决
+                            </button>
+                            <button class="filter-tag px-3 py-1 rounded-full text-sm border border-gray-300 hover:bg-green-600 hover:text-white" data-filter="rejected">
+                                已驳回
+                            </button>
+                        </div>
+                        
+                        <!-- 搜索和操作 -->
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <input type="text" id="search-input" placeholder="搜索举报内容或用户" 
+                                       class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 w-64">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                            </div>
+                            
+                            <select id="priority-filter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="all">全部优先级</option>
+                                <option value="high">高优先级</option>
+                                <option value="medium">中优先级</option>
+                                <option value="low">低优先级</option>
+                            </select>
+                            
+                            <select id="type-filter" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="all">全部类型</option>
+                                <option value="spam">垃圾广告</option>
+                                <option value="inappropriate">不当内容</option>
+                                <option value="harassment">骚扰辱骂</option>
+                                <option value="copyright">版权侵犯</option>
+                                <option value="other">其他</option>
+                            </select>
+                            
+                            <div class="flex items-center space-x-2">
+                                <button id="batch-process-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50" disabled>
+                                    <i class="fas fa-tasks mr-2"></i>批量处理
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 举报列表 -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">举报列表</h3>
+                        <div class="flex items-center space-x-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="select-all" class="mr-2">
+                                <span class="text-sm text-gray-700">全选</span>
+                            </label>
+                            <span class="text-sm text-gray-500">共 <span id="total-count">456</span> 条举报</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="divide-y divide-gray-200">
+                    <!-- 举报项 1 -->
+                    <div class="report-item priority-high p-6" data-status="pending" data-priority="high" data-type="spam">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="report-checkbox mt-1">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">高优先级</span>
+                                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">待处理</span>
+                                        <span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">垃圾广告</span>
+                                        <span class="text-sm text-gray-500">举报ID: #R001234</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800" title="查看详情">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800" title="处理">
+                                            <i class="fas fa-gavel"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800" title="驳回">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-800" title="更多">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <!-- 举报信息 -->
+                                    <div>
+                                        <h4 class="font-medium text-gray-900 mb-2">举报信息</h4>
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">举报人:</span>
+                                                <span class="text-gray-900">用户A (ID: 12345)</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">举报时间:</span>
+                                                <span class="text-gray-900">2024-01-15 14:30:25</span>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <span class="text-gray-600 w-20">举报原因:</span>
+                                                <span class="text-gray-900">该用户在评论中发布广告信息，包含微信号和产品推广内容，严重影响社区环境。</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 被举报内容 -->
+                                    <div>
+                                        <h4 class="font-medium text-gray-900 mb-2">被举报内容</h4>
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">内容类型:</span>
+                                                <span class="text-gray-900">评论</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">被举报人:</span>
+                                                <span class="text-gray-900">广告用户 (ID: 67890)</span>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <span class="text-gray-600 w-20">内容:</span>
+                                                <div class="bg-red-50 border border-red-200 rounded p-2 text-gray-800">
+                                                    "这里有更便宜的香草种子，质量保证！联系微信：xxxxx，还有专业种植指导..."
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 证据材料 -->
+                                <div class="mt-4">
+                                    <h4 class="font-medium text-gray-900 mb-2">证据材料</h4>
+                                    <div class="flex items-center space-x-2">
+                                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zNSA0MEw2NSA0MEw2NSA2MEwzNSA2MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkgMTJMMTEgMTRMMTUgMTBNMjEgMTJDMjEgMTYuOTcwNiAxNi45NzA2IDIxIDEyIDIxQzcuMDI5NDQgMjEgMyAxNi45NzA2IDMgMTJDMyA3LjAyOTQ0IDcuMDI5NDQgMyAxMiAzQzE2Ljk3MDYgMyAyMSA3LjAyOTQ0IDIxIDEyWiIgc3Ryb2tlPSIjMTBCOTgxIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4KPC9zdmc+" 
+                                             alt="证据截图1" class="evidence-image rounded border">
+                                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zNSA0MEw2NSA0MEw2NSA2MEwzNSA2MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTkgMTJMMTEgMTRMMTUgMTBNMjEgMTJDMjEgMTYuOTcwNiAxNi45NzA2IDIxIDEyIDIxQzcuMDI5NDQgMjEgMyAxNi45NzA2IDMgMTJDMyA3LjAyOTQ0IDcuMDI5NDQgMyAxMiAzQzE2Ljk3MDYgMyAyMSA3LjAyOTQ0IDIxIDEyWiIgc3Ryb2tlPSIjMTBCOTgxIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4KPC9zdmc+" 
+                                             alt="证据截图2" class="evidence-image rounded border">
+                                        <span class="text-sm text-gray-500">+3 张图片</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 text-sm text-gray-500">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="flex items-center">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            创建时间: 2024-01-15 14:30
+                                        </span>
+                                        <span class="flex items-center">
+                                            <i class="fas fa-user mr-1"></i>
+                                            处理人: 未分配
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-red-600 font-medium">紧急处理</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 举报项 2 -->
+                    <div class="report-item priority-medium p-6" data-status="processing" data-priority="medium" data-type="inappropriate">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="report-checkbox mt-1">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full font-medium">中优先级</span>
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">处理中</span>
+                                        <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">不当内容</span>
+                                        <span class="text-sm text-gray-500">举报ID: #R001235</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800" title="查看详情">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800" title="完成处理">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                        <button class="text-yellow-600 hover:text-yellow-800" title="暂停处理">
+                                            <i class="fas fa-pause-circle"></i>
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-800" title="更多">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <!-- 举报信息 -->
+                                    <div>
+                                        <h4 class="font-medium text-gray-900 mb-2">举报信息</h4>
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">举报人:</span>
+                                                <span class="text-gray-900">用户B (ID: 23456)</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">举报时间:</span>
+                                                <span class="text-gray-900">2024-01-15 13:15:30</span>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <span class="text-gray-600 w-20">举报原因:</span>
+                                                <span class="text-gray-900">该文章内容包含不当言论，可能误导新手种植者。</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 被举报内容 -->
+                                    <div>
+                                        <h4 class="font-medium text-gray-900 mb-2">被举报内容</h4>
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">内容类型:</span>
+                                                <span class="text-gray-900">文章</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">被举报人:</span>
+                                                <span class="text-gray-900">种植新手 (ID: 78901)</span>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <span class="text-gray-600 w-20">内容:</span>
+                                                <div class="bg-yellow-50 border border-yellow-200 rounded p-2 text-gray-800">
+                                                    "香草种植其实很简单，随便浇水就行，不用太在意土壤和光照..."
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 text-sm text-gray-500">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="flex items-center">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            创建时间: 2024-01-15 13:15
+                                        </span>
+                                        <span class="flex items-center">
+                                            <i class="fas fa-user mr-1"></i>
+                                            处理人: 管理员A
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-blue-600 font-medium">处理中</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 举报项 3 -->
+                    <div class="report-item priority-low p-6" data-status="resolved" data-priority="low" data-type="other">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="report-checkbox mt-1">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">低优先级</span>
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">已解决</span>
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">其他</span>
+                                        <span class="text-sm text-gray-500">举报ID: #R001236</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800" title="查看详情">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-800" title="重新打开">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-800" title="更多">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <!-- 举报信息 -->
+                                    <div>
+                                        <h4 class="font-medium text-gray-900 mb-2">举报信息</h4>
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">举报人:</span>
+                                                <span class="text-gray-900">用户C (ID: 34567)</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">举报时间:</span>
+                                                <span class="text-gray-900">2024-01-15 10:30:15</span>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <span class="text-gray-600 w-20">举报原因:</span>
+                                                <span class="text-gray-900">用户名不合适，建议修改。</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 处理结果 -->
+                                    <div>
+                                        <h4 class="font-medium text-gray-900 mb-2">处理结果</h4>
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">处理状态:</span>
+                                                <span class="text-green-600 font-medium">已解决</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="text-gray-600 w-20">处理时间:</span>
+                                                <span class="text-gray-900">2024-01-15 11:00:30</span>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <span class="text-gray-600 w-20">处理说明:</span>
+                                                <div class="bg-green-50 border border-green-200 rounded p-2 text-gray-800">
+                                                    已联系用户修改用户名，问题已解决。
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 text-sm text-gray-500">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="flex items-center">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            处理时长: 30分钟
+                                        </span>
+                                        <span class="flex items-center">
+                                            <i class="fas fa-user mr-1"></i>
+                                            处理人: 管理员B
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-green-600 font-medium">已完成</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示 <span class="font-medium">1</span> 到 <span class="font-medium">20</span> 条，共 <span class="font-medium">456</span> 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>
+                                上一页
+                            </button>
+                            <button class="px-3 py-2 text-sm text-white bg-green-600 border border-green-600 rounded-md hover:bg-green-700">
+                                1
+                            </button>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                2
+                            </button>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                3
+                            </button>
+                            <span class="px-3 py-2 text-sm text-gray-500">...</span>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                23
+                            </button>
+                            <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 处理举报模态框 -->
+    <div id="process-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">处理举报</h3>
+                <button id="close-process-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 左侧：举报详情 -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-4">举报详情</h4>
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h5 class="font-medium text-gray-900 mb-2">举报信息</h5>
+                                <div class="space-y-2 text-sm">
+                                    <div><span class="text-gray-600">举报ID:</span> <span id="modal-report-id">#R001234</span></div>
+                                    <div><span class="text-gray-600">举报人:</span> <span id="modal-reporter">用户A</span></div>
+                                    <div><span class="text-gray-600">举报时间:</span> <span id="modal-report-time">2024-01-15 14:30</span></div>
+                                    <div><span class="text-gray-600">举报类型:</span> <span id="modal-report-type">垃圾广告</span></div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-red-50 rounded-lg p-4 border border-red-200">
+                                <h5 class="font-medium text-gray-900 mb-2">被举报内容</h5>
+                                <div class="text-sm text-gray-800" id="modal-reported-content">
+                                    这里显示被举报的具体内容...
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h5 class="font-medium text-gray-900 mb-2">证据材料</h5>
+                                <div class="grid grid-cols-3 gap-2" id="modal-evidence">
+                                    <!-- 证据图片将在这里显示 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧：处理操作 -->
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-4">处理操作</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">处理结果</label>
+                                <select id="process-result" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    <option value="">请选择处理结果</option>
+                                    <option value="delete-content">删除被举报内容</option>
+                                    <option value="warn-user">警告用户</option>
+                                    <option value="ban-user">封禁用户</option>
+                                    <option value="reject-report">驳回举报</option>
+                                    <option value="modify-content">要求修改内容</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">处理说明</label>
+                                <textarea id="process-note" rows="4" placeholder="请详细说明处理原因和结果..." 
+                                          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">通知设置</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="notify-reporter" class="mr-2">
+                                        <span class="text-sm text-gray-700">通知举报人处理结果</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="notify-reported" class="mr-2">
+                                        <span class="text-sm text-gray-700">通知被举报人</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">处理优先级</label>
+                                <select id="process-priority" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    <option value="low">低优先级</option>
+                                    <option value="medium">中优先级</option>
+                                    <option value="high">高优先级</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">分配给</label>
+                                <select id="assign-to" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    <option value="">选择处理人员</option>
+                                    <option value="admin-a">管理员A</option>
+                                    <option value="admin-b">管理员B</option>
+                                    <option value="admin-c">管理员C</option>
+                                    <option value="self">分配给自己</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-4 p-6 border-t border-gray-200">
+                <button id="save-draft" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    保存草稿
+                </button>
+                <button id="cancel-process" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    取消
+                </button>
+                <button id="submit-process" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    提交处理
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量处理模态框 -->
+    <div id="batch-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">批量处理举报</h3>
+                <button id="close-batch-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600">已选择 <span id="selected-count">0</span> 条举报进行批量处理</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">批量操作</label>
+                        <select id="batch-action" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="">请选择批量操作</option>
+                            <option value="assign">批量分配</option>
+                            <option value="priority">批量设置优先级</option>
+                            <option value="reject">批量驳回</option>
+                            <option value="delete">批量删除</option>
+                        </select>
+                    </div>
+                    
+                    <div id="batch-assign-section" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">分配给</label>
+                        <select id="batch-assign-to" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="admin-a">管理员A</option>
+                            <option value="admin-b">管理员B</option>
+                            <option value="admin-c">管理员C</option>
+                        </select>
+                    </div>
+                    
+                    <div id="batch-priority-section" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">优先级</label>
+                        <select id="batch-priority" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="high">高优先级</option>
+                            <option value="medium">中优先级</option>
+                            <option value="low">低优先级</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">备注说明</label>
+                        <textarea id="batch-note" rows="3" placeholder="批量操作说明..." 
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-4 p-6 border-t border-gray-200">
+                <button id="cancel-batch" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    取消
+                </button>
+                <button id="execute-batch" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    执行批量操作
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片预览模态框 -->
+    <div id="image-modal" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50">
+        <div class="max-w-4xl max-h-screen p-4">
+            <div class="relative">
+                <button id="close-image-modal" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+                <img id="preview-image" src="" alt="预览图片" class="max-w-full max-h-full object-contain">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 刷新数据
+        document.getElementById('refresh-btn').addEventListener('click', function() {
+            console.log('刷新举报数据');
+            const btn = this;
+            const icon = btn.querySelector('i');
+            icon.classList.add('fa-spin');
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                alert('数据已刷新！');
+            }, 1500);
+        });
+
+        // 导出数据
+        document.getElementById('export-reports-btn').addEventListener('click', function() {
+            console.log('导出举报数据');
+            alert('举报数据导出中，请稍候...');
+        });
+
+        // 筛选标签切换
+        document.querySelectorAll('.filter-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                // 移除所有active类
+                document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+                // 添加active类到当前标签
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                console.log('筛选举报:', filter);
+                filterReports(filter);
+            });
+        });
+
+        // 筛选举报函数
+        function filterReports(filter) {
+            const reports = document.querySelectorAll('.report-item');
+            reports.forEach(report => {
+                const status = report.dataset.status;
+                if (filter === 'all' || status === filter) {
+                    report.style.display = 'block';
+                } else {
+                    report.style.display = 'none';
+                }
+            });
+        }
+
+        // 优先级筛选
+        document.getElementById('priority-filter').addEventListener('change', function() {
+            const priority = this.value;
+            const reports = document.querySelectorAll('.report-item');
+            
+            reports.forEach(report => {
+                const reportPriority = report.dataset.priority;
+                if (priority === 'all' || reportPriority === priority) {
+                    report.style.display = 'block';
+                } else {
+                    report.style.display = 'none';
+                }
+            });
+        });
+
+        // 类型筛选
+        document.getElementById('type-filter').addEventListener('change', function() {
+            const type = this.value;
+            const reports = document.querySelectorAll('.report-item');
+            
+            reports.forEach(report => {
+                const reportType = report.dataset.type;
+                if (type === 'all' || reportType === type) {
+                    report.style.display = 'block';
+                } else {
+                    report.style.display = 'none';
+                }
+            });
+        });
+
+        // 搜索功能
+        document.getElementById('search-input').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const reports = document.querySelectorAll('.report-item');
+            
+            reports.forEach(report => {
+                const content = report.textContent.toLowerCase();
+                if (content.includes(searchTerm)) {
+                    report.style.display = 'block';
+                } else {
+                    report.style.display = 'none';
+                }
+            });
+        });
+
+        // 全选功能
+        document.getElementById('select-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.report-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBatchButton();
+        });
+
+        // 单个复选框变化
+        document.querySelectorAll('.report-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateBatchButton);
+        });
+
+        // 更新批量操作按钮状态
+        function updateBatchButton() {
+            const checkedBoxes = document.querySelectorAll('.report-checkbox:checked');
+            const batchBtn = document.getElementById('batch-process-btn');
+            
+            if (checkedBoxes.length > 0) {
+                batchBtn.disabled = false;
+            } else {
+                batchBtn.disabled = true;
+            }
+            
+            // 更新选中数量
+            document.getElementById('selected-count').textContent = checkedBoxes.length;
+        }
+
+        // 批量处理
+        document.getElementById('batch-process-btn').addEventListener('click', function() {
+            const checkedBoxes = document.querySelectorAll('.report-checkbox:checked');
+            if (checkedBoxes.length === 0) return;
+            
+            document.getElementById('batch-modal').classList.add('show');
+        });
+
+        // 单个举报操作
+        document.addEventListener('click', function(e) {
+            const target = e.target;
+            const icon = target.closest('i');
+            if (!icon) return;
+
+            const reportItem = target.closest('.report-item');
+            if (!reportItem) return;
+
+            if (icon.classList.contains('fa-eye')) {
+                // 查看详情
+                console.log('查看举报详情');
+                openProcessModal(reportItem);
+            } else if (icon.classList.contains('fa-gavel')) {
+                // 处理举报
+                console.log('处理举报');
+                openProcessModal(reportItem);
+            } else if (icon.classList.contains('fa-times-circle')) {
+                // 驳回举报
+                if (confirm('确定要驳回这条举报吗？')) {
+                    console.log('驳回举报');
+                    const statusSpan = reportItem.querySelector('.px-2.py-1:nth-child(2)');
+                    statusSpan.className = 'px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full';
+                    statusSpan.textContent = '已驳回';
+                    reportItem.dataset.status = 'rejected';
+                }
+            } else if (icon.classList.contains('fa-check-circle')) {
+                // 完成处理
+                if (confirm('确定要标记为已解决吗？')) {
+                    console.log('完成处理');
+                    const statusSpan = reportItem.querySelector('.px-2.py-1:nth-child(2)');
+                    statusSpan.className = 'px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full';
+                    statusSpan.textContent = '已解决';
+                    reportItem.dataset.status = 'resolved';
+                }
+            } else if (icon.classList.contains('fa-pause-circle')) {
+                // 暂停处理
+                console.log('暂停处理');
+                const statusSpan = reportItem.querySelector('.px-2.py-1:nth-child(2)');
+                statusSpan.className = 'px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full';
+                statusSpan.textContent = '待处理';
+                reportItem.dataset.status = 'pending';
+            } else if (icon.classList.contains('fa-redo')) {
+                // 重新打开
+                if (confirm('确定要重新打开这条举报吗？')) {
+                    console.log('重新打开举报');
+                    const statusSpan = reportItem.querySelector('.px-2.py-1:nth-child(2)');
+                    statusSpan.className = 'px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full';
+                    statusSpan.textContent = '待处理';
+                    reportItem.dataset.status = 'pending';
+                }
+            }
+        });
+
+        // 打开处理模态框
+        function openProcessModal(reportItem) {
+            const modal = document.getElementById('process-modal');
+            
+            // 填充举报信息
+            const reportId = reportItem.querySelector('.text-gray-500').textContent;
+            document.getElementById('modal-report-id').textContent = reportId;
+            
+            modal.classList.add('show');
+        }
+
+        // 关闭处理模态框
+        document.getElementById('close-process-modal').addEventListener('click', function() {
+            document.getElementById('process-modal').classList.remove('show');
+        });
+
+        document.getElementById('cancel-process').addEventListener('click', function() {
+            document.getElementById('process-modal').classList.remove('show');
+        });
+
+        // 提交处理
+        document.getElementById('submit-process').addEventListener('click', function() {
+            const result = document.getElementById('process-result').value;
+            const note = document.getElementById('process-note').value;
+            
+            if (!result) {
+                alert('请选择处理结果');
+                return;
+            }
+            
+            if (!note.trim()) {
+                alert('请填写处理说明');
+                return;
+            }
+            
+            console.log('提交处理结果:', { result, note });
+            alert('处理结果已提交！');
+            document.getElementById('process-modal').classList.remove('show');
+        });
+
+        // 保存草稿
+        document.getElementById('save-draft').addEventListener('click', function() {
+            console.log('保存处理草稿');
+            alert('草稿已保存！');
+        });
+
+        // 批量操作相关
+        document.getElementById('batch-action').addEventListener('change', function() {
+            const action = this.value;
+            
+            // 隐藏所有子选项
+            document.getElementById('batch-assign-section').classList.add('hidden');
+            document.getElementById('batch-priority-section').classList.add('hidden');
+            
+            // 显示对应的子选项
+            if (action === 'assign') {
+                document.getElementById('batch-assign-section').classList.remove('hidden');
+            } else if (action === 'priority') {
+                document.getElementById('batch-priority-section').classList.remove('hidden');
+            }
+        });
+
+        // 关闭批量处理模态框
+        document.getElementById('close-batch-modal').addEventListener('click', function() {
+            document.getElementById('batch-modal').classList.remove('show');
+        });
+
+        document.getElementById('cancel-batch').addEventListener('click', function() {
+            document.getElementById('batch-modal').classList.remove('show');
+        });
+
+        // 执行批量操作
+        document.getElementById('execute-batch').addEventListener('click', function() {
+            const action = document.getElementById('batch-action').value;
+            const note = document.getElementById('batch-note').value;
+            
+            if (!action) {
+                alert('请选择批量操作类型');
+                return;
+            }
+            
+            const checkedBoxes = document.querySelectorAll('.report-checkbox:checked');
+            console.log('执行批量操作:', action, '数量:', checkedBoxes.length);
+            
+            if (confirm(`确定要对 ${checkedBoxes.length} 条举报执行批量操作吗？`)) {
+                alert('批量操作已执行！');
+                document.getElementById('batch-modal').classList.remove('show');
+                
+                // 清除选择
+                checkedBoxes.forEach(checkbox => checkbox.checked = false);
+                document.getElementById('select-all').checked = false;
+                updateBatchButton();
+            }
+        });
+
+        // 证据图片点击预览
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('evidence-image')) {
+                const modal = document.getElementById('image-modal');
+                const previewImg = document.getElementById('preview-image');
+                previewImg.src = e.target.src;
+                modal.classList.add('show');
+            }
+        });
+
+        // 关闭图片预览
+        document.getElementById('close-image-modal').addEventListener('click', function() {
+            document.getElementById('image-modal').classList.remove('show');
+        });
+
+        // 统计卡片点击
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const cardText = this.querySelector('p').textContent;
+                console.log('点击统计卡片:', cardText);
+                
+                // 根据卡片类型进行相应的筛选
+                if (cardText.includes('待处理')) {
+                    document.querySelector('[data-filter="pending"]').click();
+                } else if (cardText.includes('高优先级')) {
+                    document.getElementById('priority-filter').value = 'high';
+                    document.getElementById('priority-filter').dispatchEvent(new Event('change'));
+                } else if (cardText.includes('已处理')) {
+                    document.querySelector('[data-filter="resolved"]').click();
+                }
+            });
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('举报处理页面初始化完成');
+            updateBatchButton();
+        });
+    </script>
+</body>
+</html>

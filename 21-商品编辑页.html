@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品编辑页 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#f3f4f6'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-500">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-home mr-3"></i>
+                        首页仪表板
+                    </a>
+                    <div class="space-y-1">
+                        <div class="flex items-center px-4 py-2 text-primary bg-green-50 rounded-lg">
+                            <i class="fas fa-box mr-3"></i>
+                            商品管理
+                        </div>
+                        <div class="ml-6 space-y-1">
+                            <a href="02-商品列表页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">商品列表</a>
+                            <a href="21-商品编辑页.html" class="block px-4 py-1 text-sm text-primary font-medium bg-green-100 rounded">商品编辑</a>
+                            <a href="22-商品分类管理.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">分类管理</a>
+                            <a href="23-库存管理页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">库存管理</a>
+                            <a href="24-规格管理.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">规格管理</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden mr-4 text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold text-gray-800">商品编辑</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 操作栏 -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <button onclick="goBack()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-arrow-left mr-2"></i>返回列表
+                        </button>
+                        <div class="text-sm text-gray-500">
+                            <span>商品ID: PRD001</span>
+                            <span class="mx-2">|</span>
+                            <span>最后更新: 2024-01-15 14:30</span>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="previewProduct()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-eye mr-2"></i>预览
+                        </button>
+                        <button onclick="saveProduct()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors">
+                            <i class="fas fa-save mr-2"></i>保存
+                        </button>
+                        <button onclick="publishProduct()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-upload mr-2"></i>发布
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 编辑表单 -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <!-- 主要信息 -->
+                <div class="xl:col-span-2 space-y-6">
+                    <!-- 基本信息 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">基本信息</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">商品名称 *</label>
+                                <input type="text" id="productName" value="有机薄荷种子套装" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入商品名称">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">商品分类 *</label>
+                                    <select id="productCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="">选择分类</option>
+                                        <option value="seeds" selected>种子类</option>
+                                        <option value="plants">植物类</option>
+                                        <option value="tools">工具类</option>
+                                        <option value="fertilizer">肥料类</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">商品品牌</label>
+                                    <input type="text" id="productBrand" value="香草生活" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入品牌名称">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">商品简介</label>
+                                <textarea id="productSummary" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入商品简介">优质有机薄荷种子，易种植，生长快，香味浓郁，适合家庭种植。</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品图片 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">商品图片</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">主图 *</label>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="relative group">
+                                        <img src="https://via.placeholder.com/200x200/10b981/ffffff?text=主图1" alt="主图1" class="w-full h-32 object-cover rounded-lg border-2 border-primary">
+                                        <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                            <button class="text-white hover:text-red-400">
+                                                <i class="fas fa-trash text-lg"></i>
+                                            </button>
+                                        </div>
+                                        <div class="absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded">主图</div>
+                                    </div>
+                                    <div class="relative group">
+                                        <img src="https://via.placeholder.com/200x200/6b7280/ffffff?text=图片2" alt="图片2" class="w-full h-32 object-cover rounded-lg border border-gray-300">
+                                        <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                            <button class="text-white hover:text-red-400">
+                                                <i class="fas fa-trash text-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="relative group">
+                                        <img src="https://via.placeholder.com/200x200/6b7280/ffffff?text=图片3" alt="图片3" class="w-full h-32 object-cover rounded-lg border border-gray-300">
+                                        <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                            <button class="text-white hover:text-red-400">
+                                                <i class="fas fa-trash text-lg"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg h-32 flex items-center justify-center cursor-pointer hover:border-primary transition-colors" onclick="uploadImage()">
+                                        <div class="text-center text-gray-500">
+                                            <i class="fas fa-plus text-2xl mb-2"></i>
+                                            <p class="text-sm">添加图片</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-2">建议尺寸：800x800像素，支持JPG、PNG格式，最多上传8张</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品详情 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">商品详情</h3>
+                        <div class="space-y-4">
+                            <div class="border border-gray-300 rounded-lg" style="min-height: 300px;">
+                                <div class="bg-gray-50 px-4 py-2 border-b border-gray-300 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50">
+                                            <i class="fas fa-bold"></i>
+                                        </button>
+                                        <button class="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50">
+                                            <i class="fas fa-italic"></i>
+                                        </button>
+                                        <button class="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50">
+                                            <i class="fas fa-underline"></i>
+                                        </button>
+                                        <div class="w-px h-6 bg-gray-300"></div>
+                                        <button class="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50">
+                                            <i class="fas fa-image"></i>
+                                        </button>
+                                        <button class="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50">
+                                            <i class="fas fa-link"></i>
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50">预览</button>
+                                        <button class="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50">源码</button>
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <div class="text-gray-700 leading-relaxed">
+                                        <h4 class="text-lg font-semibold mb-3">产品特点</h4>
+                                        <ul class="list-disc list-inside space-y-2 mb-4">
+                                            <li>100%有机认证种子，无农药残留</li>
+                                            <li>发芽率高达95%以上</li>
+                                            <li>适合室内外种植</li>
+                                            <li>生长周期短，30天即可收获</li>
+                                        </ul>
+                                        <h4 class="text-lg font-semibold mb-3">种植指南</h4>
+                                        <p class="mb-4">薄荷喜欢湿润的环境，建议每天浇水一次，保持土壤湿润但不积水。放置在有散射光的位置，避免强烈直射阳光。</p>
+                                        <h4 class="text-lg font-semibold mb-3">包装内容</h4>
+                                        <ul class="list-disc list-inside space-y-2">
+                                            <li>有机薄荷种子 50粒</li>
+                                            <li>营养土 500g</li>
+                                            <li>种植盆 1个</li>
+                                            <li>种植指南 1份</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 规格与库存 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">规格与库存</h3>
+                        <div class="space-y-4">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b border-gray-200">
+                                            <th class="text-left py-3 px-4 font-medium text-gray-700">规格名称</th>
+                                            <th class="text-left py-3 px-4 font-medium text-gray-700">SKU</th>
+                                            <th class="text-left py-3 px-4 font-medium text-gray-700">价格</th>
+                                            <th class="text-left py-3 px-4 font-medium text-gray-700">库存</th>
+                                            <th class="text-left py-3 px-4 font-medium text-gray-700">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b border-gray-100">
+                                            <td class="py-3 px-4">
+                                                <input type="text" value="标准套装" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent">
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <input type="text" value="MINT-STD-001" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent">
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <input type="number" value="29.90" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent">
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <input type="number" value="150" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent">
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <button class="text-red-600 hover:text-red-800">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100">
+                                            <td class="py-3 px-4">
+                                                <input type="text" value="豪华套装" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent">
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <input type="text" value="MINT-LUX-001" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent">
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <input type="number" value="49.90" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent">
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <input type="number" value="80" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent">
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <button class="text-red-600 hover:text-red-800">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button onclick="addSku()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>添加规格
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 侧边栏信息 -->
+                <div class="space-y-6">
+                    <!-- 发布设置 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">发布设置</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">商品状态</label>
+                                <select id="productStatus" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    <option value="draft">草稿</option>
+                                    <option value="published" selected>已发布</option>
+                                    <option value="offline">已下架</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">发布时间</label>
+                                <input type="datetime-local" id="publishTime" value="2024-01-15T10:00" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="featured" checked class="mr-2 rounded border-gray-300 text-primary focus:ring-primary">
+                                    <span class="text-sm text-gray-700">设为推荐商品</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="newProduct" class="mr-2 rounded border-gray-300 text-primary focus:ring-primary">
+                                    <span class="text-sm text-gray-700">标记为新品</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO设置 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">SEO设置</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">SEO标题</label>
+                                <input type="text" id="seoTitle" value="有机薄荷种子套装 - 香草生活" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入SEO标题">
+                                <p class="text-xs text-gray-500 mt-1">建议长度：50-60字符</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">SEO描述</label>
+                                <textarea id="seoDescription" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入SEO描述">优质有机薄荷种子，易种植，生长快，香味浓郁，适合家庭种植。包含种子、营养土、种植盆和详细指南。</textarea>
+                                <p class="text-xs text-gray-500 mt-1">建议长度：150-160字符</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">关键词</label>
+                                <input type="text" id="keywords" value="薄荷种子,有机种子,香草种植,家庭园艺" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入关键词，用逗号分隔">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 商品标签 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">商品标签</h3>
+                        <div class="space-y-4">
+                            <div class="flex flex-wrap gap-2">
+                                <span class="inline-flex items-center px-3 py-1 bg-primary text-white text-sm rounded-full">
+                                    有机
+                                    <button class="ml-2 text-white hover:text-gray-200">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </button>
+                                </span>
+                                <span class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                                    新品
+                                    <button class="ml-2 text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </button>
+                                </span>
+                                <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+                                    热销
+                                    <button class="ml-2 text-green-600 hover:text-green-800">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </button>
+                                </span>
+                            </div>
+                            <div>
+                                <input type="text" id="newTag" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="输入标签名称，按回车添加">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 操作历史 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">操作历史</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-800">商品信息更新</p>
+                                    <p class="text-xs text-gray-500">2024-01-15 14:30</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-800">库存调整</p>
+                                    <p class="text-xs text-gray-500">2024-01-15 10:15</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-800">商品发布</p>
+                                    <p class="text-xs text-gray-500">2024-01-14 16:20</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 功能函数
+        function goBack() {
+            window.history.back();
+        }
+
+        function previewProduct() {
+            alert('正在打开商品预览...');
+        }
+
+        function saveProduct() {
+            alert('商品信息已保存');
+        }
+
+        function publishProduct() {
+            if (confirm('确定要发布这个商品吗？')) {
+                alert('商品发布成功');
+            }
+        }
+
+        function uploadImage() {
+            alert('正在打开图片上传对话框...');
+        }
+
+        function addSku() {
+            alert('正在添加新规格...');
+        }
+
+        // 标签输入处理
+        document.getElementById('newTag').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim()) {
+                const tagContainer = this.parentElement.previousElementSibling;
+                const newTag = document.createElement('span');
+                newTag.className = 'inline-flex items-center px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full';
+                newTag.innerHTML = `
+                    ${this.value.trim()}
+                    <button class="ml-2 text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                `;
+                tagContainer.appendChild(newTag);
+                this.value = '';
+            }
+        });
+
+        // 删除标签
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.fa-times')) {
+                e.target.closest('span').remove();
+            }
+        });
+
+        // 表单验证
+        function validateForm() {
+            const productName = document.getElementById('productName').value;
+            const productCategory = document.getElementById('productCategory').value;
+            
+            if (!productName.trim()) {
+                alert('请输入商品名称');
+                return false;
+            }
+            
+            if (!productCategory) {
+                alert('请选择商品分类');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // 自动保存
+        let autoSaveTimer;
+        function autoSave() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                console.log('自动保存商品信息...');
+            }, 30000); // 30秒后自动保存
+        }
+
+        // 监听表单变化
+        document.querySelectorAll('input, textarea, select').forEach(element => {
+            element.addEventListener('change', autoSave);
+        });
+    </script>
+</body>
+</html>

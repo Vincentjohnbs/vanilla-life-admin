@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>达人管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .sidebar-collapsed .sidebar-text {
+            display: none;
+        }
+        .sidebar-collapsed .sidebar-icon {
+            margin: 0 auto;
+        }
+        .expert-item {
+            transition: all 0.3s ease;
+        }
+        .expert-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .modal {
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transition-all duration-300 z-30">
+        <div class="p-6 border-b">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div class="sidebar-text">
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider sidebar-text mb-3">香草阳台</p>
+                <ul class="space-y-2">
+                    <li><a href="#" class="flex items-center px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors"><i class="fas fa-home sidebar-icon w-5"></i><span class="sidebar-text ml-3">内容详情页</span></a></li>
+                    <li><a href="#" class="flex items-center px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors"><i class="fas fa-heart sidebar-icon w-5"></i><span class="sidebar-text ml-3">互动管理页</span></a></li>
+                    <li><a href="#" class="flex items-center px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors"><i class="fas fa-thumbs-up sidebar-icon w-5"></i><span class="sidebar-text ml-3">推荐管理页</span></a></li>
+                    <li><a href="#" class="flex items-center px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors"><i class="fas fa-comments sidebar-icon w-5"></i><span class="sidebar-text ml-3">评论管理</span></a></li>
+                    <li><a href="#" class="flex items-center px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors"><i class="fas fa-flag sidebar-icon w-5"></i><span class="sidebar-text ml-3">举报处理</span></a></li>
+                    <li><a href="#" class="flex items-center px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors"><i class="fas fa-hashtag sidebar-icon w-5"></i><span class="sidebar-text ml-3">话题管理</span></a></li>
+                    <li><a href="#" class="flex items-center px-4 py-2 bg-green-100 text-green-600 rounded-lg"><i class="fas fa-star sidebar-icon w-5"></i><span class="sidebar-text ml-3">达人管理</span></a></li>
+                    <li><a href="#" class="flex items-center px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors"><i class="fas fa-chart-bar sidebar-icon w-5"></i><span class="sidebar-text ml-3">内容统计</span></a></li>
+                    <li><a href="#" class="flex items-center px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors"><i class="fas fa-cog sidebar-icon w-5"></i><span class="sidebar-text ml-3">推荐算法配置</span></a></li>
+                    <li><a href="#" class="flex items-center px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors"><i class="fas fa-shield-alt sidebar-icon w-5"></i><span class="sidebar-text ml-3">社区规则设置</span></a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">达人管理</h2>
+                        <p class="text-sm text-gray-500">管理社区达人用户和权限</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="refreshData()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                    </button>
+                    <button onclick="exportData()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出数据
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 统计卡片 -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card bg-white rounded-xl p-6 shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">达人总数</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">1,234</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+12.5%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-star text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-white rounded-xl p-6 shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">活跃达人</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">856</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8.3%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-fire text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-white rounded-xl p-6 shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">内容产出</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">15.6K</p>
+                            <p class="text-sm text-red-600 mt-1">
+                                <i class="fas fa-arrow-down mr-1"></i>-2.1%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-edit text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-white rounded-xl p-6 shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">影响力指数</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">92.8</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+5.7%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和操作栏 -->
+            <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <!-- 筛选标签 -->
+                        <div class="flex items-center space-x-2">
+                            <button onclick="filterExperts('all')" class="filter-btn px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium transition-colors">全部</button>
+                            <button onclick="filterExperts('senior')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">资深达人</button>
+                            <button onclick="filterExperts('expert')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">专业达人</button>
+                            <button onclick="filterExperts('rising')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">新星达人</button>
+                            <button onclick="filterExperts('active')" class="filter-btn px-4 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">活跃用户</button>
+                        </div>
+                        
+                        <!-- 专业领域筛选 -->
+                        <select id="field-filter" onchange="filterExperts()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">全部领域</option>
+                            <option value="planting">种植技巧</option>
+                            <option value="cooking">烹饪美食</option>
+                            <option value="health">健康养生</option>
+                            <option value="diy">手工DIY</option>
+                            <option value="garden">园艺设计</option>
+                        </select>
+                        
+                        <!-- 状态筛选 -->
+                        <select id="status-filter" onchange="filterExperts()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">全部状态</option>
+                            <option value="active">活跃</option>
+                            <option value="inactive">不活跃</option>
+                            <option value="suspended">已暂停</option>
+                        </select>
+                        
+                        <!-- 搜索框 -->
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="搜索达人姓名或描述..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent w-64">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        
+                        <!-- 排序 -->
+                        <select id="sort-select" onchange="sortExperts(this.value)" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="influence_desc">影响力降序</option>
+                            <option value="influence_asc">影响力升序</option>
+                            <option value="posts_desc">内容数降序</option>
+                            <option value="posts_asc">内容数升序</option>
+                            <option value="followers_desc">粉丝数降序</option>
+                            <option value="followers_asc">粉丝数升序</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3">
+                        <button onclick="openInviteModal()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium">
+                            <i class="fas fa-plus mr-2"></i>邀请达人
+                        </button>
+                        <button id="batch-btn" onclick="openBatchModal()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium disabled:bg-gray-300 disabled:cursor-not-allowed" disabled>
+                            <i class="fas fa-tasks mr-2"></i>批量操作
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 达人列表 -->
+            <div class="bg-white rounded-xl shadow-sm border">
+                <div class="p-6 border-b">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <input type="checkbox" id="select-all" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                            <label for="select-all" class="text-sm font-medium text-gray-700">全选</label>
+                        </div>
+                        <p class="text-sm text-gray-500">共 <span id="total-count">8</span> 位达人</p>
+                    </div>
+                </div>
+                
+                <div class="divide-y divide-gray-200">
+                    <!-- 达人项 -->
+                    <div class="expert-item p-6 hover:bg-gray-50" data-level="senior" data-field="planting" data-status="active">
+                        <div class="flex items-center space-x-4">
+                            <input type="checkbox" class="expert-checkbox w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=64&h=64&fit=crop&crop=face" alt="达人头像" class="w-16 h-16 rounded-full object-cover">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900">李小花</h3>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">资深达人</span>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">种植技巧</span>
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">活跃</span>
+                                </div>
+                                <p class="text-gray-600 mb-3">专注于香草种植技巧分享，拥有10年种植经验，擅长室内香草栽培和病虫害防治。</p>
+                                <div class="flex items-center space-x-6 text-sm text-gray-500">
+                                    <span><i class="fas fa-users mr-1"></i>粉丝 12.5K</span>
+                                    <span><i class="fas fa-edit mr-1"></i>内容 156</span>
+                                    <span><i class="fas fa-heart mr-1"></i>获赞 8.9K</span>
+                                    <span><i class="fas fa-chart-line mr-1"></i>影响力 95.2</span>
+                                    <span><i class="fas fa-calendar mr-1"></i>加入 2023-01-15</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="viewExpertDetail('1')" class="px-3 py-1 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors text-sm">
+                                    <i class="fas fa-eye mr-1"></i>查看详情
+                                </button>
+                                <button onclick="sendMessage('1')" class="px-3 py-1 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors text-sm">
+                                    <i class="fas fa-envelope mr-1"></i>发送消息
+                                </button>
+                                <div class="relative">
+                                    <button onclick="toggleDropdown('dropdown-1')" class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div id="dropdown-1" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-10">
+                                        <button onclick="setPermissions('1')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">设置权限</button>
+                                        <button onclick="upgradeLevel('1')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">升级等级</button>
+                                        <button onclick="activateUser('1')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">激活用户</button>
+                                        <button onclick="sendReminder('1')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">发送提醒</button>
+                                        <button onclick="suspendPermissions('1')" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">暂停权限</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 更多达人项... -->
+                    <div class="expert-item p-6 hover:bg-gray-50" data-level="expert" data-field="cooking" data-status="active">
+                        <div class="flex items-center space-x-4">
+                            <input type="checkbox" class="expert-checkbox w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face" alt="达人头像" class="w-16 h-16 rounded-full object-cover">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900">王大厨</h3>
+                                    <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">专业达人</span>
+                                    <span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">烹饪美食</span>
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">活跃</span>
+                                </div>
+                                <p class="text-gray-600 mb-3">香草料理专家，精通各种香草在烹饪中的应用，创作了多个爆款香草菜谱。</p>
+                                <div class="flex items-center space-x-6 text-sm text-gray-500">
+                                    <span><i class="fas fa-users mr-1"></i>粉丝 8.3K</span>
+                                    <span><i class="fas fa-edit mr-1"></i>内容 89</span>
+                                    <span><i class="fas fa-heart mr-1"></i>获赞 5.2K</span>
+                                    <span><i class="fas fa-chart-line mr-1"></i>影响力 87.6</span>
+                                    <span><i class="fas fa-calendar mr-1"></i>加入 2023-03-20</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="viewExpertDetail('2')" class="px-3 py-1 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors text-sm">
+                                    <i class="fas fa-eye mr-1"></i>查看详情
+                                </button>
+                                <button onclick="sendMessage('2')" class="px-3 py-1 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors text-sm">
+                                    <i class="fas fa-envelope mr-1"></i>发送消息
+                                </button>
+                                <div class="relative">
+                                    <button onclick="toggleDropdown('dropdown-2')" class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div id="dropdown-2" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-10">
+                                        <button onclick="setPermissions('2')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">设置权限</button>
+                                        <button onclick="upgradeLevel('2')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">升级等级</button>
+                                        <button onclick="activateUser('2')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">激活用户</button>
+                                        <button onclick="sendReminder('2')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">发送提醒</button>
+                                        <button onclick="suspendPermissions('2')" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">暂停权限</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="px-6 py-4 border-t bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-gray-500">显示第 1-8 条，共 156 条记录</p>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                上一页
+                            </button>
+                            <button class="px-3 py-1 bg-green-500 text-white rounded-lg text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">3</button>
+                            <span class="px-2 text-gray-500">...</span>
+                            <button class="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">20</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 邀请达人模态框 -->
+    <div id="invite-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-semibold text-gray-900">邀请达人</h3>
+                        <button onclick="closeInviteModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">邀请方式</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option>邮件邀请</option>
+                                <option>短信邀请</option>
+                                <option>站内消息</option>
+                                <option>微信邀请</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">达人等级</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option>新星达人</option>
+                                <option>专业达人</option>
+                                <option>资深达人</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">联系方式</label>
+                        <input type="text" placeholder="请输入邮箱或手机号" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">专业领域</label>
+                        <div class="flex flex-wrap gap-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2">种植技巧
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2">烹饪美食
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2">健康养生
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2">手工DIY
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2">园艺设计
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">邀请理由</label>
+                        <textarea rows="4" placeholder="请说明邀请该用户成为达人的理由..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">特殊权限</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2">内容置顶权限
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2">专属标识显示
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2">优先推荐权限
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-2">活动优先参与
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6 border-t bg-gray-50 flex justify-end space-x-3">
+                    <button onclick="closeInviteModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        取消
+                    </button>
+                    <button onclick="sendInvitation()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        发送邀请
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量操作模态框 -->
+    <div id="batch-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-lg w-full">
+                <div class="p-6 border-b">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-semibold text-gray-900">批量操作</h3>
+                        <button onclick="closeBatchModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">操作类型</label>
+                        <select id="batch-operation" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="upgrade">升级等级</option>
+                            <option value="message">发送消息</option>
+                            <option value="activate">激活用户</option>
+                            <option value="suspend">暂停权限</option>
+                            <option value="reminder">发送提醒</option>
+                        </select>
+                    </div>
+                    
+                    <div id="target-level-group" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">目标等级</label>
+                        <select id="target-level" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option>新星达人</option>
+                            <option>专业达人</option>
+                            <option>资深达人</option>
+                        </select>
+                    </div>
+                    
+                    <div id="message-group" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">消息内容</label>
+                        <textarea id="batch-message" rows="4" placeholder="请输入要发送的消息内容..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">操作说明</label>
+                        <p class="text-sm text-gray-500">已选择 <span id="selected-count">0</span> 位达人进行批量操作</p>
+                    </div>
+                </div>
+                
+                <div class="p-6 border-t bg-gray-50 flex justify-end space-x-3">
+                    <button onclick="closeBatchModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        取消
+                    </button>
+                    <button onclick="executeBatchOperation()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        执行操作
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeFilter = 'all';
+        
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                mainContent.classList.remove('ml-64');
+                mainContent.classList.add('ml-16');
+            } else {
+                mainContent.classList.remove('ml-16');
+                mainContent.classList.add('ml-64');
+            }
+        });
+
+        // 刷新数据
+        function refreshData() {
+            console.log('刷新达人数据');
+            // 模拟刷新
+            location.reload();
+        }
+
+        // 导出数据
+        function exportData() {
+            console.log('导出达人数据');
+            alert('导出功能开发中...');
+        }
+
+        // 筛选达人
+        function filterExperts(filter) {
+            if (filter) {
+                activeFilter = filter;
+                // 更新筛选按钮状态
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('bg-green-500', 'text-white');
+                    btn.classList.add('bg-gray-100', 'text-gray-600');
+                });
+                event.target.classList.remove('bg-gray-100', 'text-gray-600');
+                event.target.classList.add('bg-green-500', 'text-white');
+            }
+            
+            const fieldFilter = document.getElementById('field-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            
+            const expertItems = document.querySelectorAll('.expert-item');
+            let visibleCount = 0;
+            
+            expertItems.forEach(item => {
+                let show = true;
+                
+                // 等级筛选
+                if (activeFilter !== 'all') {
+                    if (activeFilter === 'active' && item.dataset.status !== 'active') {
+                        show = false;
+                    } else if (activeFilter !== 'active' && item.dataset.level !== activeFilter) {
+                        show = false;
+                    }
+                }
+                
+                // 领域筛选
+                if (fieldFilter && item.dataset.field !== fieldFilter) {
+                    show = false;
+                }
+                
+                // 状态筛选
+                if (statusFilter && item.dataset.status !== statusFilter) {
+                    show = false;
+                }
+                
+                // 搜索筛选
+                if (searchQuery) {
+                    const name = item.querySelector('h3').textContent.toLowerCase();
+                    const description = item.querySelector('p').textContent.toLowerCase();
+                    if (!name.includes(searchQuery) && !description.includes(searchQuery)) {
+                        show = false;
+                    }
+                }
+                
+                item.style.display = show ? 'block' : 'none';
+                if (show) visibleCount++;
+            });
+            
+            // 更新计数
+            document.getElementById('total-count').textContent = visibleCount;
+        }
+
+        // 搜索功能
+        document.getElementById('search-input').addEventListener('input', function() {
+            filterExperts();
+        });
+
+        // 排序达人
+        function sortExperts(sortType) {
+            const container = document.querySelector('.divide-y');
+            const items = Array.from(container.querySelectorAll('.expert-item'));
+            
+            items.sort((a, b) => {
+                switch(sortType) {
+                    case 'influence_desc':
+                    case 'influence_asc':
+                        const aInfluence = parseFloat(a.querySelector('.fa-chart-line').parentNode.textContent.match(/\d+\.\d+/)[0]);
+                        const bInfluence = parseFloat(b.querySelector('.fa-chart-line').parentNode.textContent.match(/\d+\.\d+/)[0]);
+                        return sortType === 'influence_desc' ? bInfluence - aInfluence : aInfluence - bInfluence;
+                    
+                    case 'posts_desc':
+                    case 'posts_asc':
+                        const aPosts = parseInt(a.querySelector('.fa-edit').parentNode.textContent.match(/\d+/)[0]);
+                        const bPosts = parseInt(b.querySelector('.fa-edit').parentNode.textContent.match(/\d+/)[0]);
+                        return sortType === 'posts_desc' ? bPosts - aPosts : aPosts - bPosts;
+                    
+                    case 'followers_desc':
+                    case 'followers_asc':
+                        const aFollowers = parseFloat(a.querySelector('.fa-users').parentNode.textContent.match(/[\d.]+/)[0]);
+                        const bFollowers = parseFloat(b.querySelector('.fa-users').parentNode.textContent.match(/[\d.]+/)[0]);
+                        return sortType === 'followers_desc' ? bFollowers - aFollowers : aFollowers - bFollowers;
+                    
+                    default:
+                        return 0;
+                }
+            });
+            
+            // 重新排列DOM元素
+            items.forEach(item => container.appendChild(item));
+        }
+
+        // 全选功能
+        document.getElementById('select-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.expert-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBatchButton();
+        });
+
+        // 单个选择
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('expert-checkbox')) {
+                updateBatchButton();
+            }
+        });
+
+        // 更新批量操作按钮状态
+        function updateBatchButton() {
+            const checkedBoxes = document.querySelectorAll('.expert-checkbox:checked');
+            const batchBtn = document.getElementById('batch-btn');
+            
+            if (checkedBoxes.length > 0) {
+                batchBtn.disabled = false;
+                batchBtn.classList.remove('disabled:bg-gray-300', 'disabled:cursor-not-allowed');
+            } else {
+                batchBtn.disabled = true;
+                batchBtn.classList.add('disabled:bg-gray-300', 'disabled:cursor-not-allowed');
+            }
+        }
+
+        // 达人操作函数
+        function viewExpertDetail(id) {
+            console.log('查看达人详情:', id);
+            alert('查看达人详情功能开发中...');
+        }
+
+        function sendMessage(id) {
+            console.log('发送消息给达人:', id);
+            alert('发送消息功能开发中...');
+        }
+
+        function setPermissions(id) {
+            console.log('设置达人权限:', id);
+            alert('设置权限功能开发中...');
+        }
+
+        function upgradeLevel(id) {
+            console.log('升级达人等级:', id);
+            alert('升级等级功能开发中...');
+        }
+
+        function activateUser(id) {
+            console.log('激活达人用户:', id);
+            alert('激活用户功能开发中...');
+        }
+
+        function sendReminder(id) {
+            console.log('发送提醒给达人:', id);
+            alert('发送提醒功能开发中...');
+        }
+
+        function suspendPermissions(id) {
+            console.log('暂停达人权限:', id);
+            if (confirm('确定要暂停该达人的权限吗？')) {
+                alert('暂停权限功能开发中...');
+            }
+        }
+
+        // 下拉菜单切换
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            dropdown.classList.toggle('hidden');
+            
+            // 点击其他地方关闭下拉菜单
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest(`#${id}`) && !e.target.closest(`button[onclick="toggleDropdown('${id}')"]`)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        // 邀请达人模态框
+        function openInviteModal() {
+            document.getElementById('invite-modal').classList.remove('hidden');
+        }
+
+        function closeInviteModal() {
+            document.getElementById('invite-modal').classList.add('hidden');
+        }
+
+        function sendInvitation() {
+            console.log('发送达人邀请');
+            alert('邀请发送成功！');
+            closeInviteModal();
+        }
+
+        // 批量操作模态框
+        function openBatchModal() {
+            const checkedBoxes = document.querySelectorAll('.expert-checkbox:checked');
+            document.getElementById('selected-count').textContent = checkedBoxes.length;
+            document.getElementById('batch-modal').classList.remove('hidden');
+        }
+
+        function closeBatchModal() {
+            document.getElementById('batch-modal').classList.add('hidden');
+        }
+
+        // 批量操作类型变化
+        document.getElementById('batch-operation').addEventListener('change', function() {
+            const operation = this.value;
+            const levelGroup = document.getElementById('target-level-group');
+            const messageGroup = document.getElementById('message-group');
+            
+            // 隐藏所有条件组
+            levelGroup.classList.add('hidden');
+            messageGroup.classList.add('hidden');
+            
+            // 根据操作类型显示相应的条件
+            if (operation === 'upgrade') {
+                levelGroup.classList.remove('hidden');
+            } else if (operation === 'message' || operation === 'reminder') {
+                messageGroup.classList.remove('hidden');
+            }
+        });
+
+        function executeBatchOperation() {
+            const operation = document.getElementById('batch-operation').value;
+            const checkedBoxes = document.querySelectorAll('.expert-checkbox:checked');
+            
+            console.log('执行批量操作:', operation, '选中数量:', checkedBoxes.length);
+            alert(`批量${operation}操作执行成功！`);
+            closeBatchModal();
+        }
+
+        // 统计卡片点击
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('click', function() {
+                console.log('点击统计卡片');
+                // 可以跳转到详细统计页面或显示更多信息
+            });
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('达人管理页面初始化完成');
+            updateBatchButton();
+        });
+    </script>
+</body>
+</html>

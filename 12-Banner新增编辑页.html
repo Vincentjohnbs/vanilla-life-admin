@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banner新增/编辑 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-transition { transition: all 0.3s ease; }
+        .form-section { transition: all 0.3s ease; }
+        .upload-area { transition: all 0.3s ease; }
+        .upload-area:hover { border-color: #10b981; background-color: #f0fdf4; }
+        .preview-image { transition: all 0.3s ease; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-button.active { background-color: #10b981; color: white; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg sidebar-transition z-30">
+        <!-- Logo区域 -->
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="mt-6">
+            <div class="px-4">
+                <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
+                    <span>首页仪表板</span>
+                </a>
+                <a href="02-Banner管理.html" class="flex items-center px-4 py-3 bg-green-50 text-green-600 rounded-lg mb-1">
+                    <i class="fas fa-images w-5 h-5 mr-3"></i>
+                    <span>Banner管理</span>
+                </a>
+                <a href="03-商品管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-box w-5 h-5 mr-3"></i>
+                    <span>商品管理</span>
+                </a>
+                <a href="04-订单管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-shopping-cart w-5 h-5 mr-3"></i>
+                    <span>订单管理</span>
+                </a>
+                <a href="05-香草图鉴管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-book w-5 h-5 mr-3"></i>
+                    <span>香草图鉴</span>
+                </a>
+                <a href="06-香草阳台内容管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-comments w-5 h-5 mr-3"></i>
+                    <span>香草阳台</span>
+                </a>
+                <a href="07-用户管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-users w-5 h-5 mr-3"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="08-供应商管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-truck w-5 h-5 mr-3"></i>
+                    <span>供应商管理</span>
+                </a>
+                <a href="09-营销活动管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-bullhorn w-5 h-5 mr-3"></i>
+                    <span>营销活动</span>
+                </a>
+                <a href="10-数据统计分析.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-chart-bar w-5 h-5 mr-3"></i>
+                    <span>数据统计</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <nav class="flex items-center space-x-2 text-sm text-gray-500">
+                        <a href="01-首页仪表板.html" class="hover:text-green-600">首页</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <a href="02-Banner管理.html" class="hover:text-green-600">Banner管理</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <a href="11-Banner列表页.html" class="hover:text-green-600">Banner列表</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-gray-800 font-medium">新增Banner</span>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700 relative">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="管理员" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 页面标题和操作 -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">新增Banner</h1>
+                    <p class="text-gray-600">创建新的轮播图或推广Banner</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-eye mr-2"></i>预览
+                    </button>
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-save mr-2"></i>保存草稿
+                    </button>
+                    <button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>立即发布
+                    </button>
+                </div>
+            </div>
+
+            <!-- 表单内容 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 主要内容区域 -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- 基本信息 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 form-section">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                基本信息
+                            </h2>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Banner标题 <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" placeholder="请输入Banner标题" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                                    <p class="text-xs text-gray-500 mt-1">建议不超过20个字符</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Banner副标题
+                                    </label>
+                                    <input type="text" placeholder="请输入Banner副标题" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <p class="text-xs text-gray-500 mt-1">可选，用于补充说明</p>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Banner描述
+                                </label>
+                                <textarea placeholder="请输入Banner描述" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+                                <p class="text-xs text-gray-500 mt-1">详细描述Banner的内容和用途</p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Banner位置 <span class="text-red-500">*</span>
+                                    </label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                                        <option value="">请选择Banner位置</option>
+                                        <option value="home_top">首页顶部轮播</option>
+                                        <option value="home_middle">首页中部推广</option>
+                                        <option value="home_bottom">首页底部推荐</option>
+                                        <option value="category">分类页顶部</option>
+                                        <option value="product">商品页推荐</option>
+                                        <option value="user_center">个人中心</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        排序权重
+                                    </label>
+                                    <input type="number" placeholder="数字越大排序越靠前" min="0" max="999" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <p class="text-xs text-gray-500 mt-1">范围：0-999，默认为0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 图片上传 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 form-section">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-image text-purple-500 mr-2"></i>
+                                图片设置
+                            </h2>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <!-- 主图上传 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Banner主图 <span class="text-red-500">*</span>
+                                </label>
+                                <div class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer">
+                                    <div id="uploadContent">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                                        <p class="text-lg text-gray-600 mb-2">点击上传或拖拽图片到此处</p>
+                                        <p class="text-sm text-gray-500">支持 JPG、PNG、WebP 格式</p>
+                                        <p class="text-sm text-gray-500">建议尺寸：750x375px，文件大小不超过2MB</p>
+                                    </div>
+                                    <div id="imagePreview" class="hidden">
+                                        <img id="previewImg" src="" alt="预览图" class="max-w-full max-h-64 mx-auto rounded-lg shadow-md">
+                                        <div class="mt-4 flex items-center justify-center space-x-3">
+                                            <button id="replaceImage" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                                <i class="fas fa-sync-alt mr-2"></i>重新上传
+                                            </button>
+                                            <button id="removeImage" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                                                <i class="fas fa-trash mr-2"></i>删除图片
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <input type="file" id="imageInput" class="hidden" accept="image/*">
+                                </div>
+                            </div>
+
+                            <!-- 移动端适配 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    移动端图片（可选）
+                                </label>
+                                <div class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer">
+                                    <i class="fas fa-mobile-alt text-2xl text-gray-400 mb-2"></i>
+                                    <p class="text-gray-600">上传移动端专用图片</p>
+                                    <p class="text-sm text-gray-500 mt-1">建议尺寸：375x188px</p>
+                                    <input type="file" class="hidden" accept="image/*">
+                                </div>
+                            </div>
+
+                            <!-- 图片设置选项 -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">图片显示模式</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="cover">覆盖（推荐）</option>
+                                        <option value="contain">包含</option>
+                                        <option value="fill">拉伸</option>
+                                        <option value="scale-down">缩小</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">图片质量</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="high">高质量</option>
+                                        <option value="medium" selected>中等质量</option>
+                                        <option value="low">低质量</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 跳转设置 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 form-section">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-link text-green-500 mr-2"></i>
+                                跳转设置
+                            </h2>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    跳转类型
+                                </label>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <input type="radio" name="jumpType" value="none" class="text-green-600 focus:ring-green-500" checked>
+                                        <span class="ml-2 text-sm">无跳转</span>
+                                    </label>
+                                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <input type="radio" name="jumpType" value="product" class="text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm">商品详情</span>
+                                    </label>
+                                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <input type="radio" name="jumpType" value="category" class="text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm">商品分类</span>
+                                    </label>
+                                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <input type="radio" name="jumpType" value="activity" class="text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm">活动页面</span>
+                                    </label>
+                                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <input type="radio" name="jumpType" value="article" class="text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm">图文页面</span>
+                                    </label>
+                                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <input type="radio" name="jumpType" value="external" class="text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm">外部链接</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- 跳转配置区域 -->
+                            <div id="jumpConfig" class="space-y-4">
+                                <!-- 商品详情配置 -->
+                                <div id="productConfig" class="jump-config hidden">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">选择商品</label>
+                                    <div class="flex space-x-3">
+                                        <input type="text" placeholder="输入商品名称或ID搜索" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                            <i class="fas fa-search mr-2"></i>搜索
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 商品分类配置 -->
+                                <div id="categoryConfig" class="jump-config hidden">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">选择分类</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="">请选择商品分类</option>
+                                        <option value="herbs">香草植物</option>
+                                        <option value="seeds">种子种苗</option>
+                                        <option value="tools">园艺工具</option>
+                                        <option value="fertilizer">肥料土壤</option>
+                                        <option value="essential_oil">精油产品</option>
+                                        <option value="tea">香草茶品</option>
+                                    </select>
+                                </div>
+
+                                <!-- 活动页面配置 -->
+                                <div id="activityConfig" class="jump-config hidden">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">选择活动</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="">请选择活动</option>
+                                        <option value="spring_planting">春季种植活动</option>
+                                        <option value="herb_workshop">香草工作坊</option>
+                                        <option value="member_discount">会员专享优惠</option>
+                                        <option value="new_product">新品发布会</option>
+                                    </select>
+                                </div>
+
+                                <!-- 图文页面配置 -->
+                                <div id="articleConfig" class="jump-config hidden">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">图文页面链接</label>
+                                    <input type="url" placeholder="请输入图文页面链接" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                </div>
+
+                                <!-- 外部链接配置 -->
+                                <div id="externalConfig" class="jump-config hidden">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">外部链接</label>
+                                    <input type="url" placeholder="请输入完整的外部链接" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <p class="text-xs text-gray-500 mt-1">请确保链接以 http:// 或 https:// 开头</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 高级设置 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 form-section">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-cogs text-orange-500 mr-2"></i>
+                                高级设置
+                            </h2>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <!-- 显示设置 -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">显示动画</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="fade">淡入淡出</option>
+                                        <option value="slide">滑动切换</option>
+                                        <option value="zoom">缩放效果</option>
+                                        <option value="none">无动画</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">自动播放间隔（秒）</label>
+                                    <input type="number" placeholder="3" min="1" max="10" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                </div>
+                            </div>
+
+                            <!-- 用户权限 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">显示条件</label>
+                                <div class="space-y-3">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="text-green-600 focus:ring-green-500 rounded" checked>
+                                        <span class="ml-2 text-sm text-gray-700">所有用户可见</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="text-green-600 focus:ring-green-500 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">仅会员可见</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="text-green-600 focus:ring-green-500 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">新用户专享</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- 统计设置 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">统计追踪</label>
+                                <div class="space-y-3">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="text-green-600 focus:ring-green-500 rounded" checked>
+                                        <span class="ml-2 text-sm text-gray-700">启用点击统计</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="text-green-600 focus:ring-green-500 rounded" checked>
+                                        <span class="ml-2 text-sm text-gray-700">启用曝光统计</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="text-green-600 focus:ring-green-500 rounded">
+                                        <span class="ml-2 text-sm text-gray-700">启用转化追踪</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 侧边栏 -->
+                <div class="space-y-6">
+                    <!-- 发布设置 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-calendar-alt text-indigo-500 mr-2"></i>
+                                发布设置
+                            </h2>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">发布状态</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="draft">草稿</option>
+                                    <option value="published">立即发布</option>
+                                    <option value="scheduled">定时发布</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">开始时间</label>
+                                <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">结束时间</label>
+                                <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <p class="text-xs text-gray-500 mt-1">留空表示长期有效</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 预览区域 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-mobile-alt text-pink-500 mr-2"></i>
+                                移动端预览
+                            </h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="bg-gray-100 rounded-lg p-4 text-center">
+                                <div class="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center mb-3">
+                                    <i class="fas fa-image text-gray-400 text-2xl"></i>
+                                </div>
+                                <p class="text-sm text-gray-600">Banner预览</p>
+                                <p class="text-xs text-gray-500 mt-1">上传图片后显示预览</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 操作历史 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="p-6 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-history text-gray-500 mr-2"></i>
+                                操作历史
+                            </h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-3">
+                                <div class="flex items-center text-sm">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                                    <div class="flex-1">
+                                        <p class="text-gray-800">创建Banner</p>
+                                        <p class="text-gray-500 text-xs">2024-01-25 14:30</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 图片上传功能
+        const uploadArea = document.querySelector('.upload-area');
+        const imageInput = document.getElementById('imageInput');
+        const uploadContent = document.getElementById('uploadContent');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const replaceImageBtn = document.getElementById('replaceImage');
+        const removeImageBtn = document.getElementById('removeImage');
+
+        // 点击上传区域
+        uploadArea.addEventListener('click', function() {
+            if (!imagePreview.classList.contains('hidden')) return;
+            imageInput.click();
+        });
+
+        // 文件选择
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageUpload(file);
+            }
+        });
+
+        // 拖拽上传
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('border-green-400', 'bg-green-50');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-green-400', 'bg-green-50');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-green-400', 'bg-green-50');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload(file);
+            }
+        });
+
+        // 处理图片上传
+        function handleImageUpload(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                uploadContent.classList.add('hidden');
+                imagePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 重新上传
+        replaceImageBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            imageInput.click();
+        });
+
+        // 删除图片
+        removeImageBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            previewImg.src = '';
+            imageInput.value = '';
+            uploadContent.classList.remove('hidden');
+            imagePreview.classList.add('hidden');
+        });
+
+        // 跳转类型切换
+        const jumpTypeRadios = document.querySelectorAll('input[name="jumpType"]');
+        const jumpConfigs = document.querySelectorAll('.jump-config');
+
+        jumpTypeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                // 隐藏所有配置
+                jumpConfigs.forEach(config => {
+                    config.classList.add('hidden');
+                });
+
+                // 显示对应配置
+                const configId = this.value + 'Config';
+                const targetConfig = document.getElementById(configId);
+                if (targetConfig) {
+                    targetConfig.classList.remove('hidden');
+                }
+
+                // 更新父级标签样式
+                jumpTypeRadios.forEach(r => {
+                    r.closest('label').classList.remove('border-green-500', 'bg-green-50');
+                });
+                this.closest('label').classList.add('border-green-500', 'bg-green-50');
+            });
+        });
+
+        // 表单验证
+        function validateForm() {
+            const title = document.querySelector('input[placeholder="请输入Banner标题"]').value;
+            const position = document.querySelector('select').value;
+            const hasImage = !imagePreview.classList.contains('hidden');
+
+            if (!title.trim()) {
+                alert('请输入Banner标题');
+                return false;
+            }
+
+            if (!position) {
+                alert('请选择Banner位置');
+                return false;
+            }
+
+            if (!hasImage) {
+                alert('请上传Banner图片');
+                return false;
+            }
+
+            return true;
+        }
+
+        // 保存草稿
+        document.querySelector('.bg-blue-500').addEventListener('click', function() {
+            if (validateForm()) {
+                alert('草稿保存成功！');
+            }
+        });
+
+        // 立即发布
+        document.querySelector('.bg-green-500').addEventListener('click', function() {
+            if (validateForm()) {
+                if (confirm('确认立即发布此Banner吗？')) {
+                    alert('Banner发布成功！');
+                    // 这里可以添加跳转到列表页的逻辑
+                    // window.location.href = '11-Banner列表页.html';
+                }
+            }
+        });
+
+        // 预览功能
+        document.querySelector('.bg-gray-100').addEventListener('click', function() {
+            if (!imagePreview.classList.contains('hidden')) {
+                // 打开预览窗口
+                const previewWindow = window.open('', '_blank', 'width=375,height=667');
+                previewWindow.document.write(`
+                    <html>
+                        <head><title>Banner预览</title></head>
+                        <body style="margin:0;padding:20px;background:#f5f5f5;">
+                            <div style="max-width:335px;margin:0 auto;">
+                                <img src="${previewImg.src}" style="width:100%;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                            </div>
+                        </body>
+                    </html>
+                `);
+            } else {
+                alert('请先上传Banner图片');
+            }
+        });
+
+        // 实时预览更新
+        document.querySelector('input[placeholder="请输入Banner标题"]').addEventListener('input', function() {
+            // 更新预览区域的标题
+            console.log('标题更新:', this.value);
+        });
+    </script>
+</body>
+</html>

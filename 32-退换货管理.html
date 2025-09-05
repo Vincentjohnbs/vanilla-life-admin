@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>退换货管理 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .status-pending {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .status-processing {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+        .status-approved {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .status-rejected {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        .status-completed {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+        .refund-card {
+            transition: all 0.3s ease;
+        }
+        .refund-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .filter-active {
+            background: #10b981;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transition-all duration-300 z-50">
+        <div class="p-6 border-b">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div id="logo-text">
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-tachometer-alt w-5"></i>
+                        <span class="nav-text">仪表盘</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-box w-5"></i>
+                        <span class="nav-text">商品管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-green-50 text-green-600 rounded-lg">
+                        <i class="fas fa-shopping-cart w-5"></i>
+                        <span class="nav-text">订单管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-users w-5"></i>
+                        <span class="nav-text">用户管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-seedling w-5"></i>
+                        <span class="nav-text">香草图鉴</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-comments w-5"></i>
+                        <span class="nav-text">香草阳台</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <a href="#" class="hover:text-green-600">订单管理</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-green-600">退换货管理</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 页面标题和操作 -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">退换货管理</h1>
+                    <p class="text-gray-600 mt-1">管理所有退换货申请和处理流程</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="px-4 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出数据
+                    </button>
+                    <button class="px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-cog mr-2"></i>退换货设置
+                    </button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="stats-card text-white p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm opacity-90">待处理申请</p>
+                            <p class="text-3xl font-bold mt-2">23</p>
+                            <p class="text-xs opacity-75 mt-1">较昨日 +5</p>
+                        </div>
+                        <i class="fas fa-clock text-3xl opacity-75"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">本月退款金额</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">¥12,580</p>
+                            <p class="text-xs text-red-600 mt-1">较上月 +8.5%</p>
+                        </div>
+                        <i class="fas fa-money-bill-wave text-3xl text-red-500"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">退换货率</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">2.8%</p>
+                            <p class="text-xs text-green-600 mt-1">较上月 -0.3%</p>
+                        </div>
+                        <i class="fas fa-chart-line text-3xl text-blue-500"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">平均处理时间</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">1.5</p>
+                            <p class="text-xs text-gray-500 mt-1">天</p>
+                        </div>
+                        <i class="fas fa-stopwatch text-3xl text-orange-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和搜索 -->
+            <div class="bg-white rounded-lg shadow-sm border mb-6">
+                <div class="p-4">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-700">状态筛选:</label>
+                            <div class="flex space-x-2">
+                                <button class="filter-btn px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors filter-active" data-status="all">
+                                    全部
+                                </button>
+                                <button class="filter-btn px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-status="pending">
+                                    待处理
+                                </button>
+                                <button class="filter-btn px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-status="processing">
+                                    处理中
+                                </button>
+                                <button class="filter-btn px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-status="approved">
+                                    已同意
+                                </button>
+                                <button class="filter-btn px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-status="rejected">
+                                    已拒绝
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-700">类型:</label>
+                            <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="">全部类型</option>
+                                <option value="refund">仅退款</option>
+                                <option value="return">退货退款</option>
+                                <option value="exchange">换货</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex-1 max-w-md">
+                            <div class="relative">
+                                <input type="text" placeholder="搜索订单号、商品名称或用户" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-search mr-2"></i>搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 退换货列表 -->
+            <div class="bg-white rounded-lg shadow-sm border">
+                <div class="p-4 border-b">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">退换货申请列表</h3>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-check-square mr-1"></i>批量处理
+                            </button>
+                            <button class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-sync-alt mr-1"></i>刷新
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申请信息</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商品信息</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户信息</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申请原因</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">金额</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="refund-card hover:bg-gray-50">
+                                <td class="px-4 py-4">
+                                    <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">#REF202401150001</p>
+                                        <p class="text-xs text-gray-500">订单: #ORD202401150001</p>
+                                        <p class="text-xs text-gray-500">申请时间: 2024-01-15 16:30</p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=40&h=40&fit=crop" alt="商品" class="w-10 h-10 rounded-lg object-cover">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">薄荷盆栽套装</p>
+                                            <p class="text-xs text-gray-500">数量: 1</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face" alt="用户" class="w-8 h-8 rounded-full">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">张小花</p>
+                                            <p class="text-xs text-gray-500">ID: 10086</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div>
+                                        <p class="text-sm text-gray-900">商品质量问题</p>
+                                        <p class="text-xs text-gray-500">叶子发黄，疑似病虫害</p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <p class="text-sm font-semibold text-red-600">¥29.90</p>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="status-pending text-white px-2 py-1 rounded-full text-xs font-medium">
+                                        待处理
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm" onclick="viewRefundDetail('REF202401150001')">
+                                            查看
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800 text-sm" onclick="approveRefund('REF202401150001')">
+                                            同意
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800 text-sm" onclick="rejectRefund('REF202401150001')">
+                                            拒绝
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr class="refund-card hover:bg-gray-50">
+                                <td class="px-4 py-4">
+                                    <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">#REF202401150002</p>
+                                        <p class="text-xs text-gray-500">订单: #ORD202401150002</p>
+                                        <p class="text-xs text-gray-500">申请时间: 2024-01-15 14:20</p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=40&h=40&fit=crop" alt="商品" class="w-10 h-10 rounded-lg object-cover">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">迷迭香种植套装</p>
+                                            <p class="text-xs text-gray-500">数量: 1</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face" alt="用户" class="w-8 h-8 rounded-full">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">李小明</p>
+                                            <p class="text-xs text-gray-500">ID: 10087</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div>
+                                        <p class="text-sm text-gray-900">不喜欢</p>
+                                        <p class="text-xs text-gray-500">与描述不符</p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <p class="text-sm font-semibold text-red-600">¥99.00</p>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="status-processing text-white px-2 py-1 rounded-full text-xs font-medium">
+                                        处理中
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm" onclick="viewRefundDetail('REF202401150002')">
+                                            查看
+                                        </button>
+                                        <button class="text-orange-600 hover:text-orange-800 text-sm" onclick="processRefund('REF202401150002')">
+                                            处理
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr class="refund-card hover:bg-gray-50">
+                                <td class="px-4 py-4">
+                                    <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">#REF202401150003</p>
+                                        <p class="text-xs text-gray-500">订单: #ORD202401150003</p>
+                                        <p class="text-xs text-gray-500">申请时间: 2024-01-15 10:15</p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=40&h=40&fit=crop" alt="商品" class="w-10 h-10 rounded-lg object-cover">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">薰衣草种子套装</p>
+                                            <p class="text-xs text-gray-500">数量: 2</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=32&h=32&fit=crop&crop=face" alt="用户" class="w-8 h-8 rounded-full">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">王小美</p>
+                                            <p class="text-xs text-gray-500">ID: 10088</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div>
+                                        <p class="text-sm text-gray-900">发错货</p>
+                                        <p class="text-xs text-gray-500">收到的是其他商品</p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <p class="text-sm font-semibold text-red-600">¥39.80</p>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="status-approved text-white px-2 py-1 rounded-full text-xs font-medium">
+                                        已同意
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm" onclick="viewRefundDetail('REF202401150003')">
+                                            查看
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-800 text-sm" onclick="completeRefund('REF202401150003')">
+                                            完成
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="px-4 py-3 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">156</span> 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                                上一页
+                            </button>
+                            <button class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                                1
+                            </button>
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                                2
+                            </button>
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                                3
+                            </button>
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 退换货详情模态框 -->
+    <div id="refundDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6 border-b">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">退换货详情</h3>
+                        <button onclick="closeRefundDetail()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 申请信息 -->
+                        <div class="space-y-4">
+                            <h4 class="font-semibold text-gray-900">申请信息</h4>
+                            <div class="bg-gray-50 p-4 rounded-lg space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">申请编号:</span>
+                                    <span class="font-medium">#REF202401150001</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">申请类型:</span>
+                                    <span class="font-medium">退货退款</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">申请时间:</span>
+                                    <span class="font-medium">2024-01-15 16:30</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">申请金额:</span>
+                                    <span class="font-medium text-red-600">¥29.90</span>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-900">申请原因</h4>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-gray-900">商品质量问题</p>
+                                <p class="text-gray-600 mt-2">收到的薄荷盆栽叶子发黄，疑似有病虫害，与商品描述不符。希望能够退货退款。</p>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-900">凭证图片</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=150&h=150&fit=crop" alt="凭证1" class="w-full h-24 object-cover rounded-lg">
+                                <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=150&h=150&fit=crop" alt="凭证2" class="w-full h-24 object-cover rounded-lg">
+                            </div>
+                        </div>
+                        
+                        <!-- 商品和用户信息 -->
+                        <div class="space-y-4">
+                            <h4 class="font-semibold text-gray-900">商品信息</h4>
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-center space-x-3">
+                                    <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=60&h=60&fit=crop" alt="商品" class="w-15 h-15 rounded-lg object-cover">
+                                    <div class="flex-1">
+                                        <h5 class="font-medium text-gray-900">薄荷盆栽套装</h5>
+                                        <p class="text-sm text-gray-500">SKU: MINT001</p>
+                                        <p class="text-sm text-gray-500">规格: 标准版</p>
+                                        <p class="text-sm text-gray-900 font-medium">¥29.90 x 1</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-900">用户信息</h4>
+                            <div class="bg-gray-50 p-4 rounded-lg space-y-3">
+                                <div class="flex items-center space-x-3">
+                                    <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face" alt="用户" class="w-10 h-10 rounded-full">
+                                    <div>
+                                        <p class="font-medium text-gray-900">张小花</p>
+                                        <p class="text-sm text-gray-500">ID: 10086</p>
+                                    </div>
+                                </div>
+                                <div class="text-sm space-y-1">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">手机号:</span>
+                                        <span>138****8000</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">会员等级:</span>
+                                        <span class="text-yellow-600">黄金会员</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">历史订单:</span>
+                                        <span>23单</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-900">处理记录</h4>
+                            <div class="space-y-2">
+                                <div class="flex items-center space-x-3 text-sm">
+                                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                    <span class="text-gray-600">2024-01-15 16:30</span>
+                                    <span class="text-gray-900">用户提交退换货申请</span>
+                                </div>
+                                <div class="flex items-center space-x-3 text-sm">
+                                    <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+                                    <span class="text-gray-600">待处理</span>
+                                    <span class="text-gray-500">等待客服审核</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6 border-t bg-gray-50">
+                    <div class="flex items-center justify-end space-x-3">
+                        <button onclick="closeRefundDetail()" class="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            关闭
+                        </button>
+                        <button onclick="rejectRefund()" class="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">
+                            拒绝申请
+                        </button>
+                        <button onclick="approveRefund()" class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                            同意申请
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const logoText = document.getElementById('logo-text');
+            const navTexts = document.querySelectorAll('.nav-text');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+            
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                logoText.style.display = 'none';
+                navTexts.forEach(text => text.style.display = 'none');
+            } else {
+                logoText.style.display = 'block';
+                navTexts.forEach(text => text.style.display = 'inline');
+            }
+        });
+
+        // 状态筛选
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('filter-active'));
+                this.classList.add('filter-active');
+                
+                const status = this.dataset.status;
+                console.log('筛选状态:', status);
+                // 这里可以添加实际的筛选逻辑
+            });
+        });
+
+        // 全选功能
+        document.querySelector('thead input[type="checkbox"]').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // 查看退换货详情
+        function viewRefundDetail(refundId) {
+            document.getElementById('refundDetailModal').classList.remove('hidden');
+            console.log('查看退换货详情:', refundId);
+        }
+
+        // 关闭详情模态框
+        function closeRefundDetail() {
+            document.getElementById('refundDetailModal').classList.add('hidden');
+        }
+
+        // 同意退换货
+        function approveRefund(refundId) {
+            if (confirm('确定同意这个退换货申请吗？')) {
+                alert('退换货申请已同意，系统将自动处理退款');
+                console.log('同意退换货:', refundId);
+            }
+        }
+
+        // 拒绝退换货
+        function rejectRefund(refundId) {
+            const reason = prompt('请输入拒绝原因:');
+            if (reason) {
+                alert('退换货申请已拒绝');
+                console.log('拒绝退换货:', refundId, '原因:', reason);
+            }
+        }
+
+        // 处理退换货
+        function processRefund(refundId) {
+            alert('打开退换货处理页面');
+            console.log('处理退换货:', refundId);
+        }
+
+        // 完成退换货
+        function completeRefund(refundId) {
+            if (confirm('确定完成这个退换货处理吗？')) {
+                alert('退换货处理已完成');
+                console.log('完成退换货:', refundId);
+            }
+        }
+
+        // 导出数据
+        document.querySelector('.fa-download').parentElement.addEventListener('click', function() {
+            alert('正在导出退换货数据...');
+        });
+
+        // 退换货设置
+        document.querySelector('.fa-cog').parentElement.addEventListener('click', function() {
+            alert('打开退换货设置页面');
+        });
+
+        // 批量处理
+        document.querySelector('.fa-check-square').parentElement.addEventListener('click', function() {
+            const checkedBoxes = document.querySelectorAll('tbody input[type="checkbox"]:checked');
+            if (checkedBoxes.length === 0) {
+                alert('请先选择要处理的退换货申请');
+                return;
+            }
+            
+            const action = prompt('请选择批量操作:\n1. 批量同意\n2. 批量拒绝\n3. 批量导出\n请输入数字:');
+            
+            switch(action) {
+                case '1':
+                    if (confirm(`确定批量同意 ${checkedBoxes.length} 个退换货申请吗？`)) {
+                        alert('批量同意操作已完成');
+                    }
+                    break;
+                case '2':
+                    const reason = prompt('请输入批量拒绝原因:');
+                    if (reason && confirm(`确定批量拒绝 ${checkedBoxes.length} 个退换货申请吗？`)) {
+                        alert('批量拒绝操作已完成');
+                    }
+                    break;
+                case '3':
+                    alert('正在导出选中的退换货数据...');
+                    break;
+                default:
+                    alert('无效的操作选择');
+            }
+        });
+
+        // 刷新数据
+        document.querySelector('.fa-sync-alt').parentElement.addEventListener('click', function() {
+            this.querySelector('i').classList.add('fa-spin');
+            setTimeout(() => {
+                this.querySelector('i').classList.remove('fa-spin');
+                alert('数据已刷新');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

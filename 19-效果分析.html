@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>效果分析 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#f3f4f6'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-500">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-home mr-3"></i>
+                        首页仪表板
+                    </a>
+                    <div class="space-y-1">
+                        <div class="flex items-center px-4 py-2 text-primary bg-green-50 rounded-lg">
+                            <i class="fas fa-image mr-3"></i>
+                            Banner管理
+                        </div>
+                        <div class="ml-6 space-y-1">
+                            <a href="11-Banner列表页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">Banner列表</a>
+                            <a href="12-Banner新增编辑页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">新增编辑</a>
+                            <a href="13-图文页面管理.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">图文管理</a>
+                            <a href="14-跳转配置页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">跳转配置</a>
+                            <a href="15-Banner统计页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">统计分析</a>
+                            <a href="16-图片库管理.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">图片库</a>
+                            <a href="17-模板管理.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">模板管理</a>
+                            <a href="18-发布审核.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">发布审核</a>
+                            <a href="19-效果分析.html" class="block px-4 py-1 text-sm text-primary font-medium bg-green-100 rounded">效果分析</a>
+                            <a href="20-移动端预览.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">移动端预览</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden mr-4 text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold text-gray-800">效果分析</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 时间筛选和操作栏 -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                        <select id="timeRange" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="7">最近7天</option>
+                            <option value="30" selected>最近30天</option>
+                            <option value="90">最近90天</option>
+                            <option value="custom">自定义时间</option>
+                        </select>
+                        <input type="date" id="startDate" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent hidden">
+                        <input type="date" id="endDate" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent hidden">
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">全部Banner</option>
+                            <option value="banner1">春季种植指南</option>
+                            <option value="banner2">夏季促销活动</option>
+                            <option value="banner3">新品推荐</option>
+                        </select>
+                        <button onclick="refreshData()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                        </button>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="exportReport()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-download mr-2"></i>导出报告
+                        </button>
+                        <button onclick="scheduleReport()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-calendar mr-2"></i>定时报告
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 核心指标卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">总展示次数</p>
+                            <p class="text-2xl font-bold text-blue-600">125,847</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+12.5%
+                            </p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-eye text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">总点击次数</p>
+                            <p class="text-2xl font-bold text-green-600">8,456</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8.3%
+                            </p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-mouse-pointer text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">点击率</p>
+                            <p class="text-2xl font-bold text-orange-600">6.72%</p>
+                            <p class="text-sm text-red-600 mt-1">
+                                <i class="fas fa-arrow-down mr-1"></i>-2.1%
+                            </p>
+                        </div>
+                        <div class="bg-orange-100 p-3 rounded-full">
+                            <i class="fas fa-percentage text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">转化次数</p>
+                            <p class="text-2xl font-bold text-purple-600">1,234</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+15.7%
+                            </p>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <i class="fas fa-shopping-cart text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- 趋势图 -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">展示与点击趋势</h3>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 text-sm bg-blue-100 text-blue-600 rounded">展示</button>
+                            <button class="px-3 py-1 text-sm bg-green-100 text-green-600 rounded">点击</button>
+                        </div>
+                    </div>
+                    <canvas id="trendChart" width="400" height="200"></canvas>
+                </div>
+
+                <!-- 设备分布 -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">设备分布</h3>
+                    <canvas id="deviceChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Banner效果排行 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- 点击率排行 -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Banner点击率排行</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-6 h-6 bg-yellow-500 text-white text-xs font-bold rounded-full flex items-center justify-center">1</span>
+                                <img src="https://via.placeholder.com/40x30" alt="Banner" class="w-10 h-8 object-cover rounded">
+                                <span class="text-sm font-medium">春季种植指南</span>
+                            </div>
+                            <span class="text-sm font-bold text-green-600">8.45%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-6 h-6 bg-gray-400 text-white text-xs font-bold rounded-full flex items-center justify-center">2</span>
+                                <img src="https://via.placeholder.com/40x30" alt="Banner" class="w-10 h-8 object-cover rounded">
+                                <span class="text-sm font-medium">新品推荐</span>
+                            </div>
+                            <span class="text-sm font-bold text-green-600">7.23%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-6 h-6 bg-orange-500 text-white text-xs font-bold rounded-full flex items-center justify-center">3</span>
+                                <img src="https://via.placeholder.com/40x30" alt="Banner" class="w-10 h-8 object-cover rounded">
+                                <span class="text-sm font-medium">夏季促销</span>
+                            </div>
+                            <span class="text-sm font-bold text-green-600">6.89%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 转化率排行 -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Banner转化率排行</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-6 h-6 bg-yellow-500 text-white text-xs font-bold rounded-full flex items-center justify-center">1</span>
+                                <img src="https://via.placeholder.com/40x30" alt="Banner" class="w-10 h-8 object-cover rounded">
+                                <span class="text-sm font-medium">新品推荐</span>
+                            </div>
+                            <span class="text-sm font-bold text-purple-600">2.34%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-6 h-6 bg-gray-400 text-white text-xs font-bold rounded-full flex items-center justify-center">2</span>
+                                <img src="https://via.placeholder.com/40x30" alt="Banner" class="w-10 h-8 object-cover rounded">
+                                <span class="text-sm font-medium">春季种植指南</span>
+                            </div>
+                            <span class="text-sm font-bold text-purple-600">1.98%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-6 h-6 bg-orange-500 text-white text-xs font-bold rounded-full flex items-center justify-center">3</span>
+                                <img src="https://via.placeholder.com/40x30" alt="Banner" class="w-10 h-8 object-cover rounded">
+                                <span class="text-sm font-medium">夏季促销</span>
+                            </div>
+                            <span class="text-sm font-bold text-purple-600">1.67%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 详细数据表格 -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <div class="p-6 border-b">
+                    <h3 class="text-lg font-semibold text-gray-800">详细数据</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Banner名称</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">展示次数</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">点击次数</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">点击率</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">转化次数</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">转化率</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">收入</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img src="https://via.placeholder.com/40x30" alt="Banner" class="w-10 h-8 object-cover rounded mr-3">
+                                        <span class="text-sm font-medium text-gray-900">春季种植指南</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">45,678</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3,856</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">8.45%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">456</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">1.98%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥12,345</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="viewDetails('1')" class="text-primary hover:text-green-700 mr-3">详情</button>
+                                    <button onclick="optimizeSuggestion('1')" class="text-blue-600 hover:text-blue-700">优化建议</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img src="https://via.placeholder.com/40x30" alt="Banner" class="w-10 h-8 object-cover rounded mr-3">
+                                        <span class="text-sm font-medium text-gray-900">新品推荐</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">38,234</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2,765</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">7.23%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">567</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">2.34%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥18,567</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="viewDetails('2')" class="text-primary hover:text-green-700 mr-3">详情</button>
+                                    <button onclick="optimizeSuggestion('2')" class="text-blue-600 hover:text-blue-700">优化建议</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img src="https://via.placeholder.com/40x30" alt="Banner" class="w-10 h-8 object-cover rounded mr-3">
+                                        <span class="text-sm font-medium text-gray-900">夏季促销</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">41,935</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1,835</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">6.89%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">211</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">1.67%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥8,234</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="viewDetails('3')" class="text-primary hover:text-green-700 mr-3">详情</button>
+                                    <button onclick="optimizeSuggestion('3')" class="text-blue-600 hover:text-blue-700">优化建议</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 时间范围选择
+        document.getElementById('timeRange').addEventListener('change', function() {
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            
+            if (this.value === 'custom') {
+                startDate.classList.remove('hidden');
+                endDate.classList.remove('hidden');
+            } else {
+                startDate.classList.add('hidden');
+                endDate.classList.add('hidden');
+            }
+        });
+
+        // 初始化图表
+        function initCharts() {
+            // 趋势图
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日'],
+                    datasets: [{
+                        label: '展示次数',
+                        data: [4200, 4800, 4100, 5200, 4900, 5100, 4700],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: '点击次数',
+                        data: [280, 320, 290, 380, 340, 360, 310],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // 设备分布饼图
+            const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+            new Chart(deviceCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['移动端', '桌面端', '平板'],
+                    datasets: [{
+                        data: [65, 28, 7],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 页面加载完成后初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+        });
+
+        // 功能函数
+        function refreshData() {
+            alert('正在刷新数据...');
+            // 这里可以添加实际的数据刷新逻辑
+        }
+
+        function exportReport() {
+            alert('正在导出报告...');
+            // 这里可以添加实际的导出逻辑
+        }
+
+        function scheduleReport() {
+            alert('设置定时报告');
+            // 这里可以添加定时报告设置逻辑
+        }
+
+        function viewDetails(id) {
+            alert('查看Banner详细数据');
+            // 这里可以添加查看详情的逻辑
+        }
+
+        function optimizeSuggestion(id) {
+            alert('获取优化建议');
+            // 这里可以添加优化建议的逻辑
+        }
+    </script>
+</body>
+</html>

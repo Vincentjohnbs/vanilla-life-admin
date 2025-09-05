@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会员管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .member-card {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+        .vip-card {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        .svip-card {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .level-badge {
+            transition: all 0.3s ease;
+        }
+        .level-badge:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">用户管理</h3>
+                <ul class="space-y-1">
+                    <li><a href="61-用户详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-user mr-3"></i>用户详情</a></li>
+                    <li><a href="62-会员管理页.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-crown mr-3"></i>会员管理</a></li>
+                    <li><a href="63-用户标签管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-tags mr-3"></i>用户标签</a></li>
+                    <li><a href="64-积分管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-coins mr-3"></i>积分管理</a></li>
+                    <li><a href="65-权限配置.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-shield-alt mr-3"></i>权限配置</a></li>
+                    <li><a href="66-用户分群.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-users mr-3"></i>用户分群</a></li>
+                    <li><a href="67-行为分析.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-chart-line mr-3"></i>行为分析</a></li>
+                    <li><a href="68-消息推送.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-bell mr-3"></i>消息推送</a></li>
+                    <li><a href="69-黑名单管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-ban mr-3"></i>黑名单管理</a></li>
+                    <li><a href="70-用户导出.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-download mr-3"></i>用户导出</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-800">会员管理</h2>
+                        <p class="text-sm text-gray-600">管理会员等级、权益和升级规则</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="refreshData" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                    </button>
+                    <button id="exportData" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出报告
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 会员统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">总会员数</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">12,580</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8.5%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">VIP会员</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">3,256</p>
+                            <p class="text-sm text-purple-600 mt-1">
+                                <i class="fas fa-crown mr-1"></i>25.9%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-crown text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">本月新增</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">456</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-user-plus mr-1"></i>+12.3%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-user-plus text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">会员收入</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">¥89.2万</p>
+                            <p class="text-sm text-blue-600 mt-1">
+                                <i class="fas fa-coins mr-1"></i>本月
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-coins text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 会员等级配置 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">会员等级配置</h3>
+                        <button id="addLevel" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>新增等级
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- 普通会员 -->
+                        <div class="border-2 border-gray-200 rounded-xl p-6 relative">
+                            <div class="absolute top-4 right-4">
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                            <div class="text-center mb-4">
+                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-user text-gray-600 text-2xl"></i>
+                                </div>
+                                <h4 class="text-lg font-semibold text-gray-900">普通会员</h4>
+                                <p class="text-sm text-gray-600">免费注册即可获得</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">升级条件</span>
+                                    <span class="text-gray-900">注册即可</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">购物折扣</span>
+                                    <span class="text-gray-900">无</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">积分倍率</span>
+                                    <span class="text-gray-900">1倍</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">专属客服</span>
+                                    <span class="text-red-500">×</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">当前人数</span>
+                                    <span class="text-blue-600 font-medium">9,324人</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- VIP会员 -->
+                        <div class="border-2 border-yellow-300 rounded-xl p-6 relative vip-card text-white">
+                            <div class="absolute top-4 right-4">
+                                <button class="text-white hover:text-yellow-200">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                            <div class="text-center mb-4">
+                                <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-crown text-white text-2xl"></i>
+                                </div>
+                                <h4 class="text-lg font-semibold">VIP会员</h4>
+                                <p class="text-sm opacity-90">享受更多专属权益</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="opacity-90">升级条件</span>
+                                    <span>消费满¥1000</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="opacity-90">购物折扣</span>
+                                    <span>9.5折</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="opacity-90">积分倍率</span>
+                                    <span>1.5倍</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="opacity-90">专属客服</span>
+                                    <span class="text-green-300">✓</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="opacity-90">当前人数</span>
+                                    <span class="font-medium">3,256人</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 超级VIP -->
+                        <div class="border-2 border-red-300 rounded-xl p-6 relative svip-card text-white">
+                            <div class="absolute top-4 right-4">
+                                <button class="text-white hover:text-red-200">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                            <div class="text-center mb-4">
+                                <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-gem text-white text-2xl"></i>
+                                </div>
+                                <h4 class="text-lg font-semibold">超级VIP</h4>
+                                <p class="text-sm opacity-90">尊享顶级会员服务</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="opacity-90">升级条件</span>
+                                    <span>消费满¥5000</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="opacity-90">购物折扣</span>
+                                    <span>9折</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="opacity-90">积分倍率</span>
+                                    <span>2倍</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="opacity-90">专属客服</span>
+                                    <span class="text-green-300">✓</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="opacity-90">当前人数</span>
+                                    <span class="font-medium">1,024人</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 会员列表 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">会员列表</h3>
+                        <div class="flex items-center space-x-3">
+                            <div class="relative">
+                                <input type="text" id="searchInput" placeholder="搜索会员..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                            <select id="levelFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="">全部等级</option>
+                                <option value="normal">普通会员</option>
+                                <option value="vip">VIP会员</option>
+                                <option value="svip">超级VIP</option>
+                            </select>
+                            <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="">全部状态</option>
+                                <option value="active">正常</option>
+                                <option value="expired">已过期</option>
+                                <option value="frozen">已冻结</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">会员信息</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">等级</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">消费金额</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">积分余额</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">到期时间</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="memberList" class="bg-white divide-y divide-gray-200">
+                            <!-- 会员数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示 <span class="font-medium">1</span> 到 <span class="font-medium">20</span> 条，共 <span class="font-medium">12,580</span> 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">上一页</button>
+                            <button class="px-3 py-1 text-sm text-white bg-green-500 border border-green-500 rounded">1</button>
+                            <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50">3</button>
+                            <span class="px-3 py-1 text-sm text-gray-500">...</span>
+                            <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50">629</button>
+                            <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">下一页</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 编辑等级模态框 -->
+    <div id="editLevelModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">编辑会员等级</h3>
+                    <button id="closeLevelModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">等级名称</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="请输入等级名称">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">等级图标</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="user">普通用户</option>
+                                <option value="crown">皇冠</option>
+                                <option value="gem">钻石</option>
+                                <option value="star">星星</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">升级条件（消费金额）</label>
+                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">购物折扣（%）</label>
+                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="100" min="1" max="100">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">积分倍率</label>
+                            <input type="number" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="1.0">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">有效期（天）</label>
+                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="365">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">专属权益</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500 mr-2">
+                                <span class="text-sm text-gray-700">专属客服</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500 mr-2">
+                                <span class="text-sm text-gray-700">免费配送</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500 mr-2">
+                                <span class="text-sm text-gray-700">生日礼品</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500 mr-2">
+                                <span class="text-sm text-gray-700">优先客服</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">等级描述</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" rows="3" placeholder="请输入等级描述"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancelLevel" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">取消</button>
+                <button id="saveLevel" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量操作模态框 -->
+    <div id="batchModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">批量操作</h3>
+                    <button id="closeBatchModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">操作类型</label>
+                        <select id="batchAction" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="">请选择操作</option>
+                            <option value="upgrade">升级会员</option>
+                            <option value="downgrade">降级会员</option>
+                            <option value="extend">延长有效期</option>
+                            <option value="freeze">冻结账户</option>
+                            <option value="unfreeze">解冻账户</option>
+                        </select>
+                    </div>
+                    <div id="upgradeOptions" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">目标等级</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="vip">VIP会员</option>
+                            <option value="svip">超级VIP</option>
+                        </select>
+                    </div>
+                    <div id="extendOptions" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">延长天数</label>
+                        <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="30">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">操作说明</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" rows="3" placeholder="请输入操作说明（可选）"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancelBatch" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">取消</button>
+                <button id="confirmBatch" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">确认操作</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟会员数据
+        const memberData = [
+            {
+                id: 1,
+                name: '张小花',
+                email: 'zhang.xiaohua@email.com',
+                phone: '138****8888',
+                level: 'vip',
+                levelName: 'VIP会员',
+                totalSpent: 2580,
+                points: 8520,
+                expireDate: '2024-12-15',
+                status: 'active',
+                avatar: 'https://via.placeholder.com/40'
+            },
+            {
+                id: 2,
+                name: '李园丁',
+                email: 'li.yuanding@email.com',
+                phone: '139****9999',
+                level: 'svip',
+                levelName: '超级VIP',
+                totalSpent: 8900,
+                points: 15600,
+                expireDate: '2025-03-20',
+                status: 'active',
+                avatar: 'https://via.placeholder.com/40'
+            },
+            {
+                id: 3,
+                name: '王绿叶',
+                email: 'wang.lvye@email.com',
+                phone: '137****7777',
+                level: 'normal',
+                levelName: '普通会员',
+                totalSpent: 450,
+                points: 1200,
+                expireDate: '-',
+                status: 'active',
+                avatar: 'https://via.placeholder.com/40'
+            }
+        ];
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 渲染会员列表
+        function renderMemberList(data = memberData) {
+            const tbody = document.getElementById('memberList');
+            tbody.innerHTML = '';
+            
+            data.forEach(member => {
+                const levelBadge = {
+                    'normal': '<span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">普通会员</span>',
+                    'vip': '<span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">VIP会员</span>',
+                    'svip': '<span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">超级VIP</span>'
+                };
+                
+                const statusBadge = {
+                    'active': '<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">正常</span>',
+                    'expired': '<span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">已过期</span>',
+                    'frozen': '<span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">已冻结</span>'
+                };
+                
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="member-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500" data-id="${member.id}">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <img src="${member.avatar}" alt="头像" class="w-10 h-10 rounded-full mr-3">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">${member.name}</div>
+                                <div class="text-sm text-gray-500">${member.email}</div>
+                                <div class="text-sm text-gray-500">${member.phone}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${levelBadge[member.level]}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ¥${member.totalSpent.toLocaleString()}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${member.points.toLocaleString()}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${member.expireDate}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${statusBadge[member.status]}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex items-center space-x-2">
+                            <button class="text-blue-600 hover:text-blue-900" onclick="viewMember(${member.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="text-green-600 hover:text-green-900" onclick="editMember(${member.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-purple-600 hover:text-purple-900" onclick="upgradeMember(${member.id})">
+                                <i class="fas fa-arrow-up"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-900" onclick="deleteMember(${member.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filteredData = memberData.filter(member => 
+                member.name.toLowerCase().includes(searchTerm) ||
+                member.email.toLowerCase().includes(searchTerm) ||
+                member.phone.includes(searchTerm)
+            );
+            renderMemberList(filteredData);
+        });
+
+        // 等级筛选
+        document.getElementById('levelFilter').addEventListener('change', function() {
+            const level = this.value;
+            const filteredData = level ? memberData.filter(member => member.level === level) : memberData;
+            renderMemberList(filteredData);
+        });
+
+        // 状态筛选
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            const status = this.value;
+            const filteredData = status ? memberData.filter(member => member.status === status) : memberData;
+            renderMemberList(filteredData);
+        });
+
+        // 全选功能
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.member-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // 新增等级
+        document.getElementById('addLevel').addEventListener('click', function() {
+            document.getElementById('editLevelModal').classList.remove('hidden');
+            document.getElementById('editLevelModal').classList.add('flex');
+        });
+
+        // 关闭等级模态框
+        document.getElementById('closeLevelModal').addEventListener('click', function() {
+            document.getElementById('editLevelModal').classList.add('hidden');
+            document.getElementById('editLevelModal').classList.remove('flex');
+        });
+
+        document.getElementById('cancelLevel').addEventListener('click', function() {
+            document.getElementById('editLevelModal').classList.add('hidden');
+            document.getElementById('editLevelModal').classList.remove('flex');
+        });
+
+        // 保存等级
+        document.getElementById('saveLevel').addEventListener('click', function() {
+            alert('等级配置保存成功！');
+            document.getElementById('editLevelModal').classList.add('hidden');
+            document.getElementById('editLevelModal').classList.remove('flex');
+        });
+
+        // 批量操作
+        document.getElementById('batchAction').addEventListener('change', function() {
+            const action = this.value;
+            document.getElementById('upgradeOptions').classList.add('hidden');
+            document.getElementById('extendOptions').classList.add('hidden');
+            
+            if (action === 'upgrade' || action === 'downgrade') {
+                document.getElementById('upgradeOptions').classList.remove('hidden');
+            } else if (action === 'extend') {
+                document.getElementById('extendOptions').classList.remove('hidden');
+            }
+        });
+
+        // 会员操作函数
+        function viewMember(id) {
+            window.location.href = `61-用户详情页.html?id=${id}`;
+        }
+
+        function editMember(id) {
+            alert(`编辑会员 ID: ${id}`);
+        }
+
+        function upgradeMember(id) {
+            alert(`升级会员 ID: ${id}`);
+        }
+
+        function deleteMember(id) {
+            if (confirm('确定要删除这个会员吗？')) {
+                alert(`删除会员 ID: ${id}`);
+            }
+        }
+
+        // 刷新数据
+        document.getElementById('refreshData').addEventListener('click', function() {
+            renderMemberList();
+            alert('数据刷新成功！');
+        });
+
+        // 导出数据
+        document.getElementById('exportData').addEventListener('click', function() {
+            alert('会员数据导出成功！');
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMemberList();
+            console.log('会员管理页面初始化完成');
+        });
+    </script>
+</body>
+</html>

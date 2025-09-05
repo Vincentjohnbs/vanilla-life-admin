@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动报名管理模块预览 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .page-frame {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .page-frame:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            border-color: #10b981;
+        }
+        .page-frame iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+        }
+        .page-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .flow-diagram {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        .flow-step {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .flow-step:hover {
+            border-color: #10b981;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .flow-arrow {
+            color: #6b7280;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .module-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- 模块标题 -->
+        <div class="module-header">
+            <h1 class="text-4xl font-bold mb-4">活动报名管理模块</h1>
+            <p class="text-xl text-purple-100">香草生活后台管理系统 - 第九批页面设计预览</p>
+            <div class="flex items-center justify-center space-x-8 mt-6">
+                <div class="text-center">
+                    <div class="text-2xl font-bold">10</div>
+                    <div class="text-sm text-purple-100">页面总数</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">100%</div>
+                    <div class="text-sm text-purple-100">完成度</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">响应式</div>
+                    <div class="text-sm text-purple-100">设计标准</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户流程示意图 -->
+        <div class="flow-diagram">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">活动报名管理流程</h2>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                <div class="flow-step">
+                    <i class="fas fa-plus-circle text-blue-600 text-2xl mb-2"></i>
+                    <h3 class="font-semibold text-gray-800">活动创建</h3>
+                    <p class="text-sm text-gray-600">创建活动基本信息</p>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-step">
+                    <i class="fas fa-edit text-green-600 text-2xl mb-2"></i>
+                    <h3 class="font-semibold text-gray-800">表单构建</h3>
+                    <p class="text-sm text-gray-600">设计报名表单</p>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-step">
+                    <i class="fas fa-users text-purple-600 text-2xl mb-2"></i>
+                    <h3 class="font-semibold text-gray-800">用户报名</h3>
+                    <p class="text-sm text-gray-600">用户填写报名</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center mt-4">
+                <div class="flow-step">
+                    <i class="fas fa-check-circle text-orange-600 text-2xl mb-2"></i>
+                    <h3 class="font-semibold text-gray-800">审核管理</h3>
+                    <p class="text-sm text-gray-600">审核报名信息</p>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-step">
+                    <i class="fas fa-bell text-red-600 text-2xl mb-2"></i>
+                    <h3 class="font-semibold text-gray-800">用户通知</h3>
+                    <p class="text-sm text-gray-600">发送通知消息</p>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-step">
+                    <i class="fas fa-chart-bar text-indigo-600 text-2xl mb-2"></i>
+                    <h3 class="font-semibold text-gray-800">数据分析</h3>
+                    <p class="text-sm text-gray-600">统计分析报告</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面预览网格 -->
+        <div class="grid-container">
+            <!-- 活动创建页 -->
+            <div class="page-frame">
+                <div class="page-title">91-活动创建页</div>
+                <iframe src="91-活动创建页.html"></iframe>
+            </div>
+
+            <!-- 表单构建器 -->
+            <div class="page-frame">
+                <div class="page-title">92-表单构建器</div>
+                <iframe src="92-表单构建器.html"></iframe>
+            </div>
+
+            <!-- 报名数据管理 -->
+            <div class="page-frame">
+                <div class="page-title">93-报名数据管理</div>
+                <iframe src="93-报名数据管理.html"></iframe>
+            </div>
+
+            <!-- 问卷分析页 -->
+            <div class="page-frame">
+                <div class="page-title">94-问卷分析页</div>
+                <iframe src="94-问卷分析页.html"></iframe>
+            </div>
+
+            <!-- 奖励管理 -->
+            <div class="page-frame">
+                <div class="page-title">95-奖励管理</div>
+                <iframe src="95-奖励管理.html"></iframe>
+            </div>
+
+            <!-- 推广配置 -->
+            <div class="page-frame">
+                <div class="page-title">96-推广配置</div>
+                <iframe src="96-推广配置.html"></iframe>
+            </div>
+
+            <!-- 审核管理 -->
+            <div class="page-frame">
+                <div class="page-title">97-审核管理</div>
+                <iframe src="97-审核管理.html"></iframe>
+            </div>
+
+            <!-- 数据导出 -->
+            <div class="page-frame">
+                <div class="page-title">98-数据导出</div>
+                <iframe src="98-数据导出.html"></iframe>
+            </div>
+
+            <!-- 统计分析 -->
+            <div class="page-frame">
+                <div class="page-title">99-统计分析</div>
+                <iframe src="99-统计分析.html"></iframe>
+            </div>
+
+            <!-- 用户通知 -->
+            <div class="page-frame">
+                <div class="page-title">100-用户通知</div>
+                <iframe src="100-用户通知.html"></iframe>
+            </div>
+        </div>
+
+        <!-- 功能特色说明 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">模块功能特色</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-calendar-plus text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-2">活动管理</h3>
+                    <p class="text-sm text-gray-600">完整的活动创建、编辑、发布流程，支持多种活动类型和自定义设置</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-edit text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-2">表单构建</h3>
+                    <p class="text-sm text-gray-600">可视化表单构建器，支持拖拽操作，多种字段类型和验证规则</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-database text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-2">数据管理</h3>
+                    <p class="text-sm text-gray-600">强大的报名数据管理，支持筛选、排序、批量操作和数据导出</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-line text-orange-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-2">智能分析</h3>
+                    <p class="text-sm text-gray-600">深度数据分析和可视化图表，提供活动效果洞察和优化建议</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bell text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-2">消息通知</h3>
+                    <p class="text-sm text-gray-600">多渠道消息推送，支持短信、邮件、推送等，自动化通知规则</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-cogs text-indigo-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 mb-2">流程自动化</h3>
+                    <p class="text-sm text-gray-600">智能审核流程，自动化奖励发放，提升运营效率</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面底部信息 -->
+        <div class="text-center mt-8 text-gray-600">
+            <p>香草生活后台管理系统 - 活动报名管理模块</p>
+            <p class="text-sm mt-2">设计时间：2024年1月 | 页面数量：10个 | 技术栈：HTML5 + Tailwind CSS + JavaScript</p>
+        </div>
+    </div>
+</body>
+</html>

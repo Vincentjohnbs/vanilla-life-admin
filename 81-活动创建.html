@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动创建 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .sidebar-item.active { background-color: #10b981; color: white; }
+        .form-step { display: none; }
+        .form-step.active { display: block; }
+        .step-indicator { background-color: #e5e7eb; color: #6b7280; }
+        .step-indicator.active { background-color: #10b981; color: white; }
+        .step-indicator.completed { background-color: #059669; color: white; }
+        .preview-card { transition: all 0.3s ease; }
+        .preview-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .activity-template { border: 2px solid transparent; cursor: pointer; transition: all 0.3s ease; }
+        .activity-template:hover { border-color: #10b981; }
+        .activity-template.selected { border-color: #10b981; background-color: #f0fdf4; }
+        .time-picker { background: white; border: 1px solid #d1d5db; }
+        .reward-item { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+        .reward-item.selected { border-color: #10b981; background-color: #f0fdf4; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50">
+        <div class="flex items-center justify-center h-16 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>仪表盘
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-box mr-3"></i>商品管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>订单管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>用户管理
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-bullhorn mr-3"></i>营销活动
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-truck mr-3"></i>供应商管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>香草图鉴
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>香草阳台
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-images mr-3"></i>Banner管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-cog mr-3"></i>系统设置
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 flex-1">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold text-gray-800">创建营销活动</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 步骤指示器 -->
+        <div class="bg-white border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-center space-x-8">
+                <div class="flex items-center">
+                    <div class="step-indicator active w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">
+                        1
+                    </div>
+                    <span class="ml-2 text-sm font-medium text-gray-900">基础信息</span>
+                </div>
+                <div class="flex-1 h-px bg-gray-300"></div>
+                <div class="flex items-center">
+                    <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">
+                        2
+                    </div>
+                    <span class="ml-2 text-sm font-medium text-gray-500">活动规则</span>
+                </div>
+                <div class="flex-1 h-px bg-gray-300"></div>
+                <div class="flex items-center">
+                    <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">
+                        3
+                    </div>
+                    <span class="ml-2 text-sm font-medium text-gray-500">奖励设置</span>
+                </div>
+                <div class="flex-1 h-px bg-gray-300"></div>
+                <div class="flex items-center">
+                    <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium">
+                        4
+                    </div>
+                    <span class="ml-2 text-sm font-medium text-gray-500">预览发布</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表单内容 -->
+        <div class="p-6">
+            <!-- 第一步：基础信息 -->
+            <div id="step1" class="form-step active">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">活动基础信息</h3>
+                            <p class="mt-1 text-sm text-gray-500">设置活动的基本信息和展示内容</p>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <!-- 活动模板选择 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">选择活动模板</label>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="activity-template p-4 rounded-lg" data-template="discount">
+                                        <div class="text-center">
+                                            <i class="fas fa-percentage text-3xl text-blue-500 mb-2"></i>
+                                            <h4 class="font-medium text-gray-900">折扣促销</h4>
+                                            <p class="text-sm text-gray-500 mt-1">商品打折、满减等促销活动</p>
+                                        </div>
+                                    </div>
+                                    <div class="activity-template p-4 rounded-lg" data-template="coupon">
+                                        <div class="text-center">
+                                            <i class="fas fa-ticket-alt text-3xl text-green-500 mb-2"></i>
+                                            <h4 class="font-medium text-gray-900">优惠券</h4>
+                                            <p class="text-sm text-gray-500 mt-1">发放优惠券，吸引用户消费</p>
+                                        </div>
+                                    </div>
+                                    <div class="activity-template p-4 rounded-lg" data-template="lottery">
+                                        <div class="text-center">
+                                            <i class="fas fa-gift text-3xl text-purple-500 mb-2"></i>
+                                            <h4 class="font-medium text-gray-900">抽奖活动</h4>
+                                            <p class="text-sm text-gray-500 mt-1">转盘抽奖、刮刮卡等互动</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 活动名称 -->
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label for="activity-name" class="block text-sm font-medium text-gray-700 mb-2">活动名称 *</label>
+                                    <input type="text" id="activity-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="请输入活动名称">
+                                </div>
+                                <div>
+                                    <label for="activity-subtitle" class="block text-sm font-medium text-gray-700 mb-2">活动副标题</label>
+                                    <input type="text" id="activity-subtitle" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="请输入活动副标题">
+                                </div>
+                            </div>
+
+                            <!-- 活动时间 -->
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label for="start-time" class="block text-sm font-medium text-gray-700 mb-2">开始时间 *</label>
+                                    <input type="datetime-local" id="start-time" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label for="end-time" class="block text-sm font-medium text-gray-700 mb-2">结束时间 *</label>
+                                    <input type="datetime-local" id="end-time" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                </div>
+                            </div>
+
+                            <!-- 活动描述 -->
+                            <div>
+                                <label for="activity-desc" class="block text-sm font-medium text-gray-700 mb-2">活动描述</label>
+                                <textarea id="activity-desc" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="请输入活动描述"></textarea>
+                            </div>
+
+                            <!-- 活动封面 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">活动封面</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                    <p class="text-sm text-gray-500">点击上传或拖拽图片到此处</p>
+                                    <p class="text-xs text-gray-400 mt-1">支持 JPG、PNG 格式，建议尺寸 750x400px</p>
+                                    <input type="file" class="hidden" accept="image/*" id="cover-upload">
+                                </div>
+                            </div>
+
+                            <!-- 活动标签 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">活动标签</label>
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        限时特惠
+                                        <button class="ml-1 text-green-600 hover:text-green-800">
+                                            <i class="fas fa-times text-xs"></i>
+                                        </button>
+                                    </span>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        新品上市
+                                        <button class="ml-1 text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-times text-xs"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <input type="text" id="tag-input" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="输入标签名称">
+                                    <button type="button" id="add-tag" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                                        添加
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二步：活动规则 -->
+            <div id="step2" class="form-step">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">活动规则设置</h3>
+                            <p class="mt-1 text-sm text-gray-500">设置活动的参与条件和规则</p>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <!-- 参与条件 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">参与条件</label>
+                                <div class="space-y-3">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm text-gray-700">需要登录</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm text-gray-700">需要关注公众号</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm text-gray-700">需要分享活动</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm text-gray-700">限制用户等级</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- 参与限制 -->
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label for="max-participants" class="block text-sm font-medium text-gray-700 mb-2">最大参与人数</label>
+                                    <input type="number" id="max-participants" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="不限制请留空">
+                                </div>
+                                <div>
+                                    <label for="daily-limit" class="block text-sm font-medium text-gray-700 mb-2">每日参与次数</label>
+                                    <select id="daily-limit" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="1">1次</option>
+                                        <option value="3">3次</option>
+                                        <option value="5">5次</option>
+                                        <option value="unlimited">不限制</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 商品范围 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">适用商品范围</label>
+                                <div class="space-y-3">
+                                    <label class="flex items-center">
+                                        <input type="radio" name="product-range" value="all" class="text-green-600 focus:ring-green-500" checked>
+                                        <span class="ml-2 text-sm text-gray-700">全部商品</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="product-range" value="category" class="text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm text-gray-700">指定分类</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="product-range" value="specific" class="text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm text-gray-700">指定商品</span>
+                                    </label>
+                                </div>
+                                <div class="mt-3 p-4 bg-gray-50 rounded-lg">
+                                    <button type="button" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                                        <i class="fas fa-plus mr-1"></i>选择商品
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 活动规则说明 -->
+                            <div>
+                                <label for="activity-rules" class="block text-sm font-medium text-gray-700 mb-2">活动规则说明</label>
+                                <textarea id="activity-rules" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="请输入详细的活动规则说明"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第三步：奖励设置 -->
+            <div id="step3" class="form-step">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">奖励设置</h3>
+                            <p class="mt-1 text-sm text-gray-500">设置活动的奖励内容和发放规则</p>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <!-- 奖励类型 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">奖励类型</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="reward-item">
+                                        <label class="flex items-center cursor-pointer">
+                                            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                            <div class="ml-3">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-ticket-alt text-green-500 mr-2"></i>
+                                                    <span class="font-medium text-gray-900">优惠券</span>
+                                                </div>
+                                                <p class="text-sm text-gray-500 mt-1">发放优惠券给参与用户</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="reward-item">
+                                        <label class="flex items-center cursor-pointer">
+                                            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                            <div class="ml-3">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-coins text-yellow-500 mr-2"></i>
+                                                    <span class="font-medium text-gray-900">积分</span>
+                                                </div>
+                                                <p class="text-sm text-gray-500 mt-1">奖励用户积分</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="reward-item">
+                                        <label class="flex items-center cursor-pointer">
+                                            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                            <div class="ml-3">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-gift text-purple-500 mr-2"></i>
+                                                    <span class="font-medium text-gray-900">实物奖品</span>
+                                                </div>
+                                                <p class="text-sm text-gray-500 mt-1">发放实物商品</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div class="reward-item">
+                                        <label class="flex items-center cursor-pointer">
+                                            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                            <div class="ml-3">
+                                                <div class="flex items-center">
+                                                    <i class="fas fa-crown text-orange-500 mr-2"></i>
+                                                    <span class="font-medium text-gray-900">会员权益</span>
+                                                </div>
+                                                <p class="text-sm text-gray-500 mt-1">提升用户会员等级</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 奖励配置 -->
+                            <div class="space-y-4">
+                                <h4 class="font-medium text-gray-900">奖励配置</h4>
+                                
+                                <!-- 优惠券配置 -->
+                                <div class="p-4 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h5 class="font-medium text-gray-900">优惠券设置</h5>
+                                        <button type="button" class="text-green-600 hover:text-green-700 text-sm">
+                                            <i class="fas fa-plus mr-1"></i>添加优惠券
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">优惠券类型</label>
+                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
+                                                <option>满减券</option>
+                                                <option>折扣券</option>
+                                                <option>免邮券</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">优惠金额</label>
+                                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" placeholder="10">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">使用门槛</label>
+                                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" placeholder="100">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 积分配置 -->
+                                <div class="p-4 border border-gray-200 rounded-lg">
+                                    <h5 class="font-medium text-gray-900 mb-3">积分设置</h5>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">积分数量</label>
+                                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" placeholder="100">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">发放条件</label>
+                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
+                                                <option>参与即得</option>
+                                                <option>完成任务</option>
+                                                <option>分享成功</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 发放规则 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">发放规则</label>
+                                <div class="space-y-3">
+                                    <label class="flex items-center">
+                                        <input type="radio" name="reward-rule" value="immediate" class="text-green-600 focus:ring-green-500" checked>
+                                        <span class="ml-2 text-sm text-gray-700">立即发放</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="reward-rule" value="manual" class="text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm text-gray-700">手动发放</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="reward-rule" value="scheduled" class="text-green-600 focus:ring-green-500">
+                                        <span class="ml-2 text-sm text-gray-700">定时发放</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第四步：预览发布 -->
+            <div id="step4" class="form-step">
+                <div class="max-w-4xl mx-auto">
+                    <div class="grid grid-cols-2 gap-6">
+                        <!-- 活动预览 -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">活动预览</h3>
+                                <p class="mt-1 text-sm text-gray-500">查看活动在前端的展示效果</p>
+                            </div>
+                            <div class="p-6">
+                                <!-- 手机预览框 -->
+                                <div class="mx-auto w-64 h-96 bg-gray-100 rounded-2xl p-4 shadow-lg">
+                                    <div class="w-full h-full bg-white rounded-xl overflow-hidden">
+                                        <!-- 活动封面 -->
+                                        <div class="h-32 bg-gradient-to-r from-green-400 to-blue-500 relative">
+                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                <i class="fas fa-image text-white text-2xl opacity-50"></i>
+                                            </div>
+                                        </div>
+                                        <!-- 活动信息 -->
+                                        <div class="p-4">
+                                            <h4 class="font-bold text-gray-900 text-sm mb-1">春季香草节大促销</h4>
+                                            <p class="text-xs text-gray-500 mb-2">全场香草商品限时特惠</p>
+                                            <div class="flex items-center text-xs text-gray-400 mb-3">
+                                                <i class="fas fa-clock mr-1"></i>
+                                                <span>2024-03-01 至 2024-03-31</span>
+                                            </div>
+                                            <div class="flex space-x-2">
+                                                <span class="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full">限时特惠</span>
+                                                <span class="px-2 py-1 bg-green-100 text-green-600 text-xs rounded-full">新品上市</span>
+                                            </div>
+                                            <button class="w-full mt-4 bg-green-500 text-white py-2 rounded-lg text-sm font-medium">
+                                                立即参与
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 发布设置 -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-medium text-gray-900">发布设置</h3>
+                                <p class="mt-1 text-sm text-gray-500">设置活动的发布方式和推广渠道</p>
+                            </div>
+                            <div class="p-6 space-y-6">
+                                <!-- 发布方式 -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-3">发布方式</label>
+                                    <div class="space-y-3">
+                                        <label class="flex items-center">
+                                            <input type="radio" name="publish-type" value="immediate" class="text-green-600 focus:ring-green-500" checked>
+                                            <span class="ml-2 text-sm text-gray-700">立即发布</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="publish-type" value="scheduled" class="text-green-600 focus:ring-green-500">
+                                            <span class="ml-2 text-sm text-gray-700">定时发布</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="publish-type" value="draft" class="text-green-600 focus:ring-green-500">
+                                            <span class="ml-2 text-sm text-gray-700">保存为草稿</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- 推广渠道 -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-3">推广渠道</label>
+                                    <div class="space-y-3">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500" checked>
+                                            <span class="ml-2 text-sm text-gray-700">App首页推荐</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                            <span class="ml-2 text-sm text-gray-700">微信公众号推送</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                            <span class="ml-2 text-sm text-gray-700">短信通知</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                            <span class="ml-2 text-sm text-gray-700">站内消息</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- 活动摘要 -->
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="font-medium text-gray-900 mb-3">活动摘要</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">活动名称：</span>
+                                            <span class="text-gray-900">春季香草节大促销</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">活动类型：</span>
+                                            <span class="text-gray-900">折扣促销</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">活动时间：</span>
+                                            <span class="text-gray-900">30天</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">奖励类型：</span>
+                                            <span class="text-gray-900">优惠券+积分</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部操作按钮 -->
+            <div class="mt-8 flex justify-between">
+                <button id="prev-step" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors" style="display: none;">
+                    <i class="fas fa-arrow-left mr-2"></i>上一步
+                </button>
+                <div class="flex space-x-4">
+                    <button id="save-draft" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-save mr-2"></i>保存草稿
+                    </button>
+                    <button id="next-step" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                        下一步<i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 当前步骤
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            // 侧边栏切换逻辑
+        });
+
+        // 步骤切换
+        function showStep(step) {
+            // 隐藏所有步骤
+            document.querySelectorAll('.form-step').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // 显示当前步骤
+            document.getElementById(`step${step}`).classList.add('active');
+            
+            // 更新步骤指示器
+            document.querySelectorAll('.step-indicator').forEach((el, index) => {
+                el.classList.remove('active', 'completed');
+                if (index + 1 < step) {
+                    el.classList.add('completed');
+                } else if (index + 1 === step) {
+                    el.classList.add('active');
+                }
+            });
+            
+            // 更新按钮状态
+            const prevBtn = document.getElementById('prev-step');
+            const nextBtn = document.getElementById('next-step');
+            
+            if (step === 1) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+            }
+            
+            if (step === totalSteps) {
+                nextBtn.innerHTML = '<i class="fas fa-check mr-2"></i>发布活动';
+                nextBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                nextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            } else {
+                nextBtn.innerHTML = '下一步<i class="fas fa-arrow-right ml-2"></i>';
+                nextBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                nextBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            }
+        }
+
+        // 下一步按钮
+        document.getElementById('next-step').addEventListener('click', function() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            } else {
+                // 发布活动
+                publishActivity();
+            }
+        });
+
+        // 上一步按钮
+        document.getElementById('prev-step').addEventListener('click', function() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        });
+
+        // 活动模板选择
+        document.querySelectorAll('.activity-template').forEach(template => {
+            template.addEventListener('click', function() {
+                document.querySelectorAll('.activity-template').forEach(t => {
+                    t.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+
+        // 添加标签
+        document.getElementById('add-tag').addEventListener('click', function() {
+            const input = document.getElementById('tag-input');
+            const tagText = input.value.trim();
+            if (tagText) {
+                // 创建标签元素
+                const tagElement = document.createElement('span');
+                tagElement.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
+                tagElement.innerHTML = `
+                    ${tagText}
+                    <button class="ml-1 text-green-600 hover:text-green-800">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                `;
+                
+                // 添加删除功能
+                tagElement.querySelector('button').addEventListener('click', function() {
+                    tagElement.remove();
+                });
+                
+                // 插入到标签容器
+                const tagContainer = document.querySelector('.flex.flex-wrap.gap-2.mb-3');
+                tagContainer.appendChild(tagElement);
+                
+                // 清空输入框
+                input.value = '';
+            }
+        });
+
+        // 封面上传
+        document.querySelector('.border-dashed').addEventListener('click', function() {
+            document.getElementById('cover-upload').click();
+        });
+
+        document.getElementById('cover-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const uploadArea = document.querySelector('.border-dashed');
+                    uploadArea.innerHTML = `
+                        <img src="${e.target.result}" alt="活动封面" class="max-w-full max-h-32 mx-auto rounded-lg">
+                        <p class="text-sm text-gray-500 mt-2">点击重新上传</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 奖励类型选择
+        document.querySelectorAll('.reward-item input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const rewardItem = this.closest('.reward-item');
+                if (this.checked) {
+                    rewardItem.classList.add('selected');
+                } else {
+                    rewardItem.classList.remove('selected');
+                }
+            });
+        });
+
+        // 保存草稿
+        document.getElementById('save-draft').addEventListener('click', function() {
+            alert('活动已保存为草稿');
+        });
+
+        // 发布活动
+        function publishActivity() {
+            // 模拟发布过程
+            const publishType = document.querySelector('input[name="publish-type"]:checked').value;
+            
+            if (publishType === 'immediate') {
+                alert('活动发布成功！');
+            } else if (publishType === 'scheduled') {
+                alert('活动已设置为定时发布！');
+            } else {
+                alert('活动已保存为草稿！');
+            }
+            
+            // 可以在这里添加跳转到活动列表页面的逻辑
+        }
+
+        // 初始化
+        showStep(1);
+    </script>
+</body>
+</html>

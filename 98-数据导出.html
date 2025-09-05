@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据导出 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .sidebar-item.active { background-color: #10b981; color: white; }
+        .tab-item { transition: all 0.3s ease; }
+        .tab-item.active { border-bottom-color: #10b981; color: #10b981; }
+        .export-card { transition: all 0.3s ease; }
+        .export-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .gradient-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .export-item {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .export-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .status-processing { background-color: #dbeafe; color: #1e40af; }
+        .status-completed { background-color: #dcfce7; color: #166534; }
+        .status-failed { background-color: #fee2e2; color: #dc2626; }
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .progress-bar {
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            transition: width 0.3s ease;
+        }
+        .export-template {
+            border: 2px dashed #d1d5db;
+            transition: all 0.3s ease;
+        }
+        .export-template:hover {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .field-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        .field-item.selected {
+            background: #dcfce7;
+            border-color: #10b981;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50">
+        <div class="flex items-center justify-center h-16 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>仪表盘
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-box mr-3"></i>商品管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>订单管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>用户管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-bullhorn mr-3"></i>营销活动
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-calendar-plus mr-3"></i>活动报名
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-truck mr-3"></i>供应商管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>香草图鉴
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>香草阳台
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-images mr-3"></i>Banner管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-cog mr-3"></i>系统设置
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 flex-1">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <a href="#" class="text-gray-500 hover:text-gray-700">活动报名</a>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                        <span class="text-gray-900 font-medium">数据导出</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="create-template-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-plus mr-2"></i>创建模板
+                    </button>
+                    <button id="export-history-btn" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                        <i class="fas fa-history mr-2"></i>导出历史
+                    </button>
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面头部 -->
+        <div class="p-6">
+            <div class="gradient-header text-white p-6 rounded-xl mb-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">数据导出</h1>
+                        <p class="text-purple-100">导出活动报名数据，支持多种格式和自定义字段</p>
+                    </div>
+                    <div class="flex items-center space-x-6">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">1,234</div>
+                            <div class="text-sm text-purple-100">总报名数</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">15</div>
+                            <div class="text-sm text-purple-100">导出任务</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">8</div>
+                            <div class="text-sm text-purple-100">导出模板</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="export-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">今日导出</p>
+                            <p class="text-2xl font-bold text-gray-900">23</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+15.3%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-download text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="export-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">处理中</p>
+                            <p class="text-2xl font-bold text-gray-900">5</p>
+                            <p class="text-sm text-orange-600 mt-1">
+                                <i class="fas fa-clock mr-1"></i>预计5分钟
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-spinner text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="export-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">已完成</p>
+                            <p class="text-2xl font-bold text-gray-900">156</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-check mr-1"></i>成功率99.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="export-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">数据量</p>
+                            <p class="text-2xl font-bold text-gray-900">2.3GB</p>
+                            <p class="text-sm text-blue-600 mt-1">
+                                <i class="fas fa-database mr-1"></i>本月累计
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hdd text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6">
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm active" data-tab="quick-export">
+                            快速导出
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="custom-export">
+                            自定义导出
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="export-tasks">
+                            导出任务
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="templates">
+                            导出模板
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="schedule">
+                            定时导出
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- 快速导出标签页 -->
+                <div id="quick-export-tab" class="tab-content p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="export-template p-6 rounded-lg cursor-pointer" onclick="quickExport('all')">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-users text-blue-600 text-2xl"></i>
+                                </div>
+                                <h3 class="font-semibold mb-2">全部报名数据</h3>
+                                <p class="text-sm text-gray-600 mb-4">导出所有活动的报名数据</p>
+                                <div class="text-sm text-gray-500">
+                                    <span>包含字段：基本信息、报名时间、状态</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="export-template p-6 rounded-lg cursor-pointer" onclick="quickExport('today')">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-calendar-day text-green-600 text-2xl"></i>
+                                </div>
+                                <h3 class="font-semibold mb-2">今日报名数据</h3>
+                                <p class="text-sm text-gray-600 mb-4">导出今天的新增报名</p>
+                                <div class="text-sm text-gray-500">
+                                    <span>包含字段：基本信息、报名详情</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="export-template p-6 rounded-lg cursor-pointer" onclick="quickExport('approved')">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-check-circle text-purple-600 text-2xl"></i>
+                                </div>
+                                <h3 class="font-semibold mb-2">已审核通过</h3>
+                                <p class="text-sm text-gray-600 mb-4">导出审核通过的报名</p>
+                                <div class="text-sm text-gray-500">
+                                    <span>包含字段：基本信息、审核信息</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="export-template p-6 rounded-lg cursor-pointer" onclick="quickExport('statistics')">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-chart-bar text-orange-600 text-2xl"></i>
+                                </div>
+                                <h3 class="font-semibold mb-2">统计报表</h3>
+                                <p class="text-sm text-gray-600 mb-4">导出活动统计分析报表</p>
+                                <div class="text-sm text-gray-500">
+                                    <span>包含字段：活动统计、趋势分析</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="export-template p-6 rounded-lg cursor-pointer" onclick="quickExport('questionnaire')">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-clipboard-list text-red-600 text-2xl"></i>
+                                </div>
+                                <h3 class="font-semibold mb-2">问卷调查数据</h3>
+                                <p class="text-sm text-gray-600 mb-4">导出问卷调查结果</p>
+                                <div class="text-sm text-gray-500">
+                                    <span>包含字段：问卷答案、分析结果</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="export-template p-6 rounded-lg cursor-pointer" onclick="quickExport('rewards')">
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-gift text-yellow-600 text-2xl"></i>
+                                </div>
+                                <h3 class="font-semibold mb-2">奖励发放记录</h3>
+                                <p class="text-sm text-gray-600 mb-4">导出奖励发放明细</p>
+                                <div class="text-sm text-gray-500">
+                                    <span>包含字段：奖励信息、发放状态</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 自定义导出标签页 -->
+                <div id="custom-export-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 左侧：筛选条件 -->
+                        <div class="export-item p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4">筛选条件</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">活动选择</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        <option>全部活动</option>
+                                        <option>香草种植工作坊</option>
+                                        <option>香草料理课程</option>
+                                        <option>香草花园参观</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">时间范围</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input type="date" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                        <input type="date" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">报名状态</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" checked class="mr-2">
+                                            <span class="text-sm">待审核</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" checked class="mr-2">
+                                            <span class="text-sm">已通过</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2">
+                                            <span class="text-sm">已拒绝</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2">
+                                            <span class="text-sm">已取消</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">导出格式</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        <option>Excel (.xlsx)</option>
+                                        <option>CSV (.csv)</option>
+                                        <option>PDF (.pdf)</option>
+                                        <option>JSON (.json)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右侧：字段选择 -->
+                        <div class="export-item p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4">导出字段</h3>
+                            <div class="space-y-3 max-h-96 overflow-y-auto">
+                                <div class="field-item p-3 rounded-lg cursor-pointer selected" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">报名ID</span>
+                                        <i class="fas fa-check text-green-600"></i>
+                                    </div>
+                                </div>
+                                <div class="field-item p-3 rounded-lg cursor-pointer selected" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">姓名</span>
+                                        <i class="fas fa-check text-green-600"></i>
+                                    </div>
+                                </div>
+                                <div class="field-item p-3 rounded-lg cursor-pointer selected" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">手机号</span>
+                                        <i class="fas fa-check text-green-600"></i>
+                                    </div>
+                                </div>
+                                <div class="field-item p-3 rounded-lg cursor-pointer" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">邮箱</span>
+                                        <i class="fas fa-plus text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div class="field-item p-3 rounded-lg cursor-pointer selected" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">活动名称</span>
+                                        <i class="fas fa-check text-green-600"></i>
+                                    </div>
+                                </div>
+                                <div class="field-item p-3 rounded-lg cursor-pointer selected" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">报名时间</span>
+                                        <i class="fas fa-check text-green-600"></i>
+                                    </div>
+                                </div>
+                                <div class="field-item p-3 rounded-lg cursor-pointer" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">审核时间</span>
+                                        <i class="fas fa-plus text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div class="field-item p-3 rounded-lg cursor-pointer selected" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">报名状态</span>
+                                        <i class="fas fa-check text-green-600"></i>
+                                    </div>
+                                </div>
+                                <div class="field-item p-3 rounded-lg cursor-pointer" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">审核员</span>
+                                        <i class="fas fa-plus text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div class="field-item p-3 rounded-lg cursor-pointer" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">报名理由</span>
+                                        <i class="fas fa-plus text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div class="field-item p-3 rounded-lg cursor-pointer" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">特殊需求</span>
+                                        <i class="fas fa-plus text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div class="field-item p-3 rounded-lg cursor-pointer" onclick="toggleField(this)">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">问卷答案</span>
+                                        <i class="fas fa-plus text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">已选择 <span id="selected-count">6</span> 个字段</span>
+                                    <div class="space-x-2">
+                                        <button class="text-sm text-blue-600 hover:text-blue-800" onclick="selectAllFields()">全选</button>
+                                        <button class="text-sm text-gray-600 hover:text-gray-800" onclick="clearAllFields()">清空</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <button class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                                <i class="fas fa-save mr-2"></i>保存为模板
+                            </button>
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-eye mr-2"></i>预览数据
+                            </button>
+                        </div>
+                        <button class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700" onclick="startCustomExport()">
+                            <i class="fas fa-download mr-2"></i>开始导出
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 导出任务标签页 -->
+                <div id="export-tasks-tab" class="tab-content p-6 hidden">
+                    <div class="space-y-4" id="export-tasks-list">
+                        <!-- 导出任务将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 导出模板标签页 -->
+                <div id="templates-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="templates-list">
+                        <!-- 模板将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 定时导出标签页 -->
+                <div id="schedule-tab" class="tab-content p-6 hidden">
+                    <div class="export-item p-6 rounded-lg mb-6">
+                        <h3 class="text-lg font-semibold mb-4">创建定时导出任务</h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">任务名称</label>
+                                    <input type="text" placeholder="输入任务名称" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">导出模板</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        <option>全部报名数据模板</option>
+                                        <option>统计报表模板</option>
+                                        <option>问卷数据模板</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">执行频率</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        <option>每日</option>
+                                        <option>每周</option>
+                                        <option>每月</option>
+                                        <option>自定义</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">执行时间</label>
+                                    <input type="time" value="09:00" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">通知方式</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" checked class="mr-2">
+                                            <span class="text-sm">邮件通知</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2">
+                                            <span class="text-sm">短信通知</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2">
+                                            <span class="text-sm">系统通知</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">接收邮箱</label>
+                                    <input type="email" placeholder="输入接收邮箱" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-plus mr-2"></i>创建定时任务
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4" id="schedule-tasks-list">
+                        <!-- 定时任务将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'quick-export';
+        let exportTasks = [
+            {
+                id: 1,
+                name: '全部报名数据导出',
+                status: 'processing',
+                progress: 65,
+                startTime: '2024-01-15 14:30',
+                estimatedTime: '2分钟',
+                fileSize: '2.3MB',
+                records: 1234
+            },
+            {
+                id: 2,
+                name: '今日报名统计',
+                status: 'completed',
+                progress: 100,
+                startTime: '2024-01-15 13:45',
+                completedTime: '2024-01-15 13:47',
+                fileSize: '156KB',
+                records: 23,
+                downloadUrl: '#'
+            },
+            {
+                id: 3,
+                name: '问卷调查数据',
+                status: 'failed',
+                progress: 0,
+                startTime: '2024-01-15 12:30',
+                errorMessage: '数据源连接超时',
+                records: 0
+            }
+        ];
+
+        let templates = [
+            {
+                id: 1,
+                name: '全部报名数据',
+                description: '包含所有报名的基本信息和状态',
+                fields: 8,
+                lastUsed: '2024-01-15',
+                usageCount: 25
+            },
+            {
+                id: 2,
+                name: '统计报表',
+                description: '活动统计和趋势分析数据',
+                fields: 12,
+                lastUsed: '2024-01-14',
+                usageCount: 18
+            },
+            {
+                id: 3,
+                name: '问卷数据',
+                description: '问卷调查结果和分析',
+                fields: 15,
+                lastUsed: '2024-01-13',
+                usageCount: 12
+            }
+        ];
+
+        let scheduleTasks = [
+            {
+                id: 1,
+                name: '每日报名统计',
+                template: '统计报表模板',
+                frequency: '每日 09:00',
+                status: 'active',
+                nextRun: '2024-01-16 09:00',
+                lastRun: '2024-01-15 09:00'
+            },
+            {
+                id: 2,
+                name: '周报数据导出',
+                template: '全部报名数据模板',
+                frequency: '每周一 10:00',
+                status: 'paused',
+                nextRun: '2024-01-22 10:00',
+                lastRun: '2024-01-08 10:00'
+            }
+        ];
+
+        // 标签页切换
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                currentTab = this.getAttribute('data-tab');
+                document.getElementById(currentTab + '-tab').classList.remove('hidden');
+                
+                if (currentTab === 'export-tasks') {
+                    renderExportTasks();
+                } else if (currentTab === 'templates') {
+                    renderTemplates();
+                } else if (currentTab === 'schedule') {
+                    renderScheduleTasks();
+                }
+            });
+        });
+
+        // 快速导出
+        function quickExport(type) {
+            console.log('快速导出:', type);
+            // 这里可以添加实际的导出逻辑
+            alert(`开始导出 ${type} 数据`);
+        }
+
+        // 字段选择切换
+        function toggleField(element) {
+            element.classList.toggle('selected');
+            const icon = element.querySelector('i');
+            if (element.classList.contains('selected')) {
+                icon.className = 'fas fa-check text-green-600';
+            } else {
+                icon.className = 'fas fa-plus text-gray-400';
+            }
+            updateSelectedCount();
+        }
+
+        // 更新选中字段数量
+        function updateSelectedCount() {
+            const selectedFields = document.querySelectorAll('.field-item.selected').length;
+            document.getElementById('selected-count').textContent = selectedFields;
+        }
+
+        // 全选字段
+        function selectAllFields() {
+            document.querySelectorAll('.field-item').forEach(field => {
+                field.classList.add('selected');
+                const icon = field.querySelector('i');
+                icon.className = 'fas fa-check text-green-600';
+            });
+            updateSelectedCount();
+        }
+
+        // 清空字段选择
+        function clearAllFields() {
+            document.querySelectorAll('.field-item').forEach(field => {
+                field.classList.remove('selected');
+                const icon = field.querySelector('i');
+                icon.className = 'fas fa-plus text-gray-400';
+            });
+            updateSelectedCount();
+        }
+
+        // 开始自定义导出
+        function startCustomExport() {
+            const selectedFields = document.querySelectorAll('.field-item.selected').length;
+            if (selectedFields === 0) {
+                alert('请至少选择一个导出字段');
+                return;
+            }
+            console.log('开始自定义导出');
+            alert('开始自定义导出，已选择 ' + selectedFields + ' 个字段');
+        }
+
+        // 渲染导出任务
+        function renderExportTasks() {
+            const container = document.getElementById('export-tasks-list');
+            container.innerHTML = '';
+            
+            exportTasks.forEach(task => {
+                const taskElement = createExportTaskElement(task);
+                container.appendChild(taskElement);
+            });
+        }
+
+        // 创建导出任务元素
+        function createExportTaskElement(task) {
+            const div = document.createElement('div');
+            div.className = 'export-item p-4 rounded-lg';
+            
+            const statusClass = `status-${task.status}`;
+            const statusText = {
+                processing: '处理中',
+                completed: '已完成',
+                failed: '失败',
+                pending: '等待中'
+            }[task.status];
+            
+            let progressBar = '';
+            if (task.status === 'processing') {
+                progressBar = `
+                    <div class="mt-2">
+                        <div class="flex items-center justify-between text-sm text-gray-600 mb-1">
+                            <span>进度</span>
+                            <span>${task.progress}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="progress-bar h-2 rounded-full" style="width: ${task.progress}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            let actionButtons = '';
+            if (task.status === 'completed') {
+                actionButtons = `
+                    <button class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                        <i class="fas fa-download mr-1"></i>下载
+                    </button>
+                `;
+            } else if (task.status === 'failed') {
+                actionButtons = `
+                    <button class="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-700">
+                        <i class="fas fa-redo mr-1"></i>重试
+                    </button>
+                `;
+            } else if (task.status === 'processing') {
+                actionButtons = `
+                    <button class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700">
+                        <i class="fas fa-stop mr-1"></i>取消
+                    </button>
+                `;
+            }
+            
+            div.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <h4 class="font-medium">${task.name}</h4>
+                            <span class="${statusClass} text-xs px-2 py-1 rounded-full">${statusText}</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <span>开始时间：${task.startTime}</span>
+                            ${task.completedTime ? `<span class="mx-2">•</span><span>完成时间：${task.completedTime}</span>` : ''}
+                            ${task.estimatedTime ? `<span class="mx-2">•</span><span>预计：${task.estimatedTime}</span>` : ''}
+                        </div>
+                        <div class="text-sm text-gray-600 mt-1">
+                            <span>记录数：${task.records}</span>
+                            ${task.fileSize ? `<span class="mx-2">•</span><span>文件大小：${task.fileSize}</span>` : ''}
+                            ${task.errorMessage ? `<span class="mx-2">•</span><span class="text-red-600">错误：${task.errorMessage}</span>` : ''}
+                        </div>
+                        ${progressBar}
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        ${actionButtons}
+                        <button class="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700">
+                            <i class="fas fa-trash mr-1"></i>删除
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // 渲染模板
+        function renderTemplates() {
+            const container = document.getElementById('templates-list');
+            container.innerHTML = '';
+            
+            templates.forEach(template => {
+                const templateElement = createTemplateElement(template);
+                container.appendChild(templateElement);
+            });
+        }
+
+        // 创建模板元素
+        function createTemplateElement(template) {
+            const div = document.createElement('div');
+            div.className = 'export-item p-6 rounded-lg cursor-pointer';
+            
+            div.innerHTML = `
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-file-alt text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">${template.name}</h3>
+                    <p class="text-sm text-gray-600 mb-4">${template.description}</p>
+                    <div class="text-sm text-gray-500 space-y-1">
+                        <div>字段数：${template.fields}</div>
+                        <div>使用次数：${template.usageCount}</div>
+                        <div>最后使用：${template.lastUsed}</div>
+                    </div>
+                    <div class="mt-4 space-x-2">
+                        <button class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                            <i class="fas fa-play mr-1"></i>使用
+                        </button>
+                        <button class="px-3 py-1 bg-gray-600 text-white text-sm rounded hover:bg-gray-700">
+                            <i class="fas fa-edit mr-1"></i>编辑
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // 渲染定时任务
+        function renderScheduleTasks() {
+            const container = document.getElementById('schedule-tasks-list');
+            container.innerHTML = '';
+            
+            scheduleTasks.forEach(task => {
+                const taskElement = createScheduleTaskElement(task);
+                container.appendChild(taskElement);
+            });
+        }
+
+        // 创建定时任务元素
+        function createScheduleTaskElement(task) {
+            const div = document.createElement('div');
+            div.className = 'export-item p-4 rounded-lg';
+            
+            const statusClass = task.status === 'active' ? 'status-completed' : 'status-pending';
+            const statusText = task.status === 'active' ? '运行中' : '已暂停';
+            
+            div.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <h4 class="font-medium">${task.name}</h4>
+                            <span class="${statusClass} text-xs px-2 py-1 rounded-full">${statusText}</span>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <span>模板：${task.template}</span>
+                            <span class="mx-2">•</span>
+                            <span>频率：${task.frequency}</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mt-1">
+                            <span>下次执行：${task.nextRun}</span>
+                            <span class="mx-2">•</span>
+                            <span>上次执行：${task.lastRun}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="px-3 py-1 ${task.status === 'active' ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700'} text-white text-sm rounded">
+                            <i class="fas ${task.status === 'active' ? 'fa-pause' : 'fa-play'} mr-1"></i>${task.status === 'active' ? '暂停' : '启动'}
+                        </button>
+                        <button class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                            <i class="fas fa-edit mr-1"></i>编辑
+                        </button>
+                        <button class="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700">
+                            <i class="fas fa-trash mr-1"></i>删除
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // 初始化
+        updateSelectedCount();
+    </script>
+</body>
+</html>

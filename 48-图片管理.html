@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片管理 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .image-card {
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+        .image-card:hover {
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+            transform: translateY(-2px);
+        }
+        .image-card.selected {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .image-preview {
+            aspect-ratio: 1;
+            background-color: #f3f4f6;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23d1d5db"><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 2h8v8H8V8zm2 2v4h4v-4h-4z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 2rem;
+        }
+        .upload-zone {
+            border: 2px dashed #d1d5db;
+            transition: all 0.3s ease;
+        }
+        .upload-zone:hover {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .upload-zone.dragover {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .category-filter {
+            transition: all 0.2s ease;
+        }
+        .category-filter.active {
+            background-color: #10b981;
+            color: white;
+        }
+        .image-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600 transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        <span>首页仪表板</span>
+                    </a>
+                    <a href="05-香草图鉴管理.html" class="flex items-center px-4 py-3 text-green-600 bg-green-50 rounded-lg">
+                        <i class="fas fa-book w-5 h-5 mr-3"></i>
+                        <span>香草图鉴管理</span>
+                    </a>
+                    <div class="ml-8 space-y-1">
+                        <a href="41-香草编辑页.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-edit w-4 h-4 mr-2"></i>
+                            <span>香草编辑</span>
+                        </a>
+                        <a href="47-用途管理.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-magic w-4 h-4 mr-2"></i>
+                            <span>用途管理</span>
+                        </a>
+                        <a href="48-图片管理.html" class="flex items-center px-4 py-2 text-sm text-green-600 bg-green-50 rounded-lg">
+                            <i class="fas fa-images w-4 h-4 mr-2"></i>
+                            <span>图片管理</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300 ease-in-out">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">图片管理</h2>
+                        <p class="text-sm text-gray-500">管理香草图鉴的所有图片资源</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="batch-delete-btn" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors" disabled>
+                        <i class="fas fa-trash mr-2"></i>批量删除
+                    </button>
+                    <button id="upload-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-upload mr-2"></i>上传图片
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">总图片数量</p>
+                            <p class="text-2xl font-bold text-gray-900">1,248</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-images text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-green-600 text-sm font-medium">+32</span>
+                        <span class="text-gray-500 text-sm ml-2">本月新增</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">存储空间</p>
+                            <p class="text-2xl font-bold text-gray-900">2.8GB</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hdd text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-600 h-2 rounded-full" style="width: 56%"></div>
+                        </div>
+                        <span class="text-gray-500 text-sm mt-1">56% 已使用</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">图片分类</p>
+                            <p class="text-2xl font-bold text-gray-900">8</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tags text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-blue-600 text-sm font-medium">香草照片</span>
+                        <span class="text-gray-500 text-sm ml-2">最多</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">今日上传</p>
+                            <p class="text-2xl font-bold text-gray-900">15</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-upload text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-purple-600 text-sm font-medium">活跃度</span>
+                        <span class="text-gray-500 text-sm ml-2">较高</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- 左侧筛选面板 -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">筛选条件</h3>
+                        </div>
+                        
+                        <div class="p-6 space-y-6">
+                            <!-- 图片分类 -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">图片分类</h4>
+                                <div class="space-y-2">
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50 active" data-category="all">
+                                        <i class="fas fa-th-large mr-2"></i>全部图片 (1,248)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-category="herb-photos">
+                                        <i class="fas fa-leaf mr-2"></i>香草照片 (456)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-category="planting">
+                                        <i class="fas fa-seedling mr-2"></i>种植过程 (298)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-category="usage">
+                                        <i class="fas fa-magic mr-2"></i>用途展示 (234)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-category="products">
+                                        <i class="fas fa-box mr-2"></i>产品图片 (156)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-category="banners">
+                                        <i class="fas fa-image mr-2"></i>Banner图 (78)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-category="others">
+                                        <i class="fas fa-folder mr-2"></i>其他图片 (26)
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 上传时间 -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">上传时间</h4>
+                                <div class="space-y-2">
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-time="today">
+                                        今天 (15)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-time="week">
+                                        本周 (89)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-time="month">
+                                        本月 (234)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-time="older">
+                                        更早 (910)
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 图片尺寸 -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">图片尺寸</h4>
+                                <div class="space-y-2">
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-size="large">
+                                        大图 (>1MB)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-size="medium">
+                                        中图 (100KB-1MB)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-size="small">
+                                        小图 (<100KB)
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 使用状态 -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">使用状态</h4>
+                                <div class="space-y-2">
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-status="used">
+                                        <i class="fas fa-check-circle text-green-500 mr-2"></i>已使用 (892)
+                                    </button>
+                                    <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-gray-50" data-status="unused">
+                                        <i class="fas fa-circle text-gray-400 mr-2"></i>未使用 (356)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧图片展示区域 -->
+                <div class="lg:col-span-3">
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-4">
+                                    <h3 class="text-lg font-semibold text-gray-800">图片库</h3>
+                                    <span class="text-sm text-gray-500">共 1,248 张图片</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <input type="text" id="search-images" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="搜索图片...">
+                                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    </div>
+                                    <select id="sort-images" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="newest">最新上传</option>
+                                        <option value="oldest">最早上传</option>
+                                        <option value="name">按名称</option>
+                                        <option value="size">按大小</option>
+                                    </select>
+                                    <div class="flex items-center space-x-1">
+                                        <button id="grid-view" class="p-2 bg-green-100 text-green-600 rounded-lg">
+                                            <i class="fas fa-th"></i>
+                                        </button>
+                                        <button id="list-view" class="p-2 text-gray-400 hover:bg-gray-100 rounded-lg">
+                                            <i class="fas fa-list"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 批量操作栏 -->
+                            <div id="batch-actions" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-sm text-blue-700">已选择 <span id="selected-count">0</span> 张图片</span>
+                                        <button id="select-all" class="text-sm text-blue-600 hover:text-blue-800">全选</button>
+                                        <button id="clear-selection" class="text-sm text-blue-600 hover:text-blue-800">清除选择</button>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button id="batch-move" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                            <i class="fas fa-folder-open mr-1"></i>移动到
+                                        </button>
+                                        <button id="batch-tag" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                            <i class="fas fa-tags mr-1"></i>添加标签
+                                        </button>
+                                        <button id="batch-download" class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                                            <i class="fas fa-download mr-1"></i>下载
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <!-- 图片网格 -->
+                            <div id="image-grid" class="image-grid">
+                                <!-- 图片卡片示例 -->
+                                <div class="image-card rounded-lg overflow-hidden cursor-pointer" data-category="herb-photos" data-id="1">
+                                    <div class="relative">
+                                        <div class="image-preview rounded-t-lg" style="background-image: url('https://via.placeholder.com/200x200/10b981/ffffff?text=薰衣草');"></div>
+                                        <div class="absolute top-2 left-2">
+                                            <input type="checkbox" class="image-checkbox w-4 h-4 text-green-600 bg-white border-gray-300 rounded focus:ring-green-500">
+                                        </div>
+                                        <div class="absolute top-2 right-2">
+                                            <span class="px-2 py-1 bg-green-600 text-white text-xs rounded-full">已使用</span>
+                                        </div>
+                                        <div class="absolute bottom-0 left-0 right-0 image-overlay p-3">
+                                            <p class="text-white text-sm font-medium truncate">薰衣草花朵特写.jpg</p>
+                                            <p class="text-gray-200 text-xs">256KB • 2024-01-15</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">香草照片</span>
+                                            </div>
+                                            <div class="flex items-center space-x-1">
+                                                <button class="p-1 text-gray-400 hover:text-blue-600" title="预览">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-green-600" title="编辑">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-red-600" title="删除">
+                                                    <i class="fas fa-trash text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="image-card rounded-lg overflow-hidden cursor-pointer" data-category="planting" data-id="2">
+                                    <div class="relative">
+                                        <div class="image-preview rounded-t-lg" style="background-image: url('https://via.placeholder.com/200x200/059669/ffffff?text=种植过程');"></div>
+                                        <div class="absolute top-2 left-2">
+                                            <input type="checkbox" class="image-checkbox w-4 h-4 text-green-600 bg-white border-gray-300 rounded focus:ring-green-500">
+                                        </div>
+                                        <div class="absolute top-2 right-2">
+                                            <span class="px-2 py-1 bg-gray-500 text-white text-xs rounded-full">未使用</span>
+                                        </div>
+                                        <div class="absolute bottom-0 left-0 right-0 image-overlay p-3">
+                                            <p class="text-white text-sm font-medium truncate">罗勒种植步骤图.jpg</p>
+                                            <p class="text-gray-200 text-xs">412KB • 2024-01-14</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">种植过程</span>
+                                            </div>
+                                            <div class="flex items-center space-x-1">
+                                                <button class="p-1 text-gray-400 hover:text-blue-600" title="预览">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-green-600" title="编辑">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-red-600" title="删除">
+                                                    <i class="fas fa-trash text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="image-card rounded-lg overflow-hidden cursor-pointer" data-category="usage" data-id="3">
+                                    <div class="relative">
+                                        <div class="image-preview rounded-t-lg" style="background-image: url('https://via.placeholder.com/200x200/7c3aed/ffffff?text=用途展示');"></div>
+                                        <div class="absolute top-2 left-2">
+                                            <input type="checkbox" class="image-checkbox w-4 h-4 text-green-600 bg-white border-gray-300 rounded focus:ring-green-500">
+                                        </div>
+                                        <div class="absolute top-2 right-2">
+                                            <span class="px-2 py-1 bg-green-600 text-white text-xs rounded-full">已使用</span>
+                                        </div>
+                                        <div class="absolute bottom-0 left-0 right-0 image-overlay p-3">
+                                            <p class="text-white text-sm font-medium truncate">薄荷茶制作过程.jpg</p>
+                                            <p class="text-gray-200 text-xs">328KB • 2024-01-13</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">用途展示</span>
+                                            </div>
+                                            <div class="flex items-center space-x-1">
+                                                <button class="p-1 text-gray-400 hover:text-blue-600" title="预览">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-green-600" title="编辑">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-red-600" title="删除">
+                                                    <i class="fas fa-trash text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="image-card rounded-lg overflow-hidden cursor-pointer" data-category="products" data-id="4">
+                                    <div class="relative">
+                                        <div class="image-preview rounded-t-lg" style="background-image: url('https://via.placeholder.com/200x200/dc2626/ffffff?text=产品图片');"></div>
+                                        <div class="absolute top-2 left-2">
+                                            <input type="checkbox" class="image-checkbox w-4 h-4 text-green-600 bg-white border-gray-300 rounded focus:ring-green-500">
+                                        </div>
+                                        <div class="absolute top-2 right-2">
+                                            <span class="px-2 py-1 bg-green-600 text-white text-xs rounded-full">已使用</span>
+                                        </div>
+                                        <div class="absolute bottom-0 left-0 right-0 image-overlay p-3">
+                                            <p class="text-white text-sm font-medium truncate">香草精油产品图.jpg</p>
+                                            <p class="text-gray-200 text-xs">189KB • 2024-01-12</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full">产品图片</span>
+                                            </div>
+                                            <div class="flex items-center space-x-1">
+                                                <button class="p-1 text-gray-400 hover:text-blue-600" title="预览">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-green-600" title="编辑">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-red-600" title="删除">
+                                                    <i class="fas fa-trash text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="image-card rounded-lg overflow-hidden cursor-pointer" data-category="banners" data-id="5">
+                                    <div class="relative">
+                                        <div class="image-preview rounded-t-lg" style="background-image: url('https://via.placeholder.com/200x200/f59e0b/ffffff?text=Banner图');"></div>
+                                        <div class="absolute top-2 left-2">
+                                            <input type="checkbox" class="image-checkbox w-4 h-4 text-green-600 bg-white border-gray-300 rounded focus:ring-green-500">
+                                        </div>
+                                        <div class="absolute top-2 right-2">
+                                            <span class="px-2 py-1 bg-gray-500 text-white text-xs rounded-full">未使用</span>
+                                        </div>
+                                        <div class="absolute bottom-0 left-0 right-0 image-overlay p-3">
+                                            <p class="text-white text-sm font-medium truncate">春季香草节Banner.jpg</p>
+                                            <p class="text-gray-200 text-xs">756KB • 2024-01-11</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">Banner图</span>
+                                            </div>
+                                            <div class="flex items-center space-x-1">
+                                                <button class="p-1 text-gray-400 hover:text-blue-600" title="预览">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-green-600" title="编辑">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-red-600" title="删除">
+                                                    <i class="fas fa-trash text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="image-card rounded-lg overflow-hidden cursor-pointer" data-category="others" data-id="6">
+                                    <div class="relative">
+                                        <div class="image-preview rounded-t-lg" style="background-image: url('https://via.placeholder.com/200x200/6b7280/ffffff?text=其他图片');"></div>
+                                        <div class="absolute top-2 left-2">
+                                            <input type="checkbox" class="image-checkbox w-4 h-4 text-green-600 bg-white border-gray-300 rounded focus:ring-green-500">
+                                        </div>
+                                        <div class="absolute top-2 right-2">
+                                            <span class="px-2 py-1 bg-gray-500 text-white text-xs rounded-full">未使用</span>
+                                        </div>
+                                        <div class="absolute bottom-0 left-0 right-0 image-overlay p-3">
+                                            <p class="text-white text-sm font-medium truncate">团队合影.jpg</p>
+                                            <p class="text-gray-200 text-xs">892KB • 2024-01-10</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">其他图片</span>
+                                            </div>
+                                            <div class="flex items-center space-x-1">
+                                                <button class="p-1 text-gray-400 hover:text-blue-600" title="预览">
+                                                    <i class="fas fa-eye text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-green-600" title="编辑">
+                                                    <i class="fas fa-edit text-sm"></i>
+                                                </button>
+                                                <button class="p-1 text-gray-400 hover:text-red-600" title="删除">
+                                                    <i class="fas fa-trash text-sm"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 分页 -->
+                            <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+                                <div class="text-sm text-gray-500">
+                                    显示 1-12 条，共 1,248 条记录
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <button class="px-3 py-2 bg-green-600 text-white rounded-lg">1</button>
+                                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">2</button>
+                                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">3</button>
+                                    <span class="px-3 py-2 text-gray-500">...</span>
+                                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">104</button>
+                                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上传图片模态框 -->
+    <div id="upload-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-800">上传图片</h3>
+                    <button id="close-upload-modal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <!-- 拖拽上传区域 -->
+                <div id="upload-zone" class="upload-zone rounded-lg p-8 text-center mb-6">
+                    <div class="mb-4">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                    </div>
+                    <p class="text-lg font-medium text-gray-700 mb-2">拖拽图片到此处上传</p>
+                    <p class="text-sm text-gray-500 mb-4">或者点击选择文件</p>
+                    <input type="file" id="file-input" class="hidden" multiple accept="image/*">
+                    <button id="select-files" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        选择文件
+                    </button>
+                    <p class="text-xs text-gray-400 mt-3">支持 JPG、PNG、GIF 格式，单个文件不超过 5MB</p>
+                </div>
+
+                <!-- 图片分类选择 -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">图片分类</label>
+                    <select id="upload-category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="herb-photos">香草照片</option>
+                        <option value="planting">种植过程</option>
+                        <option value="usage">用途展示</option>
+                        <option value="products">产品图片</option>
+                        <option value="banners">Banner图</option>
+                        <option value="others">其他图片</option>
+                    </select>
+                </div>
+
+                <!-- 上传进度 -->
+                <div id="upload-progress" class="hidden">
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                            <span>上传进度</span>
+                            <span id="progress-text">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="progress-bar" class="bg-green-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div id="upload-files-list" class="space-y-2 max-h-40 overflow-y-auto">
+                        <!-- 上传文件列表 -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancel-upload-btn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    取消
+                </button>
+                <button id="start-upload-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors" disabled>
+                    <i class="fas fa-upload mr-2"></i>开始上传
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片预览模态框 -->
+    <div id="preview-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="relative max-w-4xl max-h-full mx-4">
+            <button id="close-preview-modal" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+            <img id="preview-image" src="" alt="预览图片" class="max-w-full max-h-full object-contain rounded-lg">
+            <div class="absolute bottom-4 left-4 right-4 bg-black bg-opacity-50 text-white p-4 rounded-lg">
+                <h4 id="preview-title" class="text-lg font-medium mb-2"></h4>
+                <div class="flex items-center justify-between text-sm">
+                    <div>
+                        <span id="preview-size"></span> • 
+                        <span id="preview-date"></span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-download mr-1"></i>下载
+                        </button>
+                        <button class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-edit mr-1"></i>编辑
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+        });
+
+        // 分类筛选
+        document.querySelectorAll('.category-filter').forEach(filter => {
+            filter.addEventListener('click', function() {
+                // 移除所有活跃状态
+                document.querySelectorAll('.category-filter').forEach(f => f.classList.remove('active'));
+                // 添加当前活跃状态
+                this.classList.add('active');
+                
+                const category = this.getAttribute('data-category');
+                const time = this.getAttribute('data-time');
+                const size = this.getAttribute('data-size');
+                const status = this.getAttribute('data-status');
+                
+                filterImages(category, time, size, status);
+            });
+        });
+
+        function filterImages(category, time, size, status) {
+            const imageCards = document.querySelectorAll('.image-card');
+            
+            imageCards.forEach(card => {
+                let show = true;
+                
+                if (category && category !== 'all' && card.getAttribute('data-category') !== category) {
+                    show = false;
+                }
+                
+                // 这里可以添加更多筛选逻辑
+                
+                card.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        // 搜索功能
+        document.getElementById('search-images').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const imageCards = document.querySelectorAll('.image-card');
+            
+            imageCards.forEach(card => {
+                const title = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // 图片选择
+        let selectedImages = new Set();
+        
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('image-checkbox')) {
+                const imageCard = e.target.closest('.image-card');
+                const imageId = imageCard.getAttribute('data-id');
+                
+                if (e.target.checked) {
+                    selectedImages.add(imageId);
+                    imageCard.classList.add('selected');
+                } else {
+                    selectedImages.delete(imageId);
+                    imageCard.classList.remove('selected');
+                }
+                
+                updateBatchActions();
+            }
+        });
+
+        function updateBatchActions() {
+            const batchActions = document.getElementById('batch-actions');
+            const selectedCount = document.getElementById('selected-count');
+            const batchDeleteBtn = document.getElementById('batch-delete-btn');
+            
+            selectedCount.textContent = selectedImages.size;
+            
+            if (selectedImages.size > 0) {
+                batchActions.classList.remove('hidden');
+                batchDeleteBtn.disabled = false;
+            } else {
+                batchActions.classList.add('hidden');
+                batchDeleteBtn.disabled = true;
+            }
+        }
+
+        // 全选/清除选择
+        document.getElementById('select-all').addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('.image-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                const imageCard = checkbox.closest('.image-card');
+                const imageId = imageCard.getAttribute('data-id');
+                selectedImages.add(imageId);
+                imageCard.classList.add('selected');
+            });
+            updateBatchActions();
+        });
+
+        document.getElementById('clear-selection').addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('.image-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                const imageCard = checkbox.closest('.image-card');
+                imageCard.classList.remove('selected');
+            });
+            selectedImages.clear();
+            updateBatchActions();
+        });
+
+        // 上传图片模态框
+        const uploadModal = document.getElementById('upload-modal');
+        const uploadBtn = document.getElementById('upload-btn');
+        const closeUploadModal = document.getElementById('close-upload-modal');
+        const cancelUploadBtn = document.getElementById('cancel-upload-btn');
+
+        uploadBtn.addEventListener('click', function() {
+            uploadModal.classList.remove('hidden');
+            uploadModal.classList.add('flex');
+        });
+
+        closeUploadModal.addEventListener('click', function() {
+            uploadModal.classList.add('hidden');
+            uploadModal.classList.remove('flex');
+        });
+
+        cancelUploadBtn.addEventListener('click', function() {
+            uploadModal.classList.add('hidden');
+            uploadModal.classList.remove('flex');
+        });
+
+        // 文件选择和拖拽上传
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('file-input');
+        const selectFilesBtn = document.getElementById('select-files');
+        const startUploadBtn = document.getElementById('start-upload-btn');
+        let selectedFiles = [];
+
+        selectFilesBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        uploadZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        function handleFiles(files) {
+            selectedFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+            
+            if (selectedFiles.length > 0) {
+                startUploadBtn.disabled = false;
+                updateFilesList();
+            }
+        }
+
+        function updateFilesList() {
+            const filesList = document.getElementById('upload-files-list');
+            filesList.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between p-2 bg-gray-50 rounded-lg';
+                fileItem.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-image text-gray-400"></i>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700">${file.name}</p>
+                            <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</p>
+                        </div>
+                    </div>
+                    <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                filesList.appendChild(fileItem);
+            });
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFilesList();
+            
+            if (selectedFiles.length === 0) {
+                startUploadBtn.disabled = true;
+            }
+        }
+
+        // 开始上传
+        startUploadBtn.addEventListener('click', function() {
+            const uploadProgress = document.getElementById('upload-progress');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
+            uploadProgress.classList.remove('hidden');
+            
+            // 模拟上传进度
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    setTimeout(() => {
+                        alert('图片上传成功！');
+                        uploadModal.classList.add('hidden');
+                        uploadModal.classList.remove('flex');
+                        uploadProgress.classList.add('hidden');
+                        selectedFiles = [];
+                        startUploadBtn.disabled = true;
+                        progressBar.style.width = '0%';
+                        progressText.textContent = '0%';
+                    }, 1000);
+                }
+                
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+            }, 200);
+        });
+
+        // 图片预览
+        const previewModal = document.getElementById('preview-modal');
+        const closePreviewModal = document.getElementById('close-preview-modal');
+        const previewImage = document.getElementById('preview-image');
+        const previewTitle = document.getElementById('preview-title');
+        const previewSize = document.getElementById('preview-size');
+        const previewDate = document.getElementById('preview-date');
+
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.fa-eye')) {
+                const imageCard = e.target.closest('.image-card');
+                const title = imageCard.querySelector('p').textContent;
+                const size = imageCard.querySelector('.text-xs').textContent.split(' • ')[0];
+                const date = imageCard.querySelector('.text-xs').textContent.split(' • ')[1];
+                const imageSrc = imageCard.querySelector('.image-preview').style.backgroundImage.slice(5, -2);
+                
+                previewImage.src = imageSrc;
+                previewTitle.textContent = title;
+                previewSize.textContent = size;
+                previewDate.textContent = date;
+                
+                previewModal.classList.remove('hidden');
+                previewModal.classList.add('flex');
+            }
+        });
+
+        closePreviewModal.addEventListener('click', function() {
+            previewModal.classList.add('hidden');
+            previewModal.classList.remove('flex');
+        });
+
+        // 点击模态框外部关闭
+        previewModal.addEventListener('click', function(e) {
+            if (e.target === previewModal) {
+                previewModal.classList.add('hidden');
+                previewModal.classList.remove('flex');
+            }
+        });
+
+        // 删除图片
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.fa-trash')) {
+                const imageCard = e.target.closest('.image-card');
+                const title = imageCard.querySelector('p').textContent;
+                
+                if (confirm(`确定要删除图片"${title}"吗？`)) {
+                    imageCard.remove();
+                    console.log('删除图片:', title);
+                }
+            }
+        });
+
+        // 批量删除
+        document.getElementById('batch-delete-btn').addEventListener('click', function() {
+            if (confirm(`确定要删除选中的 ${selectedImages.size} 张图片吗？`)) {
+                selectedImages.forEach(imageId => {
+                    const imageCard = document.querySelector(`[data-id="${imageId}"]`);
+                    if (imageCard) {
+                        imageCard.remove();
+                    }
+                });
+                
+                selectedImages.clear();
+                updateBatchActions();
+                console.log('批量删除图片');
+            }
+        });
+
+        // 视图切换
+        document.getElementById('grid-view').addEventListener('click', function() {
+            this.classList.add('bg-green-100', 'text-green-600');
+            this.classList.remove('text-gray-400');
+            document.getElementById('list-view').classList.remove('bg-green-100', 'text-green-600');
+            document.getElementById('list-view').classList.add('text-gray-400');
+            
+            document.getElementById('image-grid').className = 'image-grid';
+        });
+
+        document.getElementById('list-view').addEventListener('click', function() {
+            this.classList.add('bg-green-100', 'text-green-600');
+            this.classList.remove('text-gray-400');
+            document.getElementById('grid-view').classList.remove('bg-green-100', 'text-green-600');
+            document.getElementById('grid-view').classList.add('text-gray-400');
+            
+            document.getElementById('image-grid').className = 'space-y-4';
+        });
+    </script>
+</body>
+</html>

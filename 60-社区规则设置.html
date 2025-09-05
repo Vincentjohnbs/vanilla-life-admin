@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区规则设置 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .rule-item {
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        .rule-item:hover {
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+        }
+        .rule-item.active {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #10b981;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">香草阳台</h3>
+                <ul class="space-y-1">
+                    <li><a href="51-内容详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-file-alt mr-3"></i>内容详情</a></li>
+                    <li><a href="52-互动管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-comments mr-3"></i>互动管理</a></li>
+                    <li><a href="53-推荐管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-thumbs-up mr-3"></i>推荐管理</a></li>
+                    <li><a href="54-评论管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-comment-dots mr-3"></i>评论管理</a></li>
+                    <li><a href="55-举报处理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-flag mr-3"></i>举报处理</a></li>
+                    <li><a href="56-话题管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-hashtag mr-3"></i>话题管理</a></li>
+                    <li><a href="57-达人管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-star mr-3"></i>达人管理</a></li>
+                    <li><a href="58-内容统计.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-chart-bar mr-3"></i>内容统计</a></li>
+                    <li><a href="59-推荐算法配置.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-cogs mr-3"></i>推荐算法</a></li>
+                    <li><a href="60-社区规则设置.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-gavel mr-3"></i>社区规则</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 class="ml-4 text-xl font-semibold text-gray-800">社区规则设置</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 操作栏 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-shield-alt text-green-600"></i>
+                            <span class="text-sm font-medium text-gray-700">规则状态：</span>
+                            <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">已生效</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-clock text-blue-600"></i>
+                            <span class="text-sm font-medium text-gray-700">最后更新：</span>
+                            <span class="text-sm text-gray-600">2024-01-15 10:30</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button id="previewRules" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-eye mr-2"></i>预览规则
+                        </button>
+                        <button id="saveRules" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                            <i class="fas fa-save mr-2"></i>保存规则
+                        </button>
+                        <button id="publishRules" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+                            <i class="fas fa-bullhorn mr-2"></i>发布公告
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 规则分类 -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+                <!-- 规则分类导航 -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">规则分类</h3>
+                        <nav class="space-y-2">
+                            <button class="rule-category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium bg-green-50 text-green-700 border border-green-200" data-category="content">
+                                <i class="fas fa-file-alt mr-2"></i>内容规范
+                            </button>
+                            <button class="rule-category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" data-category="behavior">
+                                <i class="fas fa-user-friends mr-2"></i>行为规范
+                            </button>
+                            <button class="rule-category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" data-category="interaction">
+                                <i class="fas fa-comments mr-2"></i>互动规范
+                            </button>
+                            <button class="rule-category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" data-category="punishment">
+                                <i class="fas fa-gavel mr-2"></i>处罚规则
+                            </button>
+                            <button class="rule-category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" data-category="reward">
+                                <i class="fas fa-gift mr-2"></i>奖励机制
+                            </button>
+                            <button class="rule-category-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50" data-category="privacy">
+                                <i class="fas fa-lock mr-2"></i>隐私保护
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- 规则内容 -->
+                <div class="lg:col-span-3">
+                    <!-- 内容规范 -->
+                    <div id="content-rules" class="rule-content bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">内容规范</h3>
+                            <button class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                <i class="fas fa-plus mr-1"></i>添加规则
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="rule-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <h4 class="font-medium text-gray-900">禁止发布违法违规内容</h4>
+                                            <span class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">严重</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-3">不得发布涉及政治敏感、暴力血腥、色情低俗等违法违规内容</p>
+                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                            <span>处罚：永久封禁</span>
+                                            <span>生效时间：2024-01-01</span>
+                                            <span>适用范围：全站</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rule-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <h4 class="font-medium text-gray-900">禁止发布虚假信息</h4>
+                                            <span class="px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded-full">中等</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-3">不得发布虚假的香草种植信息、误导性的养护方法等内容</p>
+                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                            <span>处罚：删除内容+警告</span>
+                                            <span>生效时间：2024-01-01</span>
+                                            <span>适用范围：香草图鉴</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rule-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <h4 class="font-medium text-gray-900">禁止恶意刷屏</h4>
+                                            <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded-full">轻微</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-3">不得在短时间内重复发布相同或相似内容，影响社区秩序</p>
+                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                            <span>处罚：限制发布24小时</span>
+                                            <span>生效时间：2024-01-01</span>
+                                            <span>适用范围：全站</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 行为规范 -->
+                    <div id="behavior-rules" class="rule-content bg-white rounded-xl shadow-sm border border-gray-100 p-6 hidden">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">行为规范</h3>
+                            <button class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                <i class="fas fa-plus mr-1"></i>添加规则
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="rule-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <h4 class="font-medium text-gray-900">禁止人身攻击</h4>
+                                            <span class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">严重</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-3">不得对其他用户进行人身攻击、辱骂、威胁等行为</p>
+                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                            <span>处罚：封禁7天</span>
+                                            <span>生效时间：2024-01-01</span>
+                                            <span>适用范围：全站</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rule-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <h4 class="font-medium text-gray-900">禁止恶意举报</h4>
+                                            <span class="px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded-full">中等</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-3">不得恶意举报正常内容，浪费管理资源</p>
+                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                            <span>处罚：限制举报功能</span>
+                                            <span>生效时间：2024-01-01</span>
+                                            <span>适用范围：全站</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 互动规范 -->
+                    <div id="interaction-rules" class="rule-content bg-white rounded-xl shadow-sm border border-gray-100 p-6 hidden">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">互动规范</h3>
+                            <button class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                <i class="fas fa-plus mr-1"></i>添加规则
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="rule-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <h4 class="font-medium text-gray-900">鼓励友善互动</h4>
+                                            <span class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">推荐</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-3">鼓励用户之间友善交流，分享种植经验和心得</p>
+                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                            <span>奖励：积分+10</span>
+                                            <span>生效时间：2024-01-01</span>
+                                            <span>适用范围：评论区</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 处罚规则 -->
+                    <div id="punishment-rules" class="rule-content bg-white rounded-xl shadow-sm border border-gray-100 p-6 hidden">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">处罚规则</h3>
+                            <button class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                <i class="fas fa-plus mr-1"></i>添加规则
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-medium text-gray-900 mb-3">处罚等级说明</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="bg-white p-3 rounded-lg border">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <span class="w-3 h-3 bg-yellow-400 rounded-full"></span>
+                                            <span class="font-medium text-gray-900">轻微违规</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">警告、删除内容、限制功能</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <span class="w-3 h-3 bg-orange-400 rounded-full"></span>
+                                            <span class="font-medium text-gray-900">中等违规</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">临时封禁、扣除积分</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <span class="w-3 h-3 bg-red-400 rounded-full"></span>
+                                            <span class="font-medium text-gray-900">严重违规</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">永久封禁、法律追责</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 奖励机制 -->
+                    <div id="reward-rules" class="rule-content bg-white rounded-xl shadow-sm border border-gray-100 p-6 hidden">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">奖励机制</h3>
+                            <button class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                <i class="fas fa-plus mr-1"></i>添加规则
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="rule-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <h4 class="font-medium text-gray-900">优质内容奖励</h4>
+                                            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">积分</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-3">发布高质量的种植经验、图鉴内容可获得积分奖励</p>
+                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                            <span>奖励：积分+50</span>
+                                            <span>生效时间：2024-01-01</span>
+                                            <span>适用范围：全站</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 隐私保护 -->
+                    <div id="privacy-rules" class="rule-content bg-white rounded-xl shadow-sm border border-gray-100 p-6 hidden">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">隐私保护</h3>
+                            <button class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                <i class="fas fa-plus mr-1"></i>添加规则
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="rule-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <h4 class="font-medium text-gray-900">保护个人信息</h4>
+                                            <span class="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded-full">隐私</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-3">严格保护用户个人信息，不得泄露或滥用</p>
+                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                            <span>处罚：永久封禁</span>
+                                            <span>生效时间：2024-01-01</span>
+                                            <span>适用范围：全站</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 规则编辑模态框 -->
+    <div id="ruleModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">编辑规则</h3>
+                    <button id="closeRuleModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">规则标题</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="请输入规则标题">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">规则描述</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" rows="4" placeholder="请输入规则详细描述"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">违规等级</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="light">轻微</option>
+                                <option value="medium">中等</option>
+                                <option value="severe">严重</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">适用范围</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="all">全站</option>
+                                <option value="community">社区</option>
+                                <option value="encyclopedia">图鉴</option>
+                                <option value="shop">商城</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">处罚措施</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="请输入处罚措施">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="ruleEnabled" class="text-green-600 focus:ring-green-500 rounded">
+                        <label for="ruleEnabled" class="ml-2 text-sm text-gray-700">启用此规则</label>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancelRule" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">取消</button>
+                <button id="saveRule" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预览模态框 -->
+    <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">社区规则预览</h3>
+                    <button id="closePreviewModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="prose max-w-none">
+                    <h1>香草生活社区规则</h1>
+                    <p class="text-gray-600">为了营造一个友善、专业、有序的香草种植交流环境，特制定以下社区规则：</p>
+                    
+                    <h2>一、内容规范</h2>
+                    <ul>
+                        <li>禁止发布违法违规内容</li>
+                        <li>禁止发布虚假信息</li>
+                        <li>禁止恶意刷屏</li>
+                    </ul>
+                    
+                    <h2>二、行为规范</h2>
+                    <ul>
+                        <li>禁止人身攻击</li>
+                        <li>禁止恶意举报</li>
+                    </ul>
+                    
+                    <h2>三、处罚说明</h2>
+                    <p>违反社区规则的用户将根据违规程度受到相应处罚...</p>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="exportRules" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-download mr-2"></i>导出规则
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 规则分类切换
+        document.querySelectorAll('.rule-category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const category = this.dataset.category;
+                
+                // 更新按钮状态
+                document.querySelectorAll('.rule-category-btn').forEach(b => {
+                    b.classList.remove('bg-green-50', 'text-green-700', 'border-green-200');
+                    b.classList.add('text-gray-700', 'hover:bg-gray-50');
+                });
+                this.classList.remove('text-gray-700', 'hover:bg-gray-50');
+                this.classList.add('bg-green-50', 'text-green-700', 'border-green-200');
+                
+                // 显示对应内容
+                document.querySelectorAll('.rule-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(category + '-rules').classList.remove('hidden');
+            });
+        });
+
+        // 规则开关切换
+        document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const ruleItem = this.closest('.rule-item');
+                if (this.checked) {
+                    ruleItem.classList.remove('opacity-50');
+                } else {
+                    ruleItem.classList.add('opacity-50');
+                }
+            });
+        });
+
+        // 规则编辑
+        document.querySelectorAll('.fa-edit').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('ruleModal').classList.remove('hidden');
+                document.getElementById('ruleModal').classList.add('flex');
+            });
+        });
+
+        // 关闭规则编辑模态框
+        document.getElementById('closeRuleModal').addEventListener('click', function() {
+            document.getElementById('ruleModal').classList.add('hidden');
+            document.getElementById('ruleModal').classList.remove('flex');
+        });
+
+        document.getElementById('cancelRule').addEventListener('click', function() {
+            document.getElementById('ruleModal').classList.add('hidden');
+            document.getElementById('ruleModal').classList.remove('flex');
+        });
+
+        // 保存规则
+        document.getElementById('saveRule').addEventListener('click', function() {
+            // 这里可以添加保存规则的逻辑
+            alert('规则保存成功！');
+            document.getElementById('ruleModal').classList.add('hidden');
+            document.getElementById('ruleModal').classList.remove('flex');
+        });
+
+        // 预览规则
+        document.getElementById('previewRules').addEventListener('click', function() {
+            document.getElementById('previewModal').classList.remove('hidden');
+            document.getElementById('previewModal').classList.add('flex');
+        });
+
+        // 关闭预览模态框
+        document.getElementById('closePreviewModal').addEventListener('click', function() {
+            document.getElementById('previewModal').classList.add('hidden');
+            document.getElementById('previewModal').classList.remove('flex');
+        });
+
+        // 保存规则配置
+        document.getElementById('saveRules').addEventListener('click', function() {
+            const button = this;
+            const originalText = button.innerHTML;
+            
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>保存中...';
+            
+            // 模拟保存过程
+            setTimeout(() => {
+                button.disabled = false;
+                button.innerHTML = originalText;
+                alert('规则配置保存成功！');
+            }, 2000);
+        });
+
+        // 发布公告
+        document.getElementById('publishRules').addEventListener('click', function() {
+            if (confirm('确定要发布社区规则公告吗？所有用户都会收到通知。')) {
+                const button = this;
+                const originalText = button.innerHTML;
+                
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>发布中...';
+                
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                    alert('规则公告发布成功！');
+                }, 2000);
+            }
+        });
+
+        // 导出规则
+        document.getElementById('exportRules').addEventListener('click', function() {
+            // 模拟导出功能
+            const rules = {
+                title: '香草生活社区规则',
+                version: '1.0',
+                updateTime: '2024-01-15',
+                rules: {
+                    content: ['禁止发布违法违规内容', '禁止发布虚假信息', '禁止恶意刷屏'],
+                    behavior: ['禁止人身攻击', '禁止恶意举报'],
+                    interaction: ['鼓励友善互动'],
+                    punishment: ['轻微违规：警告', '中等违规：临时封禁', '严重违规：永久封禁'],
+                    reward: ['优质内容奖励'],
+                    privacy: ['保护个人信息']
+                }
+            };
+            
+            const dataStr = JSON.stringify(rules, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = '社区规则_' + new Date().toISOString().split('T')[0] + '.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // 规则删除
+        document.querySelectorAll('.fa-trash').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('确定要删除这条规则吗？此操作不可恢复。')) {
+                    this.closest('.rule-item').remove();
+                }
+            });
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('社区规则设置页面初始化完成');
+        });
+    </script>
+</body>
+</html>

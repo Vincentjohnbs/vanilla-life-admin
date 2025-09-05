@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>供应商管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-transition {
+            transition: all 0.3s ease;
+        }
+        .hover-scale {
+            transition: transform 0.2s ease;
+        }
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .status-active { @apply bg-green-100 text-green-800; }
+        .status-inactive { @apply bg-red-100 text-red-800; }
+        .status-pending { @apply bg-yellow-100 text-yellow-800; }
+        .level-gold { @apply bg-yellow-100 text-yellow-800; }
+        .level-silver { @apply bg-gray-100 text-gray-800; }
+        .level-bronze { @apply bg-orange-100 text-orange-800; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg sidebar-transition" id="sidebar">
+        <!-- Logo -->
+        <div class="flex items-center justify-center h-16 px-4 bg-gradient-to-r from-green-600 to-green-700">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-leaf text-white text-2xl"></i>
+                <span class="text-xl font-bold text-white">香草生活</span>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
+                    <span>仪表板</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-images w-5 h-5 mr-3"></i>
+                    <span>Banner管理</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-box w-5 h-5 mr-3"></i>
+                    <span>商品管理</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-shopping-cart w-5 h-5 mr-3"></i>
+                    <span>订单管理</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-book w-5 h-5 mr-3"></i>
+                    <span>香草图鉴</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-seedling w-5 h-5 mr-3"></i>
+                    <span>香草阳台</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-users w-5 h-5 mr-3"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-white bg-green-600 rounded-lg">
+                    <i class="fas fa-truck w-5 h-5 mr-3"></i>
+                    <span>供应商管理</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-bullhorn w-5 h-5 mr-3"></i>
+                    <span>营销活动</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-chart-bar w-5 h-5 mr-3"></i>
+                    <span>数据统计</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-semibold text-gray-900">供应商管理</h1>
+                    <span class="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full">实时数据</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-bell text-lg"></i>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="管理员" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 统计卡片 -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">供应商总数</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">156</p>
+                        </div>
+                        <div class="p-3 bg-blue-100 rounded-lg">
+                            <i class="fas fa-truck text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600 font-medium">+12</span>
+                        <span class="text-gray-500 ml-1">本月新增</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">合作中</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">142</p>
+                        </div>
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <i class="fas fa-handshake text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600 font-medium">91.0%</span>
+                        <span class="text-gray-500 ml-1">合作率</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">待审核</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">8</p>
+                        </div>
+                        <div class="p-3 bg-yellow-100 rounded-lg">
+                            <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-yellow-600 font-medium">待处理</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">金牌供应商</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">28</p>
+                        </div>
+                        <div class="p-3 bg-yellow-100 rounded-lg">
+                            <i class="fas fa-crown text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-yellow-600 font-medium">优质合作</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">本月结算</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">¥2.8M</p>
+                        </div>
+                        <div class="p-3 bg-purple-100 rounded-lg">
+                            <i class="fas fa-coins text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600 font-medium">+15.3%</span>
+                        <span class="text-gray-500 ml-1">环比增长</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 card-shadow hover-scale">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">供应商品</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">1,248</p>
+                        </div>
+                        <div class="p-3 bg-indigo-100 rounded-lg">
+                            <i class="fas fa-boxes text-indigo-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600 font-medium">+89</span>
+                        <span class="text-gray-500 ml-1">本月新增</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和搜索 -->
+            <div class="bg-white rounded-xl p-6 card-shadow mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" placeholder="搜索供应商名称、联系人..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-full sm:w-64">
+                        </div>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">全部状态</option>
+                            <option value="active">合作中</option>
+                            <option value="pending">待审核</option>
+                            <option value="inactive">已停用</option>
+                        </select>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">全部等级</option>
+                            <option value="gold">金牌供应商</option>
+                            <option value="silver">银牌供应商</option>
+                            <option value="bronze">铜牌供应商</option>
+                        </select>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">全部地区</option>
+                            <option value="beijing">北京</option>
+                            <option value="shanghai">上海</option>
+                            <option value="guangzhou">广州</option>
+                            <option value="shenzhen">深圳</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
+                            <i class="fas fa-plus"></i>
+                            <span>添加供应商</span>
+                        </button>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                            <i class="fas fa-download"></i>
+                            <span>导出数据</span>
+                        </button>
+                        <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">
+                            <i class="fas fa-calculator"></i>
+                            <span>结算管理</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 供应商列表 -->
+            <div class="bg-white rounded-xl card-shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">供应商信息</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">联系方式</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">等级</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">供应商品</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">合作时长</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">结算金额</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-12 w-12">
+                                            <img class="h-12 w-12 rounded-lg object-cover" src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop" alt="供应商">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">绿野仙踪农业有限公司</div>
+                                            <div class="text-sm text-gray-500">编号: SP001</div>
+                                            <div class="text-sm text-gray-500">北京市朝阳区</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">张经理</div>
+                                    <div class="text-sm text-gray-500">13800138001</div>
+                                    <div class="text-sm text-gray-500">zhang@example.com</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium level-gold">
+                                        <i class="fas fa-crown mr-1"></i>
+                                        金牌供应商
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">156个商品</div>
+                                    <div class="text-sm text-gray-500">香草植物、种子</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">2年3个月</div>
+                                    <div class="text-sm text-gray-500">2022-01-15</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">¥128,500</div>
+                                    <div class="text-sm text-gray-500">本月结算</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium status-active">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        合作中
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <button onclick="showSupplierModal()" class="text-blue-600 hover:text-blue-900" title="查看详情">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-900" title="编辑">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-purple-600 hover:text-purple-900" title="结算">
+                                            <i class="fas fa-calculator"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-900" title="停用">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-12 w-12">
+                                            <img class="h-12 w-12 rounded-lg object-cover" src="https://images.unsplash.com/photo-1574263867128-a3d5c1b1deaa?w=100&h=100&fit=crop" alt="供应商">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">香草园艺科技公司</div>
+                                            <div class="text-sm text-gray-500">编号: SP002</div>
+                                            <div class="text-sm text-gray-500">上海市浦东新区</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">李总</div>
+                                    <div class="text-sm text-gray-500">13900139002</div>
+                                    <div class="text-sm text-gray-500">li@example.com</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium level-silver">
+                                        <i class="fas fa-medal mr-1"></i>
+                                        银牌供应商
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">89个商品</div>
+                                    <div class="text-sm text-gray-500">园艺工具、花盆</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">1年8个月</div>
+                                    <div class="text-sm text-gray-500">2022-08-20</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">¥85,200</div>
+                                    <div class="text-sm text-gray-500">本月结算</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium status-active">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        合作中
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <button onclick="showSupplierModal()" class="text-blue-600 hover:text-blue-900" title="查看详情">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-900" title="编辑">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-purple-600 hover:text-purple-900" title="结算">
+                                            <i class="fas fa-calculator"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-900" title="停用">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-12 w-12">
+                                            <img class="h-12 w-12 rounded-lg object-cover" src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=100&h=100&fit=crop" alt="供应商">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">天然香草种植基地</div>
+                                            <div class="text-sm text-gray-500">编号: SP003</div>
+                                            <div class="text-sm text-gray-500">广州市番禺区</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">王主任</div>
+                                    <div class="text-sm text-gray-500">13700137003</div>
+                                    <div class="text-sm text-gray-500">wang@example.com</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium level-bronze">
+                                        <i class="fas fa-award mr-1"></i>
+                                        铜牌供应商
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">45个商品</div>
+                                    <div class="text-sm text-gray-500">新鲜香草、干燥香草</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">6个月</div>
+                                    <div class="text-sm text-gray-500">2023-10-15</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">¥32,800</div>
+                                    <div class="text-sm text-gray-500">本月结算</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium status-pending">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        待审核
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <button onclick="showSupplierModal()" class="text-blue-600 hover:text-blue-900" title="查看详情">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-900" title="审核">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="text-yellow-600 hover:text-yellow-900" title="编辑">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-900" title="拒绝">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">上一页</button>
+                        <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">下一页</button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                显示第 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">156</span> 条记录
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="bg-green-50 border-green-500 text-green-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</button>
+                                <button class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">2</button>
+                                <button class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">3</button>
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 供应商详情模态框 -->
+    <div id="supplierModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+            <div class="flex items-center justify-between pb-4 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">供应商详情</h3>
+                <button onclick="closeSupplierModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="mt-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 基本信息 -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-md font-medium text-gray-900 mb-4">基本信息</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <img class="h-16 w-16 rounded-lg object-cover" src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop" alt="供应商">
+                                <div class="ml-4">
+                                    <div class="text-lg font-medium text-gray-900">绿野仙踪农业有限公司</div>
+                                    <div class="text-sm text-gray-500">编号: SP001</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-500">联系人:</span>
+                                    <span class="text-gray-900 ml-2">张经理</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">电话:</span>
+                                    <span class="text-gray-900 ml-2">13800138001</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">邮箱:</span>
+                                    <span class="text-gray-900 ml-2">zhang@example.com</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">等级:</span>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium level-gold ml-2">
+                                        <i class="fas fa-crown mr-1"></i>
+                                        金牌供应商
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="text-sm">
+                                <span class="text-gray-500">地址:</span>
+                                <span class="text-gray-900 ml-2">北京市朝阳区建国路88号现代城A座1201室</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 合作统计 -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-md font-medium text-gray-900 mb-4">合作统计</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-blue-600">156</div>
+                                <div class="text-sm text-gray-500">供应商品</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-green-600">2年3个月</div>
+                                <div class="text-sm text-gray-500">合作时长</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-600">¥2.8M</div>
+                                <div class="text-sm text-gray-500">累计结算</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-yellow-600">98.5%</div>
+                                <div class="text-sm text-gray-500">履约率</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 供应商品列表 -->
+                <div class="mt-6">
+                    <h4 class="text-md font-medium text-gray-900 mb-4">供应商品 (前10个)</h4>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="flex items-center space-x-3 bg-white p-3 rounded-lg">
+                                <img class="h-12 w-12 rounded-lg object-cover" src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=50&h=50&fit=crop" alt="商品">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">薄荷种子</div>
+                                    <div class="text-sm text-gray-500">¥15.00</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 bg-white p-3 rounded-lg">
+                                <img class="h-12 w-12 rounded-lg object-cover" src="https://images.unsplash.com/photo-1574263867128-a3d5c1b1deaa?w=50&h=50&fit=crop" alt="商品">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">迷迭香盆栽</div>
+                                    <div class="text-sm text-gray-500">¥28.00</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 bg-white p-3 rounded-lg">
+                                <img class="h-12 w-12 rounded-lg object-cover" src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=50&h=50&fit=crop" alt="商品">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">罗勒种苗</div>
+                                    <div class="text-sm text-gray-500">¥12.00</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <button class="text-green-600 hover:text-green-700 text-sm font-medium">查看全部商品 →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button onclick="closeSupplierModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">关闭</button>
+                    <button class="px-4 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700">结算管理</button>
+                    <button class="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">编辑信息</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 搜索功能
+            const searchInput = document.querySelector('input[placeholder*="搜索"]');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    console.log('搜索:', this.value);
+                });
+            }
+
+            // 筛选功能
+            const filterSelects = document.querySelectorAll('select');
+            filterSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    console.log('筛选:', this.value);
+                });
+            });
+
+            // 批量操作
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const headerCheckbox = checkboxes[0];
+            const rowCheckboxes = Array.from(checkboxes).slice(1);
+
+            if (headerCheckbox) {
+                headerCheckbox.addEventListener('change', function() {
+                    rowCheckboxes.forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                    });
+                });
+            }
+
+            // 按钮事件
+            const addButton = document.querySelector('button:has(.fa-plus)');
+            if (addButton) {
+                addButton.addEventListener('click', function() {
+                    console.log('添加供应商');
+                });
+            }
+
+            const exportButton = document.querySelector('button:has(.fa-download)');
+            if (exportButton) {
+                exportButton.addEventListener('click', function() {
+                    console.log('导出数据');
+                });
+            }
+
+            const settlementButton = document.querySelector('button:has(.fa-calculator)');
+            if (settlementButton) {
+                settlementButton.addEventListener('click', function() {
+                    console.log('结算管理');
+                });
+            }
+        });
+
+        // 显示供应商详情模态框
+        function showSupplierModal() {
+            document.getElementById('supplierModal').classList.remove('hidden');
+        }
+
+        // 关闭供应商详情模态框
+        function closeSupplierModal() {
+            document.getElementById('supplierModal').classList.add('hidden');
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('supplierModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSupplierModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动统计 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .sidebar-item.active { background-color: #10b981; color: white; }
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .chart-container { position: relative; height: 300px; }
+        .tab-button { transition: all 0.3s ease; }
+        .tab-button.active { background-color: #10b981; color: white; }
+        .metric-item { transition: all 0.3s ease; }
+        .metric-item:hover { background-color: #f9fafb; }
+        .trend-up { color: #10b981; }
+        .trend-down { color: #ef4444; }
+        .progress-bar { transition: width 0.5s ease; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50">
+        <div class="flex items-center justify-center h-16 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>仪表盘
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-box mr-3"></i>商品管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>订单管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>用户管理
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-bullhorn mr-3"></i>营销活动
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-truck mr-3"></i>供应商管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>香草图鉴
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>香草阳台
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-images mr-3"></i>Banner管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-cog mr-3"></i>系统设置
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 flex-1">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <a href="#" class="text-gray-500 hover:text-gray-700">营销活动</a>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                        <span class="text-gray-900 font-medium">活动统计</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面头部 -->
+        <div class="p-6">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-xl mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2">活动统计分析</h1>
+                        <p class="text-blue-100">全面分析营销活动数据，洞察活动效果和用户行为</p>
+                        <div class="flex items-center space-x-6 mt-4">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-chart-line text-blue-200"></i>
+                                <span class="text-sm">总活动数: 156个</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-users text-blue-200"></i>
+                                <span class="text-sm">参与用户: 25.8万</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-dollar-sign text-blue-200"></i>
+                                <span class="text-sm">总收入: ¥1,280万</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <button id="export-report-btn" class="px-6 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors mr-3">
+                            <i class="fas fa-download mr-2"></i>导出报告
+                        </button>
+                        <button id="custom-report-btn" class="px-6 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-400 transition-colors">
+                            <i class="fas fa-chart-bar mr-2"></i>自定义报告
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 时间筛选器 -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-700">时间范围:</label>
+                            <select id="time-range" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="7d">最近7天</option>
+                                <option value="30d" selected>最近30天</option>
+                                <option value="90d">最近90天</option>
+                                <option value="1y">最近1年</option>
+                                <option value="custom">自定义</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-700">活动类型:</label>
+                            <select id="activity-type" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="">全部类型</option>
+                                <option value="discount">优惠活动</option>
+                                <option value="promotion">促销活动</option>
+                                <option value="event">品牌活动</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-700">活动状态:</label>
+                            <select id="activity-status" class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="">全部状态</option>
+                                <option value="active">进行中</option>
+                                <option value="completed">已结束</option>
+                                <option value="scheduled">未开始</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="refresh-data" class="px-4 py-2 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                    </button>
+                </div>
+            </div>
+
+            <!-- 核心指标卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">活动总数</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">156</p>
+                            <p class="text-xs text-green-600 mt-1 trend-up">
+                                <i class="fas fa-arrow-up mr-1"></i>+12 本月
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-alt text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">参与用户数</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">25.8万</p>
+                            <p class="text-xs text-green-600 mt-1 trend-up">
+                                <i class="fas fa-arrow-up mr-1"></i>+8.5%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">总收入</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">¥1,280万</p>
+                            <p class="text-xs text-green-600 mt-1 trend-up">
+                                <i class="fas fa-arrow-up mr-1"></i>+15.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">平均ROI</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">3.2</p>
+                            <p class="text-xs text-red-600 mt-1 trend-down">
+                                <i class="fas fa-arrow-down mr-1"></i>-0.3
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                <div class="flex items-center space-x-2 p-4 border-b border-gray-200">
+                    <button class="tab-button active px-4 py-2 text-sm rounded-lg" data-tab="overview">
+                        <i class="fas fa-chart-pie mr-2"></i>数据概览
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg" data-tab="performance">
+                        <i class="fas fa-trophy mr-2"></i>活动表现
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg" data-tab="user-analysis">
+                        <i class="fas fa-user-chart mr-2"></i>用户分析
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg" data-tab="revenue">
+                        <i class="fas fa-money-bill-wave mr-2"></i>收入分析
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg" data-tab="comparison">
+                        <i class="fas fa-balance-scale mr-2"></i>对比分析
+                    </button>
+                </div>
+
+                <!-- 数据概览标签页 -->
+                <div id="overview-tab" class="tab-content p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- 活动趋势图 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">活动参与趋势</h3>
+                            <div class="chart-container">
+                                <canvas id="activity-trend-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 活动类型分布 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">活动类型分布</h3>
+                            <div class="chart-container">
+                                <canvas id="activity-type-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 关键指标 -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">关键指标</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="metric-item p-4 bg-white rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-600">平均参与率</span>
+                                    <span class="text-lg font-bold text-gray-900">68.5%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="progress-bar bg-blue-600 h-2 rounded-full" style="width: 68.5%"></div>
+                                </div>
+                            </div>
+
+                            <div class="metric-item p-4 bg-white rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-600">转化率</span>
+                                    <span class="text-lg font-bold text-gray-900">12.3%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="progress-bar bg-green-600 h-2 rounded-full" style="width: 12.3%"></div>
+                                </div>
+                            </div>
+
+                            <div class="metric-item p-4 bg-white rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-600">用户满意度</span>
+                                    <span class="text-lg font-bold text-gray-900">4.6/5</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="progress-bar bg-yellow-600 h-2 rounded-full" style="width: 92%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活动表现标签页 -->
+                <div id="performance-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 活动排行榜 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">活动表现排行榜</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                                            <span class="text-yellow-600 font-bold text-sm">1</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">春季香草节</h4>
+                                            <p class="text-xs text-gray-500">优惠活动</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-bold text-green-600">¥285万</p>
+                                        <p class="text-xs text-gray-500">ROI: 4.2</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                            <span class="text-gray-600 font-bold text-sm">2</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">新用户专享</h4>
+                                            <p class="text-xs text-gray-500">促销活动</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-bold text-green-600">¥198万</p>
+                                        <p class="text-xs text-gray-500">ROI: 3.8</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                                            <span class="text-orange-600 font-bold text-sm">3</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">会员日特惠</h4>
+                                            <p class="text-xs text-gray-500">会员活动</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-bold text-green-600">¥156万</p>
+                                        <p class="text-xs text-gray-500">ROI: 3.5</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ROI分析图 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">ROI分析</h3>
+                            <div class="chart-container">
+                                <canvas id="roi-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 用户分析标签页 -->
+                <div id="user-analysis-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 用户参与度 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">用户参与度分析</h3>
+                            <div class="chart-container">
+                                <canvas id="user-engagement-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 用户画像 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">用户画像分布</h3>
+                            <div class="chart-container">
+                                <canvas id="user-profile-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 收入分析标签页 -->
+                <div id="revenue-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 收入趋势 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">收入趋势分析</h3>
+                            <div class="chart-container">
+                                <canvas id="revenue-trend-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 成本效益 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">成本效益分析</h3>
+                            <div class="chart-container">
+                                <canvas id="cost-benefit-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 对比分析标签页 -->
+                <div id="comparison-tab" class="tab-content p-6 hidden">
+                    <div class="text-center py-12">
+                        <i class="fas fa-balance-scale text-6xl text-gray-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">对比分析</h3>
+                        <p class="text-gray-600">对比不同时期、不同类型活动的表现差异</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            // 侧边栏切换逻辑
+        });
+
+        // 标签页切换
+        document.querySelectorAll('.tab-button').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有活动状态
+                document.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                
+                // 激活当前标签
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab') + '-tab';
+                document.getElementById(tabId).classList.remove('hidden');
+            });
+        });
+
+        // 筛选器变化
+        document.getElementById('time-range').addEventListener('change', function() {
+            console.log('时间范围变化:', this.value);
+            // 重新加载数据
+        });
+
+        document.getElementById('activity-type').addEventListener('change', function() {
+            console.log('活动类型变化:', this.value);
+            // 重新加载数据
+        });
+
+        document.getElementById('activity-status').addEventListener('change', function() {
+            console.log('活动状态变化:', this.value);
+            // 重新加载数据
+        });
+
+        // 刷新数据
+        document.getElementById('refresh-data').addEventListener('click', function() {
+            console.log('刷新数据');
+            // 重新加载所有图表数据
+        });
+
+        // 导出报告
+        document.getElementById('export-report-btn').addEventListener('click', function() {
+            console.log('导出报告');
+        });
+
+        // 自定义报告
+        document.getElementById('custom-report-btn').addEventListener('click', function() {
+            console.log('自定义报告');
+        });
+
+        // 初始化图表
+        function initCharts() {
+            // 活动趋势图
+            const activityTrendCtx = document.getElementById('activity-trend-chart').getContext('2d');
+            new Chart(activityTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '参与用户数',
+                        data: [12000, 19000, 15000, 25000, 22000, 30000],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // 活动类型分布图
+            const activityTypeCtx = document.getElementById('activity-type-chart').getContext('2d');
+            new Chart(activityTypeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['优惠活动', '促销活动', '品牌活动', '会员活动'],
+                    datasets: [{
+                        data: [45, 30, 15, 10],
+                        backgroundColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(16, 185, 129)',
+                            'rgb(245, 158, 11)',
+                            'rgb(139, 92, 246)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // ROI分析图
+            const roiCtx = document.getElementById('roi-chart').getContext('2d');
+            new Chart(roiCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['春季香草节', '新用户专享', '会员日特惠', '夏日清凉', '秋季收获'],
+                    datasets: [{
+                        label: 'ROI',
+                        data: [4.2, 3.8, 3.5, 2.9, 3.1],
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // 用户参与度图
+            const userEngagementCtx = document.getElementById('user-engagement-chart').getContext('2d');
+            new Chart(userEngagementCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['浏览量', '点击率', '参与率', '转化率', '复购率', '推荐率'],
+                    datasets: [{
+                        label: '用户参与度',
+                        data: [85, 72, 68, 45, 38, 52],
+                        borderColor: 'rgb(139, 92, 246)',
+                        backgroundColor: 'rgba(139, 92, 246, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // 用户画像分布图
+            const userProfileCtx = document.getElementById('user-profile-chart').getContext('2d');
+            new Chart(userProfileCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['18-25岁', '26-35岁', '36-45岁', '46岁以上'],
+                    datasets: [{
+                        data: [25, 45, 20, 10],
+                        backgroundColor: [
+                            'rgb(239, 68, 68)',
+                            'rgb(245, 158, 11)',
+                            'rgb(16, 185, 129)',
+                            'rgb(59, 130, 246)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // 收入趋势图
+            const revenueTrendCtx = document.getElementById('revenue-trend-chart').getContext('2d');
+            new Chart(revenueTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '收入(万元)',
+                        data: [180, 285, 220, 350, 310, 420],
+                        borderColor: 'rgb(245, 158, 11)',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // 成本效益图
+            const costBenefitCtx = document.getElementById('cost-benefit-chart').getContext('2d');
+            new Chart(costBenefitCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '成本',
+                        data: [50, 80, 65, 95, 85, 110],
+                        backgroundColor: 'rgba(239, 68, 68, 0.8)'
+                    }, {
+                        label: '收益',
+                        data: [180, 285, 220, 350, 310, 420],
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // 页面加载完成后初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+        });
+    </script>
+</body>
+</html>

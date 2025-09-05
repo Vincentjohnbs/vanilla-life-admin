@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动效果分析 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .sidebar-item.active { background-color: #10b981; color: white; }
+        .metric-card { transition: all 0.3s ease; }
+        .metric-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .chart-container { position: relative; height: 300px; }
+        .tab-button { transition: all 0.3s ease; }
+        .tab-button.active { background-color: #10b981; color: white; }
+        .progress-bar { transition: width 0.3s ease; }
+        .funnel-step { transition: all 0.3s ease; }
+        .funnel-step:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50">
+        <div class="flex items-center justify-center h-16 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>仪表盘
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-box mr-3"></i>商品管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>订单管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>用户管理
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-bullhorn mr-3"></i>营销活动
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-truck mr-3"></i>供应商管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>香草图鉴
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>香草阳台
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-images mr-3"></i>Banner管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-cog mr-3"></i>系统设置
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 flex-1">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <a href="#" class="text-gray-500 hover:text-gray-700">营销活动</a>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                        <span class="text-gray-900 font-medium">活动效果分析</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面头部 -->
+        <div class="p-6">
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-8 rounded-xl mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2">活动效果分析</h1>
+                        <p class="text-purple-100">深度分析活动数据，洞察用户行为，优化营销策略</p>
+                        <div class="flex items-center space-x-6 mt-4">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-chart-line text-purple-200"></i>
+                                <span class="text-sm">总ROI: 285%</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-users text-purple-200"></i>
+                                <span class="text-sm">参与用户: 12,456</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-dollar-sign text-purple-200"></i>
+                                <span class="text-sm">总收入: ¥1,256,890</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <select class="px-4 py-2 bg-white text-purple-600 rounded-lg font-medium mr-3">
+                            <option>春季大促</option>
+                            <option>新用户礼包</option>
+                            <option>会员专享日</option>
+                        </select>
+                        <button id="export-report-btn" class="px-6 py-3 bg-white text-purple-600 rounded-lg font-medium hover:bg-purple-50 transition-colors">
+                            <i class="fas fa-download mr-2"></i>导出报告
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 核心指标卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="metric-card bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">活动ROI</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">285%</p>
+                            <p class="text-xs text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+15.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-600 h-2 rounded-full progress-bar" style="width: 85%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">目标完成度: 85%</p>
+                    </div>
+                </div>
+
+                <div class="metric-card bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">转化率</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">12.8%</p>
+                            <p class="text-xs text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+2.3%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-percentage text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 64%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">行业平均: 8.2%</p>
+                    </div>
+                </div>
+
+                <div class="metric-card bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">客单价</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">¥186</p>
+                            <p class="text-xs text-red-600 mt-1">
+                                <i class="fas fa-arrow-down mr-1"></i>-3.5%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-purple-600 h-2 rounded-full progress-bar" style="width: 72%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">目标: ¥200</p>
+                    </div>
+                </div>
+
+                <div class="metric-card bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">用户留存率</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">68.5%</p>
+                            <p class="text-xs text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+5.8%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-yellow-600 h-2 rounded-full progress-bar" style="width: 68%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">30天留存</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                <div class="flex items-center space-x-2 p-4 border-b border-gray-200">
+                    <button class="tab-button active px-4 py-2 text-sm rounded-lg" data-tab="overview">
+                        <i class="fas fa-chart-pie mr-2"></i>数据概览
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg" data-tab="funnel">
+                        <i class="fas fa-filter mr-2"></i>转化漏斗
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg" data-tab="user-behavior">
+                        <i class="fas fa-user-chart mr-2"></i>用户行为
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg" data-tab="channel">
+                        <i class="fas fa-share-alt mr-2"></i>渠道分析
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg" data-tab="comparison">
+                        <i class="fas fa-balance-scale mr-2"></i>对比分析
+                    </button>
+                </div>
+
+                <!-- 数据概览标签页 -->
+                <div id="overview-tab" class="tab-content p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 活动趋势图 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">活动参与趋势</h3>
+                                <select class="px-3 py-1 border border-gray-300 rounded text-sm">
+                                    <option>最近7天</option>
+                                    <option>最近30天</option>
+                                    <option>最近90天</option>
+                                </select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="trend-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 收入分析图 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">收入分析</h3>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm text-gray-600">总收入:</span>
+                                    <span class="text-lg font-bold text-green-600">¥1,256,890</span>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="revenue-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 用户分布 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">用户分布</h3>
+                            <div class="chart-container">
+                                <canvas id="user-distribution-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 热门商品 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">热门商品排行</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="w-6 h-6 bg-yellow-500 text-white text-xs font-bold rounded-full flex items-center justify-center">1</span>
+                                        <div>
+                                            <p class="font-medium text-gray-900">薰衣草精油套装</p>
+                                            <p class="text-sm text-gray-500">销量: 1,234件</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-green-600 font-bold">¥89,560</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="w-6 h-6 bg-gray-400 text-white text-xs font-bold rounded-full flex items-center justify-center">2</span>
+                                        <div>
+                                            <p class="font-medium text-gray-900">迷迭香护肤套装</p>
+                                            <p class="text-sm text-gray-500">销量: 987件</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-green-600 font-bold">¥67,890</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="w-6 h-6 bg-orange-400 text-white text-xs font-bold rounded-full flex items-center justify-center">3</span>
+                                        <div>
+                                            <p class="font-medium text-gray-900">薄荷茶叶礼盒</p>
+                                            <p class="text-sm text-gray-500">销量: 756件</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-green-600 font-bold">¥45,360</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 转化漏斗标签页 -->
+                <div id="funnel-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 转化漏斗图 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-6">用户转化漏斗</h3>
+                            <div class="space-y-4">
+                                <div class="funnel-step relative">
+                                    <div class="flex items-center justify-between p-4 bg-blue-100 rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                                            <span class="font-medium text-gray-900">活动曝光</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-blue-600">125,680</p>
+                                            <p class="text-sm text-gray-600">100%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="funnel-step relative">
+                                    <div class="flex items-center justify-between p-4 bg-green-100 rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                                            <span class="font-medium text-gray-900">点击参与</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-green-600">45,230</p>
+                                            <p class="text-sm text-gray-600">36.0%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="funnel-step relative">
+                                    <div class="flex items-center justify-between p-4 bg-yellow-100 rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-yellow-600 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                                            <span class="font-medium text-gray-900">浏览商品</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-yellow-600">28,560</p>
+                                            <p class="text-sm text-gray-600">22.7%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="funnel-step relative">
+                                    <div class="flex items-center justify-between p-4 bg-purple-100 rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                                            <span class="font-medium text-gray-900">加入购物车</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-purple-600">18,920</p>
+                                            <p class="text-sm text-gray-600">15.1%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="funnel-step relative">
+                                    <div class="flex items-center justify-between p-4 bg-red-100 rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold">5</div>
+                                            <span class="font-medium text-gray-900">完成购买</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-red-600">12,456</p>
+                                            <p class="text-sm text-gray-600">9.9%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 转化率分析 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">转化率分析</h3>
+                            <div class="chart-container">
+                                <canvas id="conversion-chart"></canvas>
+                            </div>
+                            <div class="mt-4 grid grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <p class="text-2xl font-bold text-blue-600">36.0%</p>
+                                    <p class="text-sm text-gray-600">点击转化率</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <p class="text-2xl font-bold text-green-600">9.9%</p>
+                                    <p class="text-sm text-gray-600">购买转化率</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 用户行为标签页 -->
+                <div id="user-behavior-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 用户活跃度 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">用户活跃度分析</h3>
+                            <div class="chart-container">
+                                <canvas id="user-activity-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 页面停留时间 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">页面停留时间</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <span class="text-gray-700">活动首页</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-24 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: 85%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium">2:35</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <span class="text-gray-700">商品详情页</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-24 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-600 h-2 rounded-full" style="width: 72%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium">1:58</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <span class="text-gray-700">购物车页面</span>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-24 bg-gray-200 rounded-full h-2">
+                                            <div class="bg-yellow-600 h-2 rounded-full" style="width: 45%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium">1:12</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 用户路径分析 -->
+                        <div class="bg-gray-50 p-6 rounded-lg lg:col-span-2">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">用户路径分析</h3>
+                            <div class="chart-container">
+                                <canvas id="user-path-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 渠道分析标签页 -->
+                <div id="channel-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 渠道效果对比 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">渠道效果对比</h3>
+                            <div class="chart-container">
+                                <canvas id="channel-comparison-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 渠道ROI -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">渠道ROI排行</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fab fa-weixin text-green-600 text-xl"></i>
+                                        <span class="font-medium">微信朋友圈</span>
+                                    </div>
+                                    <span class="text-green-600 font-bold">385%</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fab fa-weibo text-red-600 text-xl"></i>
+                                        <span class="font-medium">微博推广</span>
+                                    </div>
+                                    <span class="text-green-600 font-bold">298%</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-mobile-alt text-blue-600 text-xl"></i>
+                                        <span class="font-medium">APP推送</span>
+                                    </div>
+                                    <span class="text-green-600 font-bold">256%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 对比分析标签页 -->
+                <div id="comparison-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 历史活动对比 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">历史活动对比</h3>
+                            <div class="chart-container">
+                                <canvas id="history-comparison-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 同期对比 -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">同期对比分析</h3>
+                            <div class="chart-container">
+                                <canvas id="period-comparison-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            // 侧边栏切换逻辑
+        });
+
+        // 标签页切换
+        document.querySelectorAll('.tab-button').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有活动状态
+                document.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                
+                // 激活当前标签
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab') + '-tab';
+                document.getElementById(tabId).classList.remove('hidden');
+            });
+        });
+
+        // 导出报告
+        document.getElementById('export-report-btn').addEventListener('click', function() {
+            console.log('导出分析报告');
+            // 导出报告的逻辑
+        });
+
+        // 初始化图表
+        function initCharts() {
+            // 活动趋势图
+            const trendCtx = document.getElementById('trend-chart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1/10', '1/11', '1/12', '1/13', '1/14', '1/15', '1/16'],
+                    datasets: [{
+                        label: '参与人数',
+                        data: [1200, 1800, 2100, 1950, 2300, 2800, 2456],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // 收入分析图
+            const revenueCtx = document.getElementById('revenue-chart').getContext('2d');
+            new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['1/10', '1/11', '1/12', '1/13', '1/14', '1/15', '1/16'],
+                    datasets: [{
+                        label: '收入',
+                        data: [85000, 120000, 156000, 142000, 178000, 195000, 186000],
+                        backgroundColor: 'rgba(34, 197, 94, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // 用户分布图
+            const userDistCtx = document.getElementById('user-distribution-chart').getContext('2d');
+            new Chart(userDistCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['新用户', 'VIP用户', '普通用户', '超级VIP'],
+                    datasets: [{
+                        data: [35, 25, 30, 10],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(107, 114, 128, 0.8)',
+                            'rgba(147, 51, 234, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // 转化率图表
+            const conversionCtx = document.getElementById('conversion-chart').getContext('2d');
+            new Chart(conversionCtx, {
+                type: 'funnel',
+                data: {
+                    labels: ['曝光', '点击', '浏览', '加购', '购买'],
+                    datasets: [{
+                        data: [100, 36, 22.7, 15.1, 9.9],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(147, 51, 234, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // 用户活跃度图表
+            const activityCtx = document.getElementById('user-activity-chart').getContext('2d');
+            new Chart(activityCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['浏览时长', '页面深度', '互动频次', '分享次数', '复购率', '推荐度'],
+                    datasets: [{
+                        label: '当前活动',
+                        data: [85, 72, 68, 45, 78, 82],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)'
+                    }, {
+                        label: '平均水平',
+                        data: [65, 58, 52, 35, 62, 68],
+                        borderColor: 'rgb(107, 114, 128)',
+                        backgroundColor: 'rgba(107, 114, 128, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // 用户路径图表
+            const pathCtx = document.getElementById('user-path-chart').getContext('2d');
+            new Chart(pathCtx, {
+                type: 'sankey',
+                data: {
+                    datasets: [{
+                        data: [
+                            {from: '首页', to: '活动页', flow: 8500},
+                            {from: '活动页', to: '商品页', flow: 6200},
+                            {from: '商品页', to: '购物车', flow: 3800},
+                            {from: '购物车', to: '结算页', flow: 2400},
+                            {from: '结算页', to: '支付成功', flow: 1800}
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // 渠道对比图表
+            const channelCtx = document.getElementById('channel-comparison-chart').getContext('2d');
+            new Chart(channelCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['微信', '微博', 'APP', '短信', '邮件'],
+                    datasets: [{
+                        label: '参与人数',
+                        data: [4500, 3200, 2800, 1500, 800],
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                    }, {
+                        label: '转化人数',
+                        data: [1800, 960, 840, 300, 120],
+                        backgroundColor: 'rgba(34, 197, 94, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // 历史对比图表
+            const historyCtx = document.getElementById('history-comparison-chart').getContext('2d');
+            new Chart(historyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['春节大促', '情人节', '妇女节', '春季大促', '五一活动'],
+                    datasets: [{
+                        label: 'ROI',
+                        data: [245, 189, 156, 285, 198],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)'
+                    }, {
+                        label: '参与人数',
+                        data: [8500, 6200, 4800, 12456, 7800],
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left'
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 同期对比图表
+            const periodCtx = document.getElementById('period-comparison-chart').getContext('2d');
+            new Chart(periodCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['参与人数', '转化率', '客单价', '收入', 'ROI'],
+                    datasets: [{
+                        label: '本期',
+                        data: [12456, 12.8, 186, 1256890, 285],
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                    }, {
+                        label: '上期',
+                        data: [9800, 10.5, 192, 980000, 245],
+                        backgroundColor: 'rgba(107, 114, 128, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // 页面加载完成后初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+        });
+    </script>
+</body>
+</html>

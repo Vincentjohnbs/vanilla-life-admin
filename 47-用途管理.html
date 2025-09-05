@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用途管理 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .usage-card {
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+        .usage-card:hover {
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+            transform: translateY(-2px);
+        }
+        .usage-category {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-left: 4px solid #10b981;
+        }
+        .usage-item {
+            transition: all 0.2s ease;
+        }
+        .usage-item:hover {
+            background-color: #f9fafb;
+        }
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .category-culinary {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .category-medicinal {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .category-cosmetic {
+            background-color: #fce7f3;
+            color: #be185d;
+        }
+        .category-aromatherapy {
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+        .category-decorative {
+            background-color: #fed7aa;
+            color: #9a3412;
+        }
+        .usage-stats {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600 transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        <span>首页仪表板</span>
+                    </a>
+                    <a href="05-香草图鉴管理.html" class="flex items-center px-4 py-3 text-green-600 bg-green-50 rounded-lg">
+                        <i class="fas fa-book w-5 h-5 mr-3"></i>
+                        <span>香草图鉴管理</span>
+                    </a>
+                    <div class="ml-8 space-y-1">
+                        <a href="41-香草编辑页.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-edit w-4 h-4 mr-2"></i>
+                            <span>香草编辑</span>
+                        </a>
+                        <a href="46-种植指南编辑.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-seedling w-4 h-4 mr-2"></i>
+                            <span>种植指南编辑</span>
+                        </a>
+                        <a href="47-用途管理.html" class="flex items-center px-4 py-2 text-sm text-green-600 bg-green-50 rounded-lg">
+                            <i class="fas fa-magic w-4 h-4 mr-2"></i>
+                            <span>用途管理</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300 ease-in-out">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">用途管理</h2>
+                        <p class="text-sm text-gray-500">管理香草的各种用途和功效</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="export-btn" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出数据
+                    </button>
+                    <button id="add-usage-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>添加用途
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm p-6 usage-stats">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">总用途数量</p>
+                            <p class="text-2xl font-bold text-gray-900">156</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-magic text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-green-600 text-sm font-medium">+12</span>
+                        <span class="text-gray-500 text-sm ml-2">本月新增</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 usage-stats">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">用途分类</p>
+                            <p class="text-2xl font-bold text-gray-900">5</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tags text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-blue-600 text-sm font-medium">烹饪、药用、美容</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 usage-stats">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">热门用途</p>
+                            <p class="text-2xl font-bold text-gray-900">28</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-fire text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-orange-600 text-sm font-medium">烹饪调味</span>
+                        <span class="text-gray-500 text-sm ml-2">最受欢迎</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 usage-stats">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">关联香草</p>
+                            <p class="text-2xl font-bold text-gray-900">89</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-leaf text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-purple-600 text-sm font-medium">平均每种香草</span>
+                        <span class="text-gray-500 text-sm ml-2">1.8个用途</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左侧用途分类 -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-800">用途分类</h3>
+                                <button id="add-category-btn" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                    <i class="fas fa-plus mr-1"></i>添加分类
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="space-y-3">
+                                <div class="usage-category p-4 rounded-lg cursor-pointer" data-category="culinary">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <i class="fas fa-utensils text-yellow-600"></i>
+                                            <div>
+                                                <h4 class="font-medium text-gray-800">烹饪用途</h4>
+                                                <p class="text-sm text-gray-500">调味、装饰、饮品</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-lg font-bold text-gray-800">45</span>
+                                            <p class="text-xs text-gray-500">个用途</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="usage-category p-4 rounded-lg cursor-pointer" data-category="medicinal">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <i class="fas fa-pills text-green-600"></i>
+                                            <div>
+                                                <h4 class="font-medium text-gray-800">药用功效</h4>
+                                                <p class="text-sm text-gray-500">治疗、保健、预防</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-lg font-bold text-gray-800">38</span>
+                                            <p class="text-xs text-gray-500">个用途</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="usage-category p-4 rounded-lg cursor-pointer" data-category="cosmetic">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <i class="fas fa-spa text-pink-600"></i>
+                                            <div>
+                                                <h4 class="font-medium text-gray-800">美容护肤</h4>
+                                                <p class="text-sm text-gray-500">护肤、护发、美白</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-lg font-bold text-gray-800">32</span>
+                                            <p class="text-xs text-gray-500">个用途</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="usage-category p-4 rounded-lg cursor-pointer" data-category="aromatherapy">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <i class="fas fa-wind text-blue-600"></i>
+                                            <div>
+                                                <h4 class="font-medium text-gray-800">芳香疗法</h4>
+                                                <p class="text-sm text-gray-500">放松、提神、净化</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-lg font-bold text-gray-800">26</span>
+                                            <p class="text-xs text-gray-500">个用途</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="usage-category p-4 rounded-lg cursor-pointer" data-category="decorative">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <i class="fas fa-palette text-orange-600"></i>
+                                            <div>
+                                                <h4 class="font-medium text-gray-800">装饰观赏</h4>
+                                                <p class="text-sm text-gray-500">园艺、插花、装饰</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-lg font-bold text-gray-800">15</span>
+                                            <p class="text-xs text-gray-500">个用途</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧用途列表 -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">用途详情</h3>
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <input type="text" id="search-usage" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="搜索用途...">
+                                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    </div>
+                                    <select id="filter-category" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="all">全部分类</option>
+                                        <option value="culinary">烹饪用途</option>
+                                        <option value="medicinal">药用功效</option>
+                                        <option value="cosmetic">美容护肤</option>
+                                        <option value="aromatherapy">芳香疗法</option>
+                                        <option value="decorative">装饰观赏</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div id="usage-list" class="space-y-4">
+                                <!-- 烹饪用途示例 -->
+                                <div class="usage-item p-4 border border-gray-200 rounded-lg" data-category="culinary">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-3 mb-2">
+                                                <span class="category-badge category-culinary">烹饪用途</span>
+                                                <h4 class="font-medium text-gray-800">调味香料</h4>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mb-3">用于各种菜肴的调味，增加食物的香味和口感，常用于意大利菜、法式料理等。</p>
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span><i class="fas fa-leaf mr-1"></i>适用香草：罗勒、迷迭香、百里香</span>
+                                                <span><i class="fas fa-clock mr-1"></i>更新时间：2024-01-15</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2 ml-4">
+                                            <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm">
+                                                <i class="fas fa-trash mr-1"></i>删除
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 药用功效示例 -->
+                                <div class="usage-item p-4 border border-gray-200 rounded-lg" data-category="medicinal">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-3 mb-2">
+                                                <span class="category-badge category-medicinal">药用功效</span>
+                                                <h4 class="font-medium text-gray-800">消炎抗菌</h4>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mb-3">具有天然的消炎抗菌作用，可用于治疗轻微的皮肤炎症、口腔溃疡等症状。</p>
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span><i class="fas fa-leaf mr-1"></i>适用香草：薰衣草、茶树、洋甘菊</span>
+                                                <span><i class="fas fa-clock mr-1"></i>更新时间：2024-01-14</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2 ml-4">
+                                            <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm">
+                                                <i class="fas fa-trash mr-1"></i>删除
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 美容护肤示例 -->
+                                <div class="usage-item p-4 border border-gray-200 rounded-lg" data-category="cosmetic">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-3 mb-2">
+                                                <span class="category-badge category-cosmetic">美容护肤</span>
+                                                <h4 class="font-medium text-gray-800">保湿滋润</h4>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mb-3">富含天然保湿成分，能够深层滋润肌肤，改善干燥粗糙，让肌肤更加柔嫩光滑。</p>
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span><i class="fas fa-leaf mr-1"></i>适用香草：芦荟、玫瑰、洋甘菊</span>
+                                                <span><i class="fas fa-clock mr-1"></i>更新时间：2024-01-13</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2 ml-4">
+                                            <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm">
+                                                <i class="fas fa-trash mr-1"></i>删除
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 芳香疗法示例 -->
+                                <div class="usage-item p-4 border border-gray-200 rounded-lg" data-category="aromatherapy">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-3 mb-2">
+                                                <span class="category-badge category-aromatherapy">芳香疗法</span>
+                                                <h4 class="font-medium text-gray-800">舒缓放松</h4>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mb-3">通过天然香气帮助缓解压力和焦虑，促进身心放松，改善睡眠质量。</p>
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span><i class="fas fa-leaf mr-1"></i>适用香草：薰衣草、柠檬香茅、薄荷</span>
+                                                <span><i class="fas fa-clock mr-1"></i>更新时间：2024-01-12</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2 ml-4">
+                                            <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm">
+                                                <i class="fas fa-trash mr-1"></i>删除
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 装饰观赏示例 -->
+                                <div class="usage-item p-4 border border-gray-200 rounded-lg" data-category="decorative">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-3 mb-2">
+                                                <span class="category-badge category-decorative">装饰观赏</span>
+                                                <h4 class="font-medium text-gray-800">园艺装饰</h4>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mb-3">美丽的花朵和叶片形状，适合用于花园设计、室内装饰和插花艺术。</p>
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span><i class="fas fa-leaf mr-1"></i>适用香草：薰衣草、迷迭香、鼠尾草</span>
+                                                <span><i class="fas fa-clock mr-1"></i>更新时间：2024-01-11</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2 ml-4">
+                                            <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm">
+                                                <i class="fas fa-edit mr-1"></i>编辑
+                                            </button>
+                                            <button class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm">
+                                                <i class="fas fa-trash mr-1"></i>删除
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 分页 -->
+                            <div class="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+                                <div class="text-sm text-gray-500">
+                                    显示 1-10 条，共 156 条记录
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <button class="px-3 py-2 bg-green-600 text-white rounded-lg">1</button>
+                                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">2</button>
+                                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">3</button>
+                                    <span class="px-3 py-2 text-gray-500">...</span>
+                                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">16</button>
+                                    <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加用途模态框 -->
+    <div id="add-usage-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-800">添加新用途</h3>
+                    <button id="close-usage-modal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <form id="usage-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">用途名称</label>
+                            <input type="text" id="usage-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="输入用途名称" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">用途分类</label>
+                            <select id="usage-category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                                <option value="">选择分类</option>
+                                <option value="culinary">烹饪用途</option>
+                                <option value="medicinal">药用功效</option>
+                                <option value="cosmetic">美容护肤</option>
+                                <option value="aromatherapy">芳香疗法</option>
+                                <option value="decorative">装饰观赏</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">用途描述</label>
+                        <textarea id="usage-description" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="详细描述这个用途的功效和使用方法" required></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">适用香草</label>
+                        <div class="flex flex-wrap gap-2 mb-3" id="selected-herbs">
+                            <!-- 已选择的香草标签将在这里显示 -->
+                        </div>
+                        <div class="flex">
+                            <input type="text" id="herb-input" class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="输入香草名称">
+                            <button type="button" id="add-herb-btn" class="px-4 py-2 bg-green-600 text-white rounded-r-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">使用方法</label>
+                            <input type="text" id="usage-method" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="如：泡茶、外敷、调味等">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">注意事项</label>
+                            <input type="text" id="usage-precaution" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="使用时需要注意的事项">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancel-usage-btn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    取消
+                </button>
+                <button id="save-usage-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-save mr-2"></i>保存用途
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+        });
+
+        // 分类点击切换
+        document.querySelectorAll('.usage-category').forEach(category => {
+            category.addEventListener('click', function() {
+                const categoryType = this.getAttribute('data-category');
+                filterUsageByCategory(categoryType);
+                
+                // 更新分类选择器
+                document.getElementById('filter-category').value = categoryType;
+                
+                // 高亮当前分类
+                document.querySelectorAll('.usage-category').forEach(cat => {
+                    cat.classList.remove('ring-2', 'ring-green-500');
+                });
+                this.classList.add('ring-2', 'ring-green-500');
+            });
+        });
+
+        // 分类筛选
+        document.getElementById('filter-category').addEventListener('change', function() {
+            const category = this.value;
+            filterUsageByCategory(category);
+        });
+
+        function filterUsageByCategory(category) {
+            const usageItems = document.querySelectorAll('.usage-item');
+            
+            usageItems.forEach(item => {
+                if (category === 'all' || item.getAttribute('data-category') === category) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // 搜索功能
+        document.getElementById('search-usage').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const usageItems = document.querySelectorAll('.usage-item');
+            
+            usageItems.forEach(item => {
+                const title = item.querySelector('h4').textContent.toLowerCase();
+                const description = item.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // 添加用途模态框
+        const addUsageModal = document.getElementById('add-usage-modal');
+        const addUsageBtn = document.getElementById('add-usage-btn');
+        const closeUsageModal = document.getElementById('close-usage-modal');
+        const cancelUsageBtn = document.getElementById('cancel-usage-btn');
+
+        addUsageBtn.addEventListener('click', function() {
+            addUsageModal.classList.remove('hidden');
+            addUsageModal.classList.add('flex');
+        });
+
+        closeUsageModal.addEventListener('click', function() {
+            addUsageModal.classList.add('hidden');
+            addUsageModal.classList.remove('flex');
+        });
+
+        cancelUsageBtn.addEventListener('click', function() {
+            addUsageModal.classList.add('hidden');
+            addUsageModal.classList.remove('flex');
+        });
+
+        // 点击模态框外部关闭
+        addUsageModal.addEventListener('click', function(e) {
+            if (e.target === addUsageModal) {
+                addUsageModal.classList.add('hidden');
+                addUsageModal.classList.remove('flex');
+            }
+        });
+
+        // 添加香草标签
+        const herbInput = document.getElementById('herb-input');
+        const addHerbBtn = document.getElementById('add-herb-btn');
+        const selectedHerbs = document.getElementById('selected-herbs');
+
+        addHerbBtn.addEventListener('click', function() {
+            const herbName = herbInput.value.trim();
+            if (herbName) {
+                addHerbTag(herbName);
+                herbInput.value = '';
+            }
+        });
+
+        herbInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const herbName = this.value.trim();
+                if (herbName) {
+                    addHerbTag(herbName);
+                    this.value = '';
+                }
+            }
+        });
+
+        function addHerbTag(herbName) {
+            const tag = document.createElement('span');
+            tag.className = 'px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm flex items-center';
+            tag.innerHTML = `
+                ${herbName}
+                <button type="button" class="ml-2 text-green-500 hover:text-green-700" onclick="removeHerbTag(this)">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            `;
+            selectedHerbs.appendChild(tag);
+        }
+
+        function removeHerbTag(button) {
+            const tag = button.closest('span');
+            tag.remove();
+        }
+
+        // 保存用途
+        document.getElementById('save-usage-btn').addEventListener('click', function() {
+            const form = document.getElementById('usage-form');
+            const formData = new FormData(form);
+            
+            // 获取选中的香草
+            const herbs = Array.from(selectedHerbs.children).map(tag => 
+                tag.textContent.trim().replace('×', '')
+            );
+            
+            // 这里可以添加保存逻辑
+            console.log('保存用途:', {
+                name: document.getElementById('usage-name').value,
+                category: document.getElementById('usage-category').value,
+                description: document.getElementById('usage-description').value,
+                herbs: herbs,
+                method: document.getElementById('usage-method').value,
+                precaution: document.getElementById('usage-precaution').value
+            });
+            
+            alert('用途保存成功！');
+            
+            // 关闭模态框并重置表单
+            addUsageModal.classList.add('hidden');
+            addUsageModal.classList.remove('flex');
+            form.reset();
+            selectedHerbs.innerHTML = '';
+        });
+
+        // 编辑用途
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.fa-edit')) {
+                const usageItem = e.target.closest('.usage-item');
+                const title = usageItem.querySelector('h4').textContent;
+                alert(`编辑用途: ${title}`);
+                // 这里可以添加编辑逻辑
+            }
+        });
+
+        // 删除用途
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.fa-trash')) {
+                const usageItem = e.target.closest('.usage-item');
+                const title = usageItem.querySelector('h4').textContent;
+                
+                if (confirm(`确定要删除用途"${title}"吗？`)) {
+                    usageItem.remove();
+                    console.log('删除用途:', title);
+                }
+            }
+        });
+
+        // 导出数据
+        document.getElementById('export-btn').addEventListener('click', function() {
+            // 这里可以添加导出逻辑
+            console.log('导出用途数据');
+            alert('正在导出数据...');
+        });
+
+        // 添加分类
+        document.getElementById('add-category-btn').addEventListener('click', function() {
+            const categoryName = prompt('请输入新分类名称:');
+            if (categoryName) {
+                console.log('添加分类:', categoryName);
+                alert('分类添加成功！');
+                // 这里可以添加新分类到界面的逻辑
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>优惠券管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .sidebar-item.active { background-color: #10b981; color: white; }
+        .coupon-card { transition: all 0.3s ease; }
+        .coupon-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .coupon-type-discount { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .coupon-type-cash { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .coupon-type-shipping { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .coupon-type-gift { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .status-active { background-color: #10b981; }
+        .status-inactive { background-color: #6b7280; }
+        .status-expired { background-color: #ef4444; }
+        .status-used { background-color: #f59e0b; }
+        .filter-tag { transition: all 0.3s ease; }
+        .filter-tag.active { background-color: #10b981; color: white; }
+        .modal { backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50">
+        <div class="flex items-center justify-center h-16 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>仪表盘
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-box mr-3"></i>商品管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>订单管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>用户管理
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-bullhorn mr-3"></i>营销活动
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-truck mr-3"></i>供应商管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>香草图鉴
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>香草阳台
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-images mr-3"></i>Banner管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-cog mr-3"></i>系统设置
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 flex-1">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <a href="#" class="text-gray-500 hover:text-gray-700">营销活动</a>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                        <span class="text-gray-900 font-medium">优惠券管理</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 统计卡片 -->
+        <div class="p-6">
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm">优惠券总数</p>
+                            <p class="text-2xl font-bold mt-1">1,234</p>
+                            <p class="text-blue-100 text-xs mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8.2% 较上月
+                            </p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-ticket-alt text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm">已使用</p>
+                            <p class="text-2xl font-bold mt-1">567</p>
+                            <p class="text-green-100 text-xs mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+15.3% 较上月
+                            </p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-check-circle text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm">使用率</p>
+                            <p class="text-2xl font-bold mt-1">46.0%</p>
+                            <p class="text-purple-100 text-xs mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+3.1% 较上月
+                            </p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-chart-pie text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-100 text-sm">节省金额</p>
+                            <p class="text-2xl font-bold mt-1">¥23.4K</p>
+                            <p class="text-orange-100 text-xs mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+12.7% 较上月
+                            </p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-yen-sign text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和操作栏 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">优惠券管理</h2>
+                    <div class="flex items-center space-x-3">
+                        <button id="create-coupon-btn" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>创建优惠券
+                        </button>
+                        <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-download mr-2"></i>导出数据
+                        </button>
+                        <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-upload mr-2"></i>批量导入
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 筛选标签 -->
+                <div class="flex items-center space-x-2 mb-4">
+                    <span class="text-sm text-gray-600">状态筛选：</span>
+                    <button class="filter-tag active px-3 py-1 text-xs rounded-full border border-gray-300 hover:bg-gray-50" data-status="all">
+                        全部
+                    </button>
+                    <button class="filter-tag px-3 py-1 text-xs rounded-full border border-gray-300 hover:bg-gray-50" data-status="active">
+                        生效中
+                    </button>
+                    <button class="filter-tag px-3 py-1 text-xs rounded-full border border-gray-300 hover:bg-gray-50" data-status="inactive">
+                        未生效
+                    </button>
+                    <button class="filter-tag px-3 py-1 text-xs rounded-full border border-gray-300 hover:bg-gray-50" data-status="expired">
+                        已过期
+                    </button>
+                    <button class="filter-tag px-3 py-1 text-xs rounded-full border border-gray-300 hover:bg-gray-50" data-status="used">
+                        已用完
+                    </button>
+                </div>
+
+                <!-- 搜索和筛选 -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative flex-1">
+                        <input type="text" placeholder="搜索优惠券名称、编码" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option>全部类型</option>
+                        <option>满减券</option>
+                        <option>折扣券</option>
+                        <option>免邮券</option>
+                        <option>礼品券</option>
+                    </select>
+                    <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option>全部渠道</option>
+                        <option>活动发放</option>
+                        <option>手动发放</option>
+                        <option>系统发放</option>
+                        <option>用户领取</option>
+                    </select>
+                    <input type="date" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                </div>
+            </div>
+
+            <!-- 优惠券列表 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="coupon-grid">
+                <!-- 优惠券卡片 -->
+                <div class="coupon-card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="coupon-type-cash p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold">¥20</h3>
+                                <p class="text-sm opacity-90">满100元可用</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20">
+                                    满减券
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-medium text-gray-900 mb-2">春季大促满减券</h4>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <div class="flex justify-between">
+                                <span>优惠券编码：</span>
+                                <span class="text-gray-900">SPRING20</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>有效期：</span>
+                                <span class="text-gray-900">2024-03-01 ~ 2024-03-31</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>发放数量：</span>
+                                <span class="text-gray-900">1000张</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>已使用：</span>
+                                <span class="text-green-600 font-medium">234张</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-circle text-green-400 mr-1 text-xs"></i>
+                                生效中
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="text-green-600 hover:text-green-800 text-sm">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800 text-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coupon-card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="coupon-type-discount p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold">8.5折</h3>
+                                <p class="text-sm opacity-90">全场通用</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20">
+                                    折扣券
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-medium text-gray-900 mb-2">新用户专享折扣券</h4>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <div class="flex justify-between">
+                                <span>优惠券编码：</span>
+                                <span class="text-gray-900">NEWUSER85</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>有效期：</span>
+                                <span class="text-gray-900">2024-03-01 ~ 2024-12-31</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>发放数量：</span>
+                                <span class="text-gray-900">无限制</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>已使用：</span>
+                                <span class="text-green-600 font-medium">89张</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-circle text-green-400 mr-1 text-xs"></i>
+                                生效中
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="text-green-600 hover:text-green-800 text-sm">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800 text-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coupon-card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="coupon-type-shipping p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold">免邮</h3>
+                                <p class="text-sm opacity-90">满50元可用</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20">
+                                    免邮券
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-medium text-gray-900 mb-2">包邮特权券</h4>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <div class="flex justify-between">
+                                <span>优惠券编码：</span>
+                                <span class="text-gray-900">FREESHIP</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>有效期：</span>
+                                <span class="text-gray-900">2024-03-15 ~ 2024-04-15</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>发放数量：</span>
+                                <span class="text-gray-900">500张</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>已使用：</span>
+                                <span class="text-green-600 font-medium">156张</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                <i class="fas fa-circle text-gray-400 mr-1 text-xs"></i>
+                                未生效
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="text-green-600 hover:text-green-800 text-sm">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800 text-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coupon-card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="coupon-type-gift p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold">礼品</h3>
+                                <p class="text-sm opacity-90">香草种子包</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20">
+                                    礼品券
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-medium text-gray-900 mb-2">会员专享礼品券</h4>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <div class="flex justify-between">
+                                <span>优惠券编码：</span>
+                                <span class="text-gray-900">VIPGIFT</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>有效期：</span>
+                                <span class="text-gray-900">2024-02-01 ~ 2024-02-29</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>发放数量：</span>
+                                <span class="text-gray-900">200张</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>已使用：</span>
+                                <span class="text-red-600 font-medium">200张</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <i class="fas fa-circle text-red-400 mr-1 text-xs"></i>
+                                已过期
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="text-gray-400 text-sm cursor-not-allowed">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800 text-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="flex items-center justify-between mt-8">
+                <div class="text-sm text-gray-700">
+                    显示 <span class="font-medium">1</span> 到 <span class="font-medium">12</span> 条，共 <span class="font-medium">1,234</span> 条记录
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="px-3 py-2 border border-gray-300 text-gray-500 rounded-md hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="px-3 py-2 bg-green-600 text-white rounded-md">1</button>
+                    <button class="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">2</button>
+                    <button class="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">3</button>
+                    <button class="px-3 py-2 border border-gray-300 text-gray-500 rounded-md hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建优惠券模态框 -->
+    <div id="create-coupon-modal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">创建优惠券</h3>
+                <button id="close-create-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <form class="space-y-6">
+                    <!-- 基本信息 -->
+                    <div>
+                        <h4 class="text-md font-medium text-gray-900 mb-4">基本信息</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">优惠券名称</label>
+                                <input type="text" placeholder="请输入优惠券名称" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">优惠券编码</label>
+                                <input type="text" placeholder="自动生成或手动输入" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">优惠券描述</label>
+                            <textarea rows="3" placeholder="请输入优惠券描述" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 优惠类型 -->
+                    <div>
+                        <h4 class="text-md font-medium text-gray-900 mb-4">优惠类型</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">优惠类型</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option>满减券</option>
+                                    <option>折扣券</option>
+                                    <option>免邮券</option>
+                                    <option>礼品券</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">优惠金额/折扣</label>
+                                <input type="number" placeholder="请输入优惠金额或折扣" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">使用门槛</label>
+                                <input type="number" placeholder="最低消费金额" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">最大优惠金额</label>
+                                <input type="number" placeholder="折扣券最大优惠金额" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 发放设置 -->
+                    <div>
+                        <h4 class="text-md font-medium text-gray-900 mb-4">发放设置</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">发放数量</label>
+                                <input type="number" placeholder="0表示无限制" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">每人限领</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option>1张</option>
+                                    <option>3张</option>
+                                    <option>5张</option>
+                                    <option>不限制</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">生效时间</label>
+                                <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">失效时间</label>
+                                <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 使用限制 -->
+                    <div>
+                        <h4 class="text-md font-medium text-gray-900 mb-4">使用限制</h4>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="ml-2 text-sm text-gray-700">仅限新用户使用</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="ml-2 text-sm text-gray-700">仅限VIP会员使用</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="ml-2 text-sm text-gray-700">不可与其他优惠叠加</span>
+                            </label>
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">适用商品</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option>全部商品</option>
+                                <option>指定分类</option>
+                                <option>指定商品</option>
+                                <option>排除商品</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="flex items-center justify-end space-x-4 p-6 border-t border-gray-200">
+                <button id="cancel-create" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    取消
+                </button>
+                <button class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                    创建优惠券
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            // 侧边栏切换逻辑
+        });
+
+        // 筛选标签切换
+        document.querySelectorAll('.filter-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                filterCoupons(this.getAttribute('data-status'));
+            });
+        });
+
+        // 筛选优惠券
+        function filterCoupons(status) {
+            // 根据状态筛选优惠券的逻辑
+            console.log('筛选状态:', status);
+        }
+
+        // 创建优惠券模态框
+        document.getElementById('create-coupon-btn').addEventListener('click', function() {
+            document.getElementById('create-coupon-modal').classList.remove('hidden');
+            document.getElementById('create-coupon-modal').classList.add('flex');
+        });
+
+        // 关闭模态框
+        document.getElementById('close-create-modal').addEventListener('click', function() {
+            document.getElementById('create-coupon-modal').classList.add('hidden');
+            document.getElementById('create-coupon-modal').classList.remove('flex');
+        });
+
+        document.getElementById('cancel-create').addEventListener('click', function() {
+            document.getElementById('create-coupon-modal').classList.add('hidden');
+            document.getElementById('create-coupon-modal').classList.remove('flex');
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('create-coupon-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+                this.classList.remove('flex');
+            }
+        });
+
+        // 搜索功能
+        document.querySelector('input[placeholder="搜索优惠券名称、编码"]').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            // 搜索优惠券的逻辑
+            console.log('搜索:', searchTerm);
+        });
+
+        // 导出数据
+        document.querySelector('button[class*="download"]').addEventListener('click', function() {
+            // 导出优惠券数据的逻辑
+            console.log('导出优惠券数据');
+        });
+
+        // 批量导入
+        document.querySelector('button[class*="upload"]').addEventListener('click', function() {
+            // 批量导入优惠券的逻辑
+            console.log('批量导入优惠券');
+        });
+
+        // 优惠券操作
+        document.querySelectorAll('.coupon-card').forEach(card => {
+            // 查看详情
+            card.querySelector('.fa-eye').parentElement.addEventListener('click', function() {
+                console.log('查看优惠券详情');
+            });
+
+            // 编辑优惠券
+            card.querySelector('.fa-edit').parentElement.addEventListener('click', function() {
+                console.log('编辑优惠券');
+            });
+
+            // 删除优惠券
+            card.querySelector('.fa-trash').parentElement.addEventListener('click', function() {
+                if (confirm('确定要删除这张优惠券吗？')) {
+                    console.log('删除优惠券');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

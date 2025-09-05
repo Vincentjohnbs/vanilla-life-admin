@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单详情 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar-transition { transition: all 0.3s ease; }
+        .content-transition { transition: all 0.3s ease; }
+        .timeline-item { position: relative; }
+        .timeline-item::before { content: ''; position: absolute; left: 15px; top: 40px; bottom: -20px; width: 2px; background: #e5e7eb; }
+        .timeline-item:last-child::before { display: none; }
+        .status-badge { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg sidebar-transition z-30">
+        <!-- Logo区域 -->
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        <span>首页仪表板</span>
+                    </a>
+                    <div class="space-y-1">
+                        <div class="flex items-center px-4 py-3 text-green-600 bg-green-50 rounded-lg">
+                            <i class="fas fa-shopping-cart w-5 h-5 mr-3"></i>
+                            <span class="font-medium">订单管理</span>
+                        </div>
+                        <div class="ml-8 space-y-1">
+                            <a href="31-订单详情页.html" class="block px-4 py-2 text-sm text-green-600 bg-green-100 rounded font-medium">订单详情</a>
+                            <a href="32-订单列表.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded">订单列表</a>
+                            <a href="35-发货管理.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded">发货管理</a>
+                            <a href="36-售后服务.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded">售后服务</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 content-transition">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">订单详情</h2>
+                        <p class="text-sm text-gray-500">订单号: #HV202401150001</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="printOrder()" class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
+                        <i class="fas fa-print mr-2"></i>打印订单
+                    </button>
+                    <button onclick="exportOrder()" class="px-4 py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出订单
+                    </button>
+                    <button onclick="processOrder()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-cog mr-2"></i>处理订单
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 订单状态卡片 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">订单状态</h3>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full status-badge">
+                        <i class="fas fa-clock mr-1"></i>待发货
+                    </span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-check text-green-600 text-lg"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900">订单确认</p>
+                        <p class="text-xs text-gray-500">2024-01-15 10:30</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-credit-card text-green-600 text-lg"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900">支付完成</p>
+                        <p class="text-xs text-gray-500">2024-01-15 10:32</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-box text-blue-600 text-lg"></i>
+                        </div>
+                        <p class="text-sm font-medium text-blue-900">准备发货</p>
+                        <p class="text-xs text-blue-600">进行中</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-truck text-gray-400 text-lg"></i>
+                        </div>
+                        <p class="text-sm font-medium text-gray-400">配送中</p>
+                        <p class="text-xs text-gray-400">待处理</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 订单信息 -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- 商品信息 -->
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">商品信息</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
+                                    <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=80&h=80&fit=crop&crop=center" alt="薄荷种子" class="w-16 h-16 rounded-lg object-cover">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-900">有机薄荷种子套装</h4>
+                                        <p class="text-sm text-gray-500">规格: 标准装 | 品牌: 香草生活</p>
+                                        <div class="flex items-center space-x-4 mt-2">
+                                            <span class="text-sm text-gray-600">单价: ¥29.90</span>
+                                            <span class="text-sm text-gray-600">数量: 2</span>
+                                            <span class="text-sm font-medium text-gray-900">小计: ¥59.80</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
+                                    <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=80&h=80&fit=crop&crop=center" alt="迷迭香" class="w-16 h-16 rounded-lg object-cover">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-900">迷迭香幼苗</h4>
+                                        <p class="text-sm text-gray-500">规格: 10cm盆栽 | 品牌: 香草生活</p>
+                                        <div class="flex items-center space-x-4 mt-2">
+                                            <span class="text-sm text-gray-600">单价: ¥45.00</span>
+                                            <span class="text-sm text-gray-600">数量: 1</span>
+                                            <span class="text-sm font-medium text-gray-900">小计: ¥45.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
+                                    <img src="https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=80&h=80&fit=crop&crop=center" alt="种植工具" class="w-16 h-16 rounded-lg object-cover">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-900">香草种植工具套装</h4>
+                                        <p class="text-sm text-gray-500">规格: 基础版 | 品牌: 香草生活</p>
+                                        <div class="flex items-center space-x-4 mt-2">
+                                            <span class="text-sm text-gray-600">单价: ¥89.00</span>
+                                            <span class="text-sm text-gray-600">数量: 1</span>
+                                            <span class="text-sm font-medium text-gray-900">小计: ¥89.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 费用明细 -->
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">费用明细</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-600">商品总额</span>
+                                    <span class="text-gray-900">¥193.80</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-600">运费</span>
+                                    <span class="text-gray-900">¥12.00</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-600">优惠券折扣</span>
+                                    <span class="text-red-600">-¥20.00</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-600">会员折扣</span>
+                                    <span class="text-red-600">-¥5.80</span>
+                                </div>
+                                <div class="border-t border-gray-200 pt-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-lg font-semibold text-gray-900">实付金额</span>
+                                        <span class="text-lg font-bold text-green-600">¥180.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 订单操作记录 -->
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">操作记录</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="timeline-item flex items-start space-x-4">
+                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-check text-green-600 text-sm"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <p class="font-medium text-gray-900">订单支付成功</p>
+                                            <span class="text-sm text-gray-500">2024-01-15 10:32</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mt-1">客户通过微信支付完成付款，金额¥180.00</p>
+                                        <p class="text-xs text-gray-500 mt-1">操作人: 系统自动</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-user text-blue-600 text-sm"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <p class="font-medium text-gray-900">订单审核通过</p>
+                                            <span class="text-sm text-gray-500">2024-01-15 11:15</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mt-1">订单信息核实无误，库存充足，准备安排发货</p>
+                                        <p class="text-xs text-gray-500 mt-1">操作人: 张小明</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item flex items-start space-x-4">
+                                    <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-box text-yellow-600 text-sm"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <p class="font-medium text-gray-900">商品备货中</p>
+                                            <span class="text-sm text-gray-500">2024-01-15 14:20</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mt-1">仓库正在准备商品，预计今日完成打包</p>
+                                        <p class="text-xs text-gray-500 mt-1">操作人: 李仓管</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧信息面板 -->
+                <div class="space-y-6">
+                    <!-- 客户信息 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">客户信息</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face" alt="客户头像" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <p class="font-medium text-gray-900">王小花</p>
+                                    <p class="text-sm text-gray-500">VIP会员</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-phone text-gray-400 w-4"></i>
+                                    <span class="text-sm text-gray-600">138****5678</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-envelope text-gray-400 w-4"></i>
+                                    <span class="text-sm text-gray-600">wang***@email.com</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-calendar text-gray-400 w-4"></i>
+                                    <span class="text-sm text-gray-600">注册时间: 2023-06-15</span>
+                                </div>
+                            </div>
+                            <div class="pt-3 border-t border-gray-200">
+                                <div class="grid grid-cols-2 gap-4 text-center">
+                                    <div>
+                                        <p class="text-lg font-bold text-gray-900">23</p>
+                                        <p class="text-xs text-gray-500">历史订单</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-lg font-bold text-gray-900">¥2,580</p>
+                                        <p class="text-xs text-gray-500">累计消费</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 收货信息 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">收货信息</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="font-medium text-gray-900">王小花</p>
+                                <p class="text-sm text-gray-600">138****5678</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">上海市浦东新区</p>
+                                <p class="text-sm text-gray-600">张江高科技园区</p>
+                                <p class="text-sm text-gray-600">科苑路399号 张江创新园A座</p>
+                                <p class="text-sm text-gray-600">1205室</p>
+                            </div>
+                            <div class="pt-3 border-t border-gray-200">
+                                <p class="text-xs text-gray-500">邮编: 201203</p>
+                                <p class="text-xs text-gray-500">配送要求: 工作日送达，请提前电话联系</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 支付信息 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">支付信息</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">支付方式</span>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fab fa-weixin text-green-500"></i>
+                                    <span class="text-sm text-gray-900">微信支付</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">交易号</span>
+                                <span class="text-sm text-gray-900">wx2024011510320001</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">支付时间</span>
+                                <span class="text-sm text-gray-900">2024-01-15 10:32:15</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">支付状态</span>
+                                <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">已支付</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 快速操作 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">快速操作</h3>
+                        <div class="space-y-3">
+                            <button onclick="contactCustomer()" class="w-full px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-left">
+                                <i class="fas fa-phone mr-3"></i>联系客户
+                            </button>
+                            <button onclick="arrangeShipping()" class="w-full px-4 py-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-left">
+                                <i class="fas fa-shipping-fast mr-3"></i>安排发货
+                            </button>
+                            <button onclick="modifyOrder()" class="w-full px-4 py-3 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition-colors text-left">
+                                <i class="fas fa-edit mr-3"></i>修改订单
+                            </button>
+                            <button onclick="cancelOrder()" class="w-full px-4 py-3 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-left">
+                                <i class="fas fa-times mr-3"></i>取消订单
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 处理订单模态框 -->
+    <div id="processModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">处理订单</h3>
+                <button onclick="closeProcessModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">操作类型</label>
+                    <select id="actionType" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="ship">安排发货</option>
+                        <option value="modify">修改订单</option>
+                        <option value="cancel">取消订单</option>
+                        <option value="refund">申请退款</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">备注说明</label>
+                    <textarea id="actionNote" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" rows="3" placeholder="请输入操作说明..."></textarea>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
+                <button onclick="closeProcessModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
+                    取消
+                </button>
+                <button onclick="confirmProcess()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    确认处理
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            mainContent.classList.toggle('ml-0');
+            mainContent.classList.toggle('ml-64');
+        });
+
+        // 打印订单
+        function printOrder() {
+            window.print();
+        }
+
+        // 导出订单
+        function exportOrder() {
+            console.log('导出订单数据');
+        }
+
+        // 处理订单
+        function processOrder() {
+            document.getElementById('processModal').classList.remove('hidden');
+            document.getElementById('processModal').classList.add('flex');
+        }
+
+        // 关闭处理模态框
+        function closeProcessModal() {
+            document.getElementById('processModal').classList.add('hidden');
+            document.getElementById('processModal').classList.remove('flex');
+        }
+
+        // 确认处理
+        function confirmProcess() {
+            const actionType = document.getElementById('actionType').value;
+            const actionNote = document.getElementById('actionNote').value;
+            
+            console.log('处理订单:', { actionType, actionNote });
+            closeProcessModal();
+        }
+
+        // 联系客户
+        function contactCustomer() {
+            console.log('联系客户');
+        }
+
+        // 安排发货
+        function arrangeShipping() {
+            console.log('安排发货');
+        }
+
+        // 修改订单
+        function modifyOrder() {
+            console.log('修改订单');
+        }
+
+        // 取消订单
+        function cancelOrder() {
+            console.log('取消订单');
+        }
+    </script>
+</body>
+</html>

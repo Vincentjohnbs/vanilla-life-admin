@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品供应管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .metric-card.blue {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .metric-card.green {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .metric-card.orange {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-active { background-color: #10b981; }
+        .status-inactive { background-color: #ef4444; }
+        .status-pending { background-color: #f59e0b; }
+        .status-out-of-stock { background-color: #6b7280; }
+        .filter-tag {
+            transition: all 0.2s ease;
+        }
+        .filter-tag.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .product-image {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">供应商管理</h3>
+                <ul class="space-y-1">
+                    <li><a href="71-供应商详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-building mr-3"></i>供应商详情</a></li>
+                    <li><a href="72-商品供应管理.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-boxes mr-3"></i>商品供应管理</a></li>
+                    <li><a href="73-结算管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-calculator mr-3"></i>结算管理</a></li>
+                    <li><a href="74-合作协议.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-handshake mr-3"></i>合作协议</a></li>
+                    <li><a href="75-资质管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-certificate mr-3"></i>资质管理</a></li>
+                    <li><a href="76-评级管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-star mr-3"></i>评级管理</a></li>
+                    <li><a href="77-采购订单.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-shopping-cart mr-3"></i>采购订单</a></li>
+                    <li><a href="78-对账管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-balance-scale mr-3"></i>对账管理</a></li>
+                    <li><a href="79-付款记录.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-credit-card mr-3"></i>付款记录</a></li>
+                    <li><a href="80-供应商统计.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-chart-bar mr-3"></i>供应商统计</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-800">商品供应管理</h2>
+                        <p class="text-sm text-gray-600">管理供应商的商品信息和供应状态</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="addProduct" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>添加商品
+                    </button>
+                    <button id="batchImport" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-upload mr-2"></i>批量导入
+                    </button>
+                    <button id="exportData" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出数据
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="metric-card rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">供应商品总数</p>
+                            <p class="text-2xl font-bold mt-1">1,256</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+15个
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-boxes text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card blue rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">正常供应</p>
+                            <p class="text-2xl font-bold mt-1">1,089</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8个
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card green rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">缺货商品</p>
+                            <p class="text-2xl font-bold mt-1">67</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-arrow-down mr-1"></i>-12个
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card orange rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">待审核商品</p>
+                            <p class="text-2xl font-bold mt-1">100</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+25个
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和搜索 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="搜索商品名称、SKU..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        
+                        <select id="supplierFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">全部供应商</option>
+                            <option value="绿野香草农场">绿野香草农场</option>
+                            <option value="天然香草园">天然香草园</option>
+                            <option value="有机香草基地">有机香草基地</option>
+                        </select>
+                        
+                        <select id="categoryFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">全部分类</option>
+                            <option value="新鲜香草">新鲜香草</option>
+                            <option value="干燥香草">干燥香草</option>
+                            <option value="香草精油">香草精油</option>
+                            <option value="香草种子">香草种子</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">状态筛选：</span>
+                        <button class="filter-tag active px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="all">全部</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="active">正常供应</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="inactive">暂停供应</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="out-of-stock">缺货</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="pending">待审核</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商品列表 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">商品列表</h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <label for="selectAll" class="text-sm text-gray-600">全选</label>
+                            </div>
+                            <div class="relative">
+                                <button id="batchActions" class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                                    <i class="fas fa-ellipsis-v mr-2"></i>批量操作
+                                </button>
+                                <div id="batchActionsMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-10">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-check mr-2"></i>批量上架</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-times mr-2"></i>批量下架</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><i class="fas fa-edit mr-2"></i>批量编辑</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100"><i class="fas fa-trash mr-2"></i>批量删除</a>
+                                </div>
+                            </div>
+                            <span class="text-sm text-gray-600">共 <span id="totalCount">1,256</span> 个商品</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商品信息</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">供应商</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">分类</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">供应价格</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">库存</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新时间</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTable" class="bg-white divide-y divide-gray-200">
+                            <!-- 商品数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示第 <span class="font-medium">1</span> 到 <span class="font-medium">20</span> 条，共 <span class="font-medium">1,256</span> 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50" disabled>
+                                上一页
+                            </button>
+                            <button class="px-3 py-2 text-sm text-white bg-blue-500 border border-blue-500 rounded-lg">1</button>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                            <span class="px-3 py-2 text-sm text-gray-500">...</span>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">63</button>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 添加商品模态框 -->
+    <div id="addProductModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">添加供应商品</h3>
+            </div>
+            <div class="p-6">
+                <form class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">商品名称 *</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入商品名称">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">商品SKU *</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入商品SKU">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">供应商 *</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">请选择供应商</option>
+                                <option value="绿野香草农场">绿野香草农场</option>
+                                <option value="天然香草园">天然香草园</option>
+                                <option value="有机香草基地">有机香草基地</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">商品分类 *</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">请选择分类</option>
+                                <option value="新鲜香草">新鲜香草</option>
+                                <option value="干燥香草">干燥香草</option>
+                                <option value="香草精油">香草精油</option>
+                                <option value="香草种子">香草种子</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">供应价格 *</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">¥</span>
+                                <input type="number" step="0.01" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">建议售价</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">¥</span>
+                                <input type="number" step="0.01" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">库存数量 *</label>
+                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="0">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">计量单位</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="kg">千克(kg)</option>
+                                <option value="g">克(g)</option>
+                                <option value="ml">毫升(ml)</option>
+                                <option value="l">升(l)</option>
+                                <option value="个">个</option>
+                                <option value="包">包</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">最小起订量</label>
+                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="1">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">商品描述</label>
+                        <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入商品描述"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">商品图片</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-600">点击上传或拖拽图片到此处</p>
+                            <p class="text-sm text-gray-500 mt-1">支持 JPG、PNG 格式，大小不超过 5MB</p>
+                            <input type="file" class="hidden" accept="image/*" multiple>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">供应状态</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="active">正常供应</option>
+                                <option value="inactive">暂停供应</option>
+                                <option value="pending">待审核</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">保质期(天)</label>
+                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="365">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-4">
+                <button id="cancelAdd" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    取消
+                </button>
+                <button id="saveAdd" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    保存商品
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商品详情模态框 -->
+    <div id="productDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">商品详情</h3>
+            </div>
+            <div class="p-6">
+                <div id="productDetailContent">
+                    <!-- 商品详情内容将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end">
+                <button id="closeDetail" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟商品数据
+        const productsData = [
+            {
+                id: 1,
+                name: '新鲜薄荷叶',
+                sku: 'HERB001',
+                supplier: '绿野香草农场',
+                category: '新鲜香草',
+                price: 25.00,
+                suggestedPrice: 35.00,
+                stock: 500,
+                unit: 'kg',
+                status: 'active',
+                updateTime: '2024-01-15 10:30',
+                description: '新鲜采摘的薄荷叶，香味浓郁，适合制作茶饮和调味。',
+                minOrder: 10,
+                shelfLife: 7
+            },
+            {
+                id: 2,
+                name: '干燥迷迭香',
+                sku: 'HERB002',
+                supplier: '天然香草园',
+                category: '干燥香草',
+                price: 45.00,
+                suggestedPrice: 65.00,
+                stock: 200,
+                unit: 'kg',
+                status: 'active',
+                updateTime: '2024-01-14 16:20',
+                description: '精选迷迭香叶片，经过自然晾晒，保持原有香味。',
+                minOrder: 5,
+                shelfLife: 365
+            },
+            {
+                id: 3,
+                name: '薰衣草精油',
+                sku: 'HERB003',
+                supplier: '有机香草基地',
+                category: '香草精油',
+                price: 120.00,
+                suggestedPrice: 180.00,
+                stock: 0,
+                unit: 'ml',
+                status: 'out-of-stock',
+                updateTime: '2024-01-13 09:15',
+                description: '纯天然薰衣草精油，具有舒缓放松的功效。',
+                minOrder: 1,
+                shelfLife: 730
+            },
+            {
+                id: 4,
+                name: '新鲜罗勒叶',
+                sku: 'HERB004',
+                supplier: '绿野香草农场',
+                category: '新鲜香草',
+                price: 30.00,
+                suggestedPrice: 45.00,
+                stock: 300,
+                unit: 'kg',
+                status: 'pending',
+                updateTime: '2024-01-12 14:45',
+                description: '新鲜罗勒叶，适合制作意式料理和调味。',
+                minOrder: 5,
+                shelfLife: 5
+            },
+            {
+                id: 5,
+                name: '干燥百里香',
+                sku: 'HERB005',
+                supplier: '天然香草园',
+                category: '干燥香草',
+                price: 35.00,
+                suggestedPrice: 50.00,
+                stock: 150,
+                unit: 'kg',
+                status: 'inactive',
+                updateTime: '2024-01-11 11:30',
+                description: '优质百里香，经过精心处理，香味持久。',
+                minOrder: 3,
+                shelfLife: 365
+            }
+        ];
+
+        let filteredData = [...productsData];
+        let currentPage = 1;
+        const itemsPerPage = 20;
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 状态筛选标签
+        function initStatusFilters() {
+            const filterTags = document.querySelectorAll('.filter-tag');
+            filterTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    // 移除所有active类
+                    filterTags.forEach(t => t.classList.remove('active'));
+                    // 添加active类到当前标签
+                    this.classList.add('active');
+                    
+                    const status = this.getAttribute('data-status');
+                    filterProducts(status);
+                });
+            });
+        }
+
+        // 筛选商品
+        function filterProducts(status = 'all') {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const supplierFilter = document.getElementById('supplierFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+
+            filteredData = productsData.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchTerm) || 
+                                    product.sku.toLowerCase().includes(searchTerm);
+                const matchesSupplier = !supplierFilter || product.supplier === supplierFilter;
+                const matchesCategory = !categoryFilter || product.category === categoryFilter;
+                const matchesStatus = status === 'all' || product.status === status;
+
+                return matchesSearch && matchesSupplier && matchesCategory && matchesStatus;
+            });
+
+            renderProductsTable();
+            updateTotalCount();
+        }
+
+        // 渲染商品表格
+        function renderProductsTable() {
+            const tbody = document.getElementById('productsTable');
+            tbody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            pageData.forEach(product => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                let statusBadge, statusClass;
+                switch(product.status) {
+                    case 'active':
+                        statusBadge = '正常供应';
+                        statusClass = 'bg-green-100 text-green-800';
+                        break;
+                    case 'inactive':
+                        statusBadge = '暂停供应';
+                        statusClass = 'bg-red-100 text-red-800';
+                        break;
+                    case 'pending':
+                        statusBadge = '待审核';
+                        statusClass = 'bg-yellow-100 text-yellow-800';
+                        break;
+                    case 'out-of-stock':
+                        statusBadge = '缺货';
+                        statusClass = 'bg-gray-100 text-gray-800';
+                        break;
+                }
+
+                const stockDisplay = product.stock > 0 ? `${product.stock}${product.unit}` : 
+                                   `<span class="text-red-600 font-medium">缺货</span>`;
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 product-checkbox" data-id="${product.id}">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="product-image rounded-lg flex items-center justify-center mr-3 text-white text-sm font-bold">
+                                ${product.name.charAt(0)}
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">${product.name}</div>
+                                <div class="text-sm text-gray-500">SKU: ${product.sku}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${product.supplier}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${product.category}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">¥${product.price.toFixed(2)}</div>
+                        <div class="text-xs text-gray-500">建议: ¥${product.suggestedPrice.toFixed(2)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${stockDisplay}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">
+                            <span class="status-dot status-${product.status}"></span>${statusBadge}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${product.updateTime}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button class="text-blue-600 hover:text-blue-900 mr-3" onclick="viewProduct(${product.id})">查看</button>
+                        <button class="text-green-600 hover:text-green-900 mr-3" onclick="editProduct(${product.id})">编辑</button>
+                        <button class="text-red-600 hover:text-red-900" onclick="deleteProduct(${product.id})">删除</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // 更新总数显示
+        function updateTotalCount() {
+            document.getElementById('totalCount').textContent = filteredData.length;
+        }
+
+        // 查看商品详情
+        function viewProduct(id) {
+            const product = productsData.find(p => p.id === id);
+            if (!product) return;
+
+            const content = document.getElementById('productDetailContent');
+            content.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">基本信息</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">商品名称：</span>
+                                <span class="font-medium text-gray-900">${product.name}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">商品SKU：</span>
+                                <span class="font-medium text-gray-900">${product.sku}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">供应商：</span>
+                                <span class="font-medium text-gray-900">${product.supplier}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">商品分类：</span>
+                                <span class="font-medium text-gray-900">${product.category}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">计量单位：</span>
+                                <span class="font-medium text-gray-900">${product.unit}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">最小起订量：</span>
+                                <span class="font-medium text-gray-900">${product.minOrder}${product.unit}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">价格库存</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">供应价格：</span>
+                                <span class="font-medium text-gray-900">¥${product.price.toFixed(2)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">建议售价：</span>
+                                <span class="font-medium text-gray-900">¥${product.suggestedPrice.toFixed(2)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">当前库存：</span>
+                                <span class="font-medium text-gray-900">${product.stock}${product.unit}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">保质期：</span>
+                                <span class="font-medium text-gray-900">${product.shelfLife}天</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">更新时间：</span>
+                                <span class="font-medium text-gray-900">${product.updateTime}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">商品描述</h4>
+                    <p class="text-gray-700 leading-relaxed">${product.description}</p>
+                </div>
+            `;
+
+            document.getElementById('productDetailModal').classList.remove('hidden');
+            document.getElementById('productDetailModal').classList.add('flex');
+        }
+
+        // 编辑商品
+        function editProduct(id) {
+            alert(`编辑商品 ID: ${id}`);
+        }
+
+        // 删除商品
+        function deleteProduct(id) {
+            if (confirm('确定要删除这个商品吗？')) {
+                alert(`删除商品 ID: ${id}`);
+            }
+        }
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function() {
+            filterProducts(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        // 筛选器变化
+        document.getElementById('supplierFilter').addEventListener('change', function() {
+            filterProducts(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            filterProducts(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        // 批量操作菜单
+        document.getElementById('batchActions').addEventListener('click', function() {
+            const menu = document.getElementById('batchActionsMenu');
+            menu.classList.toggle('hidden');
+        });
+
+        // 点击其他地方关闭菜单
+        document.addEventListener('click', function(event) {
+            const batchActions = document.getElementById('batchActions');
+            const menu = document.getElementById('batchActionsMenu');
+            if (!batchActions.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // 全选功能
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.product-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // 添加商品模态框
+        document.getElementById('addProduct').addEventListener('click', function() {
+            document.getElementById('addProductModal').classList.remove('hidden');
+            document.getElementById('addProductModal').classList.add('flex');
+        });
+
+        document.getElementById('cancelAdd').addEventListener('click', function() {
+            document.getElementById('addProductModal').classList.add('hidden');
+            document.getElementById('addProductModal').classList.remove('flex');
+        });
+
+        document.getElementById('saveAdd').addEventListener('click', function() {
+            alert('商品已保存');
+            document.getElementById('addProductModal').classList.add('hidden');
+            document.getElementById('addProductModal').classList.remove('flex');
+        });
+
+        // 关闭商品详情模态框
+        document.getElementById('closeDetail').addEventListener('click', function() {
+            document.getElementById('productDetailModal').classList.add('hidden');
+            document.getElementById('productDetailModal').classList.remove('flex');
+        });
+
+        // 批量导入
+        document.getElementById('batchImport').addEventListener('click', function() {
+            alert('批量导入功能');
+        });
+
+        // 导出数据
+        document.getElementById('exportData').addEventListener('click', function() {
+            alert('导出数据功能');
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initStatusFilters();
+            renderProductsTable();
+            updateTotalCount();
+            console.log('商品供应管理页面初始化完成');
+        });
+    </script>
+</body>
+</html>

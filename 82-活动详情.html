@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动详情 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .sidebar-item.active { background-color: #10b981; color: white; }
+        .status-badge { transition: all 0.3s ease; }
+        .activity-card { transition: all 0.3s ease; }
+        .activity-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .tab-button { border-bottom: 2px solid transparent; }
+        .tab-button.active { border-bottom-color: #10b981; color: #10b981; }
+        .progress-ring { transform: rotate(-90deg); }
+        .data-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .data-card.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .data-card.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .data-card.purple { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .data-card.orange { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+        .participant-avatar { width: 32px; height: 32px; }
+        .timeline-item { position: relative; }
+        .timeline-item::before { content: ''; position: absolute; left: 15px; top: 40px; bottom: -10px; width: 2px; background: #e5e7eb; }
+        .timeline-item:last-child::before { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50">
+        <div class="flex items-center justify-center h-16 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>仪表盘
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-box mr-3"></i>商品管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>订单管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>用户管理
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-bullhorn mr-3"></i>营销活动
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-truck mr-3"></i>供应商管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>香草图鉴
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>香草阳台
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-images mr-3"></i>Banner管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-cog mr-3"></i>系统设置
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 flex-1">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <a href="#" class="text-gray-500 hover:text-gray-700">营销活动</a>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                        <span class="text-gray-900 font-medium">春季香草节大促销</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 活动头部信息 -->
+        <div class="bg-white border-b border-gray-200">
+            <div class="px-6 py-6">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-4">
+                        <img src="https://via.placeholder.com/120x80" alt="活动封面" class="w-30 h-20 rounded-lg object-cover">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900 mb-2">春季香草节大促销</h1>
+                            <p class="text-gray-600 mb-3">全场香草商品限时特惠，满100减20，满200减50</p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <div class="flex items-center">
+                                    <i class="fas fa-calendar mr-1"></i>
+                                    <span>2024-03-01 10:00 - 2024-03-31 23:59</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-users mr-1"></i>
+                                    <span>已参与 1,234 人</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-eye mr-1"></i>
+                                    <span>浏览量 5,678</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-circle text-green-400 mr-1 text-xs"></i>
+                                    进行中
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    折扣促销
+                                </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    限时特惠
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-edit mr-2"></i>编辑活动
+                        </button>
+                        <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-pause mr-2"></i>暂停活动
+                        </button>
+                        <button class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                            <i class="fas fa-stop mr-2"></i>结束活动
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据概览卡片 -->
+        <div class="p-6">
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <div class="data-card green text-white p-6 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm">参与人数</p>
+                            <p class="text-2xl font-bold mt-1">1,234</p>
+                            <p class="text-green-100 text-xs mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+15.3% 较昨日
+                            </p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-users text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="data-card blue text-white p-6 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm">转化率</p>
+                            <p class="text-2xl font-bold mt-1">23.5%</p>
+                            <p class="text-blue-100 text-xs mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+2.1% 较昨日
+                            </p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-chart-line text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="data-card purple text-white p-6 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm">销售额</p>
+                            <p class="text-2xl font-bold mt-1">¥45.6K</p>
+                            <p class="text-purple-100 text-xs mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+28.7% 较昨日
+                            </p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-yen-sign text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="data-card orange text-white p-6 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-100 text-sm">优惠券使用</p>
+                            <p class="text-2xl font-bold mt-1">567</p>
+                            <p class="text-orange-100 text-xs mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+12.4% 较昨日
+                            </p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                            <i class="fas fa-ticket-alt text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6">
+                        <button class="tab-button active py-4 px-1 text-sm font-medium text-gray-900" data-tab="overview">
+                            活动概览
+                        </button>
+                        <button class="tab-button py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="participants">
+                            参与用户
+                        </button>
+                        <button class="tab-button py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="orders">
+                            订单数据
+                        </button>
+                        <button class="tab-button py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="analysis">
+                            效果分析
+                        </button>
+                        <button class="tab-button py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="settings">
+                            活动设置
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- 活动概览 -->
+                <div id="overview-tab" class="tab-content p-6">
+                    <div class="grid grid-cols-2 gap-6">
+                        <!-- 活动进度 -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">活动进度</h3>
+                            <div class="flex items-center justify-center mb-4">
+                                <div class="relative w-32 h-32">
+                                    <svg class="progress-ring w-32 h-32">
+                                        <circle cx="64" cy="64" r="56" stroke="#e5e7eb" stroke-width="8" fill="none"></circle>
+                                        <circle cx="64" cy="64" r="56" stroke="#10b981" stroke-width="8" fill="none" stroke-dasharray="351.86" stroke-dashoffset="105.56" stroke-linecap="round"></circle>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-gray-900">70%</div>
+                                            <div class="text-sm text-gray-500">已完成</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">活动开始时间</span>
+                                    <span class="text-gray-900">2024-03-01 10:00</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">活动结束时间</span>
+                                    <span class="text-gray-900">2024-03-31 23:59</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">剩余时间</span>
+                                    <span class="text-red-600 font-medium">9天 12小时</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 实时数据 -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">实时数据</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                                        <span class="text-sm text-gray-700">当前在线用户</span>
+                                    </div>
+                                    <span class="text-lg font-semibold text-gray-900">156</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                                        <span class="text-sm text-gray-700">今日新增参与</span>
+                                    </div>
+                                    <span class="text-lg font-semibold text-gray-900">89</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
+                                        <span class="text-sm text-gray-700">今日订单数</span>
+                                    </div>
+                                    <span class="text-lg font-semibold text-gray-900">234</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
+                                        <span class="text-sm text-gray-700">今日销售额</span>
+                                    </div>
+                                    <span class="text-lg font-semibold text-gray-900">¥12.3K</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 数据趋势图表 -->
+                    <div class="mt-6 bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">数据趋势</h3>
+                        <div class="h-64">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 参与用户 -->
+                <div id="participants-tab" class="tab-content p-6" style="display: none;">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-medium text-gray-900">参与用户列表</h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <input type="text" placeholder="搜索用户" class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                            <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option>全部用户</option>
+                                <option>新用户</option>
+                                <option>老用户</option>
+                                <option>VIP用户</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户信息</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">参与时间</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户等级</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">获得奖励</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">订单金额</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img class="participant-avatar rounded-full" src="https://via.placeholder.com/32" alt="用户头像">
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900">张小花</div>
+                                                <div class="text-sm text-gray-500">ID: 10001</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-03-15 14:30</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            VIP会员
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">20元优惠券</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥158.00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-green-600 hover:text-green-900 mr-3">查看</button>
+                                        <button class="text-blue-600 hover:text-blue-900">消息</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img class="participant-avatar rounded-full" src="https://via.placeholder.com/32" alt="用户头像">
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900">李香草</div>
+                                                <div class="text-sm text-gray-500">ID: 10002</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-03-15 13:45</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            普通会员
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">100积分</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥89.00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-green-600 hover:text-green-900 mr-3">查看</button>
+                                        <button class="text-blue-600 hover:text-blue-900">消息</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img class="participant-avatar rounded-full" src="https://via.placeholder.com/32" alt="用户头像">
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900">王薄荷</div>
+                                                <div class="text-sm text-gray-500">ID: 10003</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-03-15 12:20</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            新用户
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">新人礼包</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥45.00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-green-600 hover:text-green-900 mr-3">查看</button>
+                                        <button class="text-blue-600 hover:text-blue-900">消息</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="flex items-center justify-between mt-6">
+                        <div class="text-sm text-gray-700">
+                            显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">1,234</span> 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-2 border border-gray-300 text-gray-500 rounded-md hover:bg-gray-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="px-3 py-2 bg-green-600 text-white rounded-md">1</button>
+                            <button class="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">2</button>
+                            <button class="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">3</button>
+                            <button class="px-3 py-2 border border-gray-300 text-gray-500 rounded-md hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 订单数据 -->
+                <div id="orders-tab" class="tab-content p-6" style="display: none;">
+                    <div class="grid grid-cols-3 gap-6 mb-6">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-blue-100 text-sm">订单总数</p>
+                                    <p class="text-2xl font-bold mt-1">1,567</p>
+                                </div>
+                                <i class="fas fa-shopping-cart text-2xl opacity-80"></i>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-green-100 text-sm">成功订单</p>
+                                    <p class="text-2xl font-bold mt-1">1,234</p>
+                                </div>
+                                <i class="fas fa-check-circle text-2xl opacity-80"></i>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-purple-100 text-sm">平均订单金额</p>
+                                    <p class="text-2xl font-bold mt-1">¥89</p>
+                                </div>
+                                <i class="fas fa-yen-sign text-2xl opacity-80"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 订单趋势图 -->
+                    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">订单趋势</h3>
+                        <div class="h-64">
+                            <canvas id="orderChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 热销商品 -->
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">热销商品排行</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-8 h-8 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                                    <img src="https://via.placeholder.com/48" alt="商品" class="w-12 h-12 rounded-lg object-cover">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">薄荷种植套装</h4>
+                                        <p class="text-sm text-gray-500">销量: 234件</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-900">¥89.00</p>
+                                    <p class="text-sm text-green-600">+15.3%</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-8 h-8 bg-gray-400 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                                    <img src="https://via.placeholder.com/48" alt="商品" class="w-12 h-12 rounded-lg object-cover">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">迷迭香精油</h4>
+                                        <p class="text-sm text-gray-500">销量: 189件</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-900">¥128.00</p>
+                                    <p class="text-sm text-green-600">+8.7%</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                                    <img src="https://via.placeholder.com/48" alt="商品" class="w-12 h-12 rounded-lg object-cover">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">香草茶叶礼盒</h4>
+                                        <p class="text-sm text-gray-500">销量: 156件</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-900">¥168.00</p>
+                                    <p class="text-sm text-green-600">+12.1%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 效果分析 -->
+                <div id="analysis-tab" class="tab-content p-6" style="display: none;">
+                    <div class="grid grid-cols-2 gap-6">
+                        <!-- 转化漏斗 -->
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">转化漏斗</h3>
+                            <div class="space-y-4">
+                                <div class="relative">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm text-gray-600">活动曝光</span>
+                                        <span class="text-sm font-medium text-gray-900">10,000</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3">
+                                        <div class="bg-blue-500 h-3 rounded-full" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm text-gray-600">点击进入</span>
+                                        <span class="text-sm font-medium text-gray-900">5,678 (56.8%)</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3">
+                                        <div class="bg-green-500 h-3 rounded-full" style="width: 56.8%"></div>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm text-gray-600">参与活动</span>
+                                        <span class="text-sm font-medium text-gray-900">1,234 (21.7%)</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3">
+                                        <div class="bg-yellow-500 h-3 rounded-full" style="width: 21.7%"></div>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm text-gray-600">下单购买</span>
+                                        <span class="text-sm font-medium text-gray-900">567 (46.0%)</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3">
+                                        <div class="bg-red-500 h-3 rounded-full" style="width: 46%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 用户行为分析 -->
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">用户行为分析</h3>
+                            <div class="h-64">
+                                <canvas id="behaviorChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ROI分析 -->
+                    <div class="mt-6 bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">ROI分析</h3>
+                        <div class="grid grid-cols-4 gap-6">
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <div class="text-2xl font-bold text-gray-900 mb-1">¥45,600</div>
+                                <div class="text-sm text-gray-600">活动收入</div>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <div class="text-2xl font-bold text-gray-900 mb-1">¥8,900</div>
+                                <div class="text-sm text-gray-600">活动成本</div>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <div class="text-2xl font-bold text-green-600 mb-1">¥36,700</div>
+                                <div class="text-sm text-gray-600">净收益</div>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                <div class="text-2xl font-bold text-blue-600 mb-1">412%</div>
+                                <div class="text-sm text-gray-600">ROI</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活动设置 -->
+                <div id="settings-tab" class="tab-content p-6" style="display: none;">
+                    <div class="space-y-6">
+                        <!-- 基本信息 -->
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">基本信息</h3>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">活动名称</label>
+                                    <input type="text" value="春季香草节大促销" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">活动状态</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option>进行中</option>
+                                        <option>已暂停</option>
+                                        <option>已结束</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">开始时间</label>
+                                    <input type="datetime-local" value="2024-03-01T10:00" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">结束时间</label>
+                                    <input type="datetime-local" value="2024-03-31T23:59" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 活动规则 -->
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">活动规则</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">参与条件</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" checked class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                            <span class="ml-2 text-sm text-gray-700">需要登录</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                            <span class="ml-2 text-sm text-gray-700">需要关注公众号</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" checked class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                            <span class="ml-2 text-sm text-gray-700">需要分享活动</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">最大参与人数</label>
+                                        <input type="number" value="10000" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">每日参与次数</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                            <option selected>1次</option>
+                                            <option>3次</option>
+                                            <option>5次</option>
+                                            <option>不限制</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 奖励设置 -->
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">奖励设置</h3>
+                            <div class="space-y-4">
+                                <div class="p-4 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h4 class="font-medium text-gray-900">优惠券奖励</h4>
+                                        <button class="text-green-600 hover:text-green-700 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-4 text-sm">
+                                        <div>
+                                            <span class="text-gray-600">类型：</span>
+                                            <span class="text-gray-900">满减券</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">金额：</span>
+                                            <span class="text-gray-900">20元</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">门槛：</span>
+                                            <span class="text-gray-900">满100元</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h4 class="font-medium text-gray-900">积分奖励</h4>
+                                        <button class="text-green-600 hover:text-green-700 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <span class="text-gray-600">积分数量：</span>
+                                            <span class="text-gray-900">100积分</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600">发放条件：</span>
+                                            <span class="text-gray-900">参与即得</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 操作按钮 -->
+                        <div class="flex justify-end space-x-4">
+                            <button class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                                取消
+                            </button>
+                            <button class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                                保存设置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            // 侧边栏切换逻辑
+        });
+
+        // 标签页切换
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                // 更新按钮状态
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                    btn.classList.remove('text-gray-900');
+                });
+                this.classList.add('active');
+                this.classList.remove('text-gray-500', 'hover:text-gray-700');
+                this.classList.add('text-gray-900');
+                
+                // 显示对应内容
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                document.getElementById(tabName + '-tab').style.display = 'block';
+            });
+        });
+
+        // 初始化图表
+        function initCharts() {
+            // 趋势图表
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['3/1', '3/5', '3/10', '3/15', '3/20', '3/25', '3/30'],
+                    datasets: [{
+                        label: '参与人数',
+                        data: [120, 190, 300, 500, 800, 1000, 1234],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: '订单数量',
+                        data: [80, 120, 200, 350, 450, 520, 567],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // 订单图表
+            const orderCtx = document.getElementById('orderChart').getContext('2d');
+            new Chart(orderCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['3/1', '3/5', '3/10', '3/15', '3/20', '3/25', '3/30'],
+                    datasets: [{
+                        label: '订单金额',
+                        data: [5200, 8900, 12300, 18500, 23400, 28900, 36700],
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 用户行为分析图表
+            const behaviorCtx = document.getElementById('behaviorChart').getContext('2d');
+            new Chart(behaviorCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['浏览商品', '加入购物车', '立即购买', '分享活动', '收藏商品'],
+                    datasets: [{
+                        data: [35, 25, 20, 12, 8],
+                        backgroundColor: [
+                            '#10b981',
+                            '#3b82f6',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#8b5cf6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 页面加载完成后初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+        });
+    </script>
+</body>
+</html>

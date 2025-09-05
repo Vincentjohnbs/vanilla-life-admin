@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户导出 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .export-item {
+            transition: all 0.3s ease;
+        }
+        .export-item:hover {
+            background-color: #f0f9ff;
+        }
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        .status-badge {
+            transition: all 0.3s ease;
+        }
+        .filter-tag {
+            transition: all 0.3s ease;
+        }
+        .filter-tag:hover {
+            transform: scale(1.05);
+        }
+        .step-item {
+            position: relative;
+        }
+        .step-item::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -1rem;
+            width: 2rem;
+            height: 2px;
+            background-color: #e5e7eb;
+            transform: translateY(-50%);
+        }
+        .step-item:last-child::after {
+            display: none;
+        }
+        .step-item.active::after {
+            background-color: #3b82f6;
+        }
+        .step-item.completed::after {
+            background-color: #10b981;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">用户管理</h3>
+                <ul class="space-y-1">
+                    <li><a href="61-用户详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-user mr-3"></i>用户详情</a></li>
+                    <li><a href="62-会员管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-crown mr-3"></i>会员管理</a></li>
+                    <li><a href="63-用户标签管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-tags mr-3"></i>用户标签</a></li>
+                    <li><a href="64-积分管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-coins mr-3"></i>积分管理</a></li>
+                    <li><a href="65-权限配置.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-shield-alt mr-3"></i>权限配置</a></li>
+                    <li><a href="66-用户分群.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-users mr-3"></i>用户分群</a></li>
+                    <li><a href="67-行为分析.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-chart-line mr-3"></i>行为分析</a></li>
+                    <li><a href="68-消息推送.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-bell mr-3"></i>消息推送</a></li>
+                    <li><a href="69-黑名单管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-ban mr-3"></i>黑名单管理</a></li>
+                    <li><a href="70-用户导出.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-download mr-3"></i>用户导出</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-800">用户导出</h2>
+                        <p class="text-sm text-gray-600">导出用户数据，支持多种格式和筛选条件</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="quickExport" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-bolt mr-2"></i>快速导出
+                    </button>
+                    <button id="templateManage" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-cog mr-2"></i>模板管理
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 导出统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">今日导出</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">23</p>
+                            <p class="text-sm text-blue-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+15.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-download text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">本月导出</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">456</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8.7%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">导出用户数</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">12.5K</p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                累计数据
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">文件大小</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">2.3GB</p>
+                            <p class="text-sm text-orange-600 mt-1">
+                                <i class="fas fa-hdd mr-1"></i>存储占用
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-database text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 导出配置 -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">导出配置</h3>
+                        <p class="text-sm text-gray-600 mt-1">设置导出条件和格式</p>
+                    </div>
+                    
+                    <div class="p-6">
+                        <!-- 导出步骤 -->
+                        <div class="flex items-center justify-between mb-8">
+                            <div class="flex items-center step-item active">
+                                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                                    1
+                                </div>
+                                <span class="ml-2 text-sm font-medium text-blue-600">筛选条件</span>
+                            </div>
+                            <div class="flex items-center step-item">
+                                <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">
+                                    2
+                                </div>
+                                <span class="ml-2 text-sm font-medium text-gray-500">字段选择</span>
+                            </div>
+                            <div class="flex items-center step-item">
+                                <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">
+                                    3
+                                </div>
+                                <span class="ml-2 text-sm font-medium text-gray-500">格式设置</span>
+                            </div>
+                            <div class="flex items-center step-item">
+                                <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">
+                                    4
+                                </div>
+                                <span class="ml-2 text-sm font-medium text-gray-500">确认导出</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤1：筛选条件 -->
+                        <div id="step1" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">注册时间</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input type="date" id="startDate" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <input type="date" id="endDate" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">用户状态</label>
+                                    <select id="userStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">全部状态</option>
+                                        <option value="active">正常</option>
+                                        <option value="inactive">未激活</option>
+                                        <option value="banned">已封禁</option>
+                                        <option value="deleted">已删除</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">会员等级</label>
+                                    <select id="memberLevel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">全部等级</option>
+                                        <option value="normal">普通会员</option>
+                                        <option value="vip">VIP会员</option>
+                                        <option value="svip">超级VIP</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">用户标签</label>
+                                    <select id="userTags" multiple class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="new">新用户</option>
+                                        <option value="active">活跃用户</option>
+                                        <option value="loyal">忠实用户</option>
+                                        <option value="high_value">高价值用户</option>
+                                        <option value="risk">风险用户</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">消费金额范围</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input type="number" id="minAmount" placeholder="最小金额" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <input type="number" id="maxAmount" placeholder="最大金额" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">地区</label>
+                                    <select id="region" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">全部地区</option>
+                                        <option value="beijing">北京</option>
+                                        <option value="shanghai">上海</option>
+                                        <option value="guangzhou">广州</option>
+                                        <option value="shenzhen">深圳</option>
+                                        <option value="other">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button id="nextStep1" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                    下一步：选择字段
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤2：字段选择 -->
+                        <div id="step2" class="space-y-6 hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">基本信息</h4>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                            <span class="ml-2 text-sm text-gray-700">用户ID</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                            <span class="ml-2 text-sm text-gray-700">用户昵称</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                            <span class="ml-2 text-sm text-gray-700">手机号码</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">邮箱地址</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">真实姓名</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">性别</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">生日</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">账户信息</h4>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                            <span class="ml-2 text-sm text-gray-700">注册时间</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">最后登录时间</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                            <span class="ml-2 text-sm text-gray-700">账户状态</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">会员等级</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">积分余额</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">钱包余额</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">消费数据</h4>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">总消费金额</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">订单数量</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">平均订单金额</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">最后消费时间</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">其他信息</h4>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">用户标签</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">地区信息</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">推荐人</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">注册渠道</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <button id="prevStep2" class="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                    上一步
+                                </button>
+                                <button id="nextStep2" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                    下一步：格式设置
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤3：格式设置 -->
+                        <div id="step3" class="space-y-6 hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">导出格式</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="radio" name="exportFormat" value="excel" class="text-blue-600 focus:ring-blue-500" checked>
+                                            <span class="ml-2 text-sm text-gray-700">Excel (.xlsx)</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="exportFormat" value="csv" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">CSV (.csv)</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="exportFormat" value="json" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">JSON (.json)</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="exportFormat" value="pdf" class="text-blue-600 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">PDF (.pdf)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">文件名称</label>
+                                    <input type="text" id="fileName" value="用户数据导出_2024-01-15" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">字符编码</label>
+                                    <select id="encoding" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="utf8">UTF-8</option>
+                                        <option value="gbk">GBK</option>
+                                        <option value="gb2312">GB2312</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">分隔符（CSV）</label>
+                                    <select id="separator" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="comma">逗号 (,)</option>
+                                        <option value="semicolon">分号 (;)</option>
+                                        <option value="tab">制表符 (Tab)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <h4 class="text-sm font-medium text-gray-700">导出选项</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                                        <span class="ml-2 text-sm text-gray-700">包含表头</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">压缩文件</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">密码保护</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">邮件发送</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <button id="prevStep3" class="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                    上一步
+                                </button>
+                                <button id="nextStep3" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                    下一步：确认导出
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 步骤4：确认导出 -->
+                        <div id="step4" class="space-y-6 hidden">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="text-sm font-medium text-blue-800 mb-2">导出预览</h4>
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-blue-600">预计用户数：</span>
+                                        <span class="font-medium text-blue-800">1,234 个</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-blue-600">导出字段：</span>
+                                        <span class="font-medium text-blue-800">8 个</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-blue-600">文件格式：</span>
+                                        <span class="font-medium text-blue-800">Excel (.xlsx)</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-blue-600">预计大小：</span>
+                                        <span class="font-medium text-blue-800">2.5 MB</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <div class="flex items-start">
+                                    <i class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-2"></i>
+                                    <div>
+                                        <h4 class="text-sm font-medium text-yellow-800">注意事项</h4>
+                                        <ul class="text-sm text-yellow-700 mt-1 space-y-1">
+                                            <li>• 导出过程可能需要几分钟时间，请耐心等待</li>
+                                            <li>• 导出的文件将保存7天，请及时下载</li>
+                                            <li>• 用户敏感信息已按规定进行脱敏处理</li>
+                                            <li>• 导出操作将记录在系统日志中</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <button id="prevStep4" class="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                    上一步
+                                </button>
+                                <button id="startExport" class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                                    <i class="fas fa-download mr-2"></i>开始导出
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 导出历史 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">导出历史</h3>
+                            <button id="clearHistory" class="text-sm text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash mr-1"></i>清空历史
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div id="exportHistory" class="space-y-4 max-h-96 overflow-y-auto">
+                            <!-- 导出历史将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 导出进度模态框 -->
+    <div id="exportProgressModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+            <div class="p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-download text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">正在导出数据</h3>
+                    <p class="text-sm text-gray-600 mb-4">请稍候，正在处理您的导出请求...</p>
+                    
+                    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                        <div id="progressBar" class="bg-blue-500 h-2 rounded-full progress-bar" style="width: 0%"></div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between text-sm text-gray-600">
+                        <span id="progressText">准备中...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟导出历史数据
+        const exportHistory = [
+            {
+                id: 1,
+                fileName: '用户数据导出_2024-01-15.xlsx',
+                createTime: '2024-01-15 14:30:25',
+                status: 'completed',
+                fileSize: '2.5 MB',
+                recordCount: 1234,
+                downloadUrl: '#'
+            },
+            {
+                id: 2,
+                fileName: 'VIP用户列表_2024-01-14.csv',
+                createTime: '2024-01-14 09:15:10',
+                status: 'completed',
+                fileSize: '856 KB',
+                recordCount: 456,
+                downloadUrl: '#'
+            },
+            {
+                id: 3,
+                fileName: '新用户统计_2024-01-13.xlsx',
+                createTime: '2024-01-13 16:45:33',
+                status: 'expired',
+                fileSize: '1.2 MB',
+                recordCount: 789,
+                downloadUrl: null
+            },
+            {
+                id: 4,
+                fileName: '活跃用户分析_2024-01-12.json',
+                createTime: '2024-01-12 11:20:15',
+                status: 'processing',
+                fileSize: '-',
+                recordCount: 2345,
+                downloadUrl: null
+            },
+            {
+                id: 5,
+                fileName: '用户行为数据_2024-01-11.xlsx',
+                createTime: '2024-01-11 13:55:42',
+                status: 'failed',
+                fileSize: '-',
+                recordCount: 0,
+                downloadUrl: null
+            }
+        ];
+
+        let currentStep = 1;
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 渲染导出历史
+        function renderExportHistory() {
+            const container = document.getElementById('exportHistory');
+            container.innerHTML = '';
+            
+            exportHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'export-item border border-gray-200 rounded-lg p-4';
+                
+                let statusBadge, statusColor, actionButton;
+                switch(item.status) {
+                    case 'completed':
+                        statusBadge = '已完成';
+                        statusColor = 'bg-green-100 text-green-800';
+                        actionButton = item.downloadUrl ? 
+                            `<button class="text-blue-600 hover:text-blue-800 text-sm" onclick="downloadFile('${item.downloadUrl}')"><i class="fas fa-download mr-1"></i>下载</button>` :
+                            '<span class="text-gray-400 text-sm">已过期</span>';
+                        break;
+                    case 'processing':
+                        statusBadge = '处理中';
+                        statusColor = 'bg-blue-100 text-blue-800';
+                        actionButton = '<span class="text-gray-400 text-sm">处理中...</span>';
+                        break;
+                    case 'failed':
+                        statusBadge = '失败';
+                        statusColor = 'bg-red-100 text-red-800';
+                        actionButton = '<button class="text-red-600 hover:text-red-800 text-sm" onclick="retryExport(' + item.id + ')"><i class="fas fa-redo mr-1"></i>重试</button>';
+                        break;
+                    case 'expired':
+                        statusBadge = '已过期';
+                        statusColor = 'bg-gray-100 text-gray-800';
+                        actionButton = '<span class="text-gray-400 text-sm">已过期</span>';
+                        break;
+                }
+                
+                historyItem.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-medium text-gray-900 truncate">${item.fileName}</h4>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full status-badge ${statusColor}">
+                            ${statusBadge}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-3">
+                        <div>创建时间：${item.createTime}</div>
+                        <div>文件大小：${item.fileSize}</div>
+                        <div>记录数：${item.recordCount.toLocaleString()}</div>
+                        <div class="text-right">${actionButton}</div>
+                    </div>
+                `;
+                
+                container.appendChild(historyItem);
+            });
+        }
+
+        // 步骤切换函数
+        function showStep(step) {
+            // 隐藏所有步骤
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`step${i}`).classList.add('hidden');
+            }
+            
+            // 显示当前步骤
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            
+            // 更新步骤指示器
+            updateStepIndicator(step);
+            
+            currentStep = step;
+        }
+
+        function updateStepIndicator(activeStep) {
+            const steps = document.querySelectorAll('.step-item');
+            steps.forEach((step, index) => {
+                const stepNumber = index + 1;
+                const circle = step.querySelector('div');
+                const text = step.querySelector('span');
+                
+                if (stepNumber < activeStep) {
+                    // 已完成的步骤
+                    circle.className = 'w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-medium';
+                    circle.innerHTML = '<i class="fas fa-check"></i>';
+                    text.className = 'ml-2 text-sm font-medium text-green-600';
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else if (stepNumber === activeStep) {
+                    // 当前步骤
+                    circle.className = 'w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium';
+                    circle.textContent = stepNumber;
+                    text.className = 'ml-2 text-sm font-medium text-blue-600';
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    // 未完成的步骤
+                    circle.className = 'w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium';
+                    circle.textContent = stepNumber;
+                    text.className = 'ml-2 text-sm font-medium text-gray-500';
+                    step.classList.remove('active', 'completed');
+                }
+            });
+        }
+
+        // 导出进度模拟
+        function simulateExportProgress() {
+            const modal = document.getElementById('exportProgressModal');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            let progress = 0;
+            const steps = [
+                { progress: 10, text: '验证导出条件...' },
+                { progress: 25, text: '查询用户数据...' },
+                { progress: 50, text: '处理数据格式...' },
+                { progress: 75, text: '生成导出文件...' },
+                { progress: 90, text: '文件压缩中...' },
+                { progress: 100, text: '导出完成！' }
+            ];
+            
+            let stepIndex = 0;
+            const interval = setInterval(() => {
+                if (stepIndex < steps.length) {
+                    const step = steps[stepIndex];
+                    progress = step.progress;
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = step.text;
+                    progressPercent.textContent = progress + '%';
+                    stepIndex++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                        alert('导出完成！文件已生成，请在导出历史中下载。');
+                        // 重置到第一步
+                        showStep(1);
+                    }, 1000);
+                }
+            }, 800);
+        }
+
+        // 文件下载
+        function downloadFile(url) {
+            alert('开始下载文件：' + url);
+        }
+
+        // 重试导出
+        function retryExport(id) {
+            if (confirm('确定要重新导出这个文件吗？')) {
+                alert('重新开始导出，ID: ' + id);
+            }
+        }
+
+        // 事件绑定
+        document.getElementById('nextStep1').addEventListener('click', () => showStep(2));
+        document.getElementById('nextStep2').addEventListener('click', () => showStep(3));
+        document.getElementById('nextStep3').addEventListener('click', () => showStep(4));
+        
+        document.getElementById('prevStep2').addEventListener('click', () => showStep(1));
+        document.getElementById('prevStep3').addEventListener('click', () => showStep(2));
+        document.getElementById('prevStep4').addEventListener('click', () => showStep(3));
+        
+        document.getElementById('startExport').addEventListener('click', simulateExportProgress);
+        
+        document.getElementById('quickExport').addEventListener('click', function() {
+            if (confirm('确定要使用默认设置快速导出所有用户数据吗？')) {
+                simulateExportProgress();
+            }
+        });
+        
+        document.getElementById('templateManage').addEventListener('click', function() {
+            alert('模板管理功能');
+        });
+        
+        document.getElementById('clearHistory').addEventListener('click', function() {
+            if (confirm('确定要清空所有导出历史吗？此操作不可撤销！')) {
+                alert('导出历史已清空');
+            }
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderExportHistory();
+            showStep(1);
+            console.log('用户导出页面初始化完成');
+        });
+    </script>
+</body>
+</html>

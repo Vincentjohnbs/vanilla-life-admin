@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品分类管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar-transition { transition: all 0.3s ease; }
+        .content-transition { transition: all 0.3s ease; }
+        .tree-item { transition: all 0.3s ease; }
+        .tree-item.collapsed .tree-children { display: none; }
+        .tree-toggle { transition: transform 0.3s ease; }
+        .tree-toggle.rotated { transform: rotate(90deg); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg sidebar-transition z-30">
+        <!-- Logo区域 -->
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        <span>首页仪表板</span>
+                    </a>
+                    <div class="space-y-1">
+                        <div class="flex items-center px-4 py-3 text-green-600 bg-green-50 rounded-lg">
+                            <i class="fas fa-box w-5 h-5 mr-3"></i>
+                            <span class="font-medium">商品管理</span>
+                        </div>
+                        <div class="ml-8 space-y-1">
+                            <a href="21-商品编辑页.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded">商品编辑</a>
+                            <a href="22-商品分类管理.html" class="block px-4 py-2 text-sm text-green-600 bg-green-100 rounded font-medium">分类管理</a>
+                            <a href="23-库存管理页.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded">库存管理</a>
+                            <a href="24-规格管理.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded">规格管理</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 content-transition">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">商品分类管理</h2>
+                        <p class="text-sm text-gray-500">管理商品分类结构和属性</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="exportCategories()" class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出
+                    </button>
+                    <button onclick="importCategories()" class="px-4 py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors">
+                        <i class="fas fa-upload mr-2"></i>导入
+                    </button>
+                    <button onclick="openCategoryModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>新建分类
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">总分类数</p>
+                            <p class="text-2xl font-bold text-gray-900">24</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-sitemap text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-green-600 text-sm font-medium">+2</span>
+                        <span class="text-gray-500 text-sm">本月新增</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">一级分类</p>
+                            <p class="text-2xl font-bold text-gray-900">6</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-layer-group text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-blue-600 text-sm font-medium">100%</span>
+                        <span class="text-gray-500 text-sm">启用率</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">商品总数</p>
+                            <p class="text-2xl font-bold text-gray-900">156</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-box text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-green-600 text-sm font-medium">+12</span>
+                        <span class="text-gray-500 text-sm">本周新增</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">平均商品数</p>
+                            <p class="text-2xl font-bold text-gray-900">6.5</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-bar text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-gray-500 text-sm">每个分类</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 分类树形结构 -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">分类结构</h3>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="expandAll()" class="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded">
+                                <i class="fas fa-expand-arrows-alt mr-1"></i>全部展开
+                            </button>
+                            <button onclick="collapseAll()" class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded">
+                                <i class="fas fa-compress-arrows-alt mr-1"></i>全部收起
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <!-- 香草种子 -->
+                        <div class="tree-item">
+                            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg group">
+                                <div class="flex items-center space-x-3">
+                                    <button onclick="toggleTree(this)" class="tree-toggle text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-seedling text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">香草种子</h4>
+                                        <p class="text-sm text-gray-500">12个商品</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">启用</span>
+                                    <button onclick="editCategory('香草种子')" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteCategory('香草种子')" class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="tree-children ml-8 space-y-1">
+                                <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded group">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                                            <i class="fas fa-leaf text-blue-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <span class="text-sm font-medium text-gray-800">薄荷类</span>
+                                            <span class="text-xs text-gray-500 ml-2">5个商品</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="editCategory('薄荷类')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick="deleteCategory('薄荷类')" class="text-red-600 hover:text-red-800 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded group">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
+                                            <i class="fas fa-leaf text-purple-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <span class="text-sm font-medium text-gray-800">罗勒类</span>
+                                            <span class="text-xs text-gray-500 ml-2">4个商品</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="editCategory('罗勒类')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick="deleteCategory('罗勒类')" class="text-red-600 hover:text-red-800 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded group">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-6 h-6 bg-yellow-100 rounded flex items-center justify-center">
+                                            <i class="fas fa-leaf text-yellow-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <span class="text-sm font-medium text-gray-800">迷迭香类</span>
+                                            <span class="text-xs text-gray-500 ml-2">3个商品</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="editCategory('迷迭香类')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick="deleteCategory('迷迭香类')" class="text-red-600 hover:text-red-800 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 种植工具 -->
+                        <div class="tree-item">
+                            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg group">
+                                <div class="flex items-center space-x-3">
+                                    <button onclick="toggleTree(this)" class="tree-toggle text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-tools text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">种植工具</h4>
+                                        <p class="text-sm text-gray-500">8个商品</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">启用</span>
+                                    <button onclick="editCategory('种植工具')" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteCategory('种植工具')" class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="tree-children ml-8 space-y-1">
+                                <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded group">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-6 h-6 bg-orange-100 rounded flex items-center justify-center">
+                                            <i class="fas fa-shovel text-orange-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <span class="text-sm font-medium text-gray-800">园艺工具</span>
+                                            <span class="text-xs text-gray-500 ml-2">5个商品</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="editCategory('园艺工具')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick="deleteCategory('园艺工具')" class="text-red-600 hover:text-red-800 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded group">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-6 h-6 bg-red-100 rounded flex items-center justify-center">
+                                            <i class="fas fa-tint text-red-600 text-xs"></i>
+                                        </div>
+                                        <div>
+                                            <span class="text-sm font-medium text-gray-800">浇水工具</span>
+                                            <span class="text-xs text-gray-500 ml-2">3个商品</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="editCategory('浇水工具')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick="deleteCategory('浇水工具')" class="text-red-600 hover:text-red-800 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 营养土 -->
+                        <div class="tree-item">
+                            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg group">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-mountain text-yellow-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">营养土</h4>
+                                        <p class="text-sm text-gray-500">6个商品</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">启用</span>
+                                    <button onclick="editCategory('营养土')" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteCategory('营养土')" class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 花盆容器 -->
+                        <div class="tree-item">
+                            <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg group">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-seedling text-purple-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">花盆容器</h4>
+                                        <p class="text-sm text-gray-500">10个商品</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">启用</span>
+                                    <button onclick="editCategory('花盆容器')" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteCategory('花盆容器')" class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧操作面板 -->
+                <div class="space-y-6">
+                    <!-- 快速操作 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">快速操作</h3>
+                        <div class="space-y-3">
+                            <button onclick="batchEnable()" class="w-full px-4 py-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-left">
+                                <i class="fas fa-check-circle mr-3"></i>批量启用分类
+                            </button>
+                            <button onclick="batchDisable()" class="w-full px-4 py-3 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-left">
+                                <i class="fas fa-times-circle mr-3"></i>批量禁用分类
+                            </button>
+                            <button onclick="sortCategories()" class="w-full px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-left">
+                                <i class="fas fa-sort mr-3"></i>分类排序
+                            </button>
+                            <button onclick="mergeCategories()" class="w-full px-4 py-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors text-left">
+                                <i class="fas fa-code-branch mr-3"></i>合并分类
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 分类统计 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">分类统计</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">香草种子</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-20 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">12</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">花盆容器</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-20 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-purple-500 h-2 rounded-full" style="width: 62%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">10</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">种植工具</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-20 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-500 h-2 rounded-full" style="width: 50%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">8</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">营养土</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-20 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-yellow-500 h-2 rounded-full" style="width: 37%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">6</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 最近操作 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">最近操作</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-plus text-green-600 text-xs"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">新建分类</p>
+                                    <p class="text-xs text-gray-500">薄荷类 - 2小时前</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-edit text-blue-600 text-xs"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">编辑分类</p>
+                                    <p class="text-xs text-gray-500">种植工具 - 5小时前</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-sort text-purple-600 text-xs"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">调整排序</p>
+                                    <p class="text-xs text-gray-500">香草种子 - 1天前</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 分类编辑模态框 -->
+    <div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">编辑分类</h3>
+                <button onclick="closeCategoryModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">分类名称 *</label>
+                    <input type="text" id="categoryName" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="请输入分类名称">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">父级分类</label>
+                    <select id="parentCategory" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="">无（顶级分类）</option>
+                        <option value="香草种子">香草种子</option>
+                        <option value="种植工具">种植工具</option>
+                        <option value="营养土">营养土</option>
+                        <option value="花盆容器">花盆容器</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">分类图标</label>
+                    <div class="grid grid-cols-6 gap-2">
+                        <button onclick="selectIcon(this, 'seedling')" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-green-100 hover:text-green-600">
+                            <i class="fas fa-seedling"></i>
+                        </button>
+                        <button onclick="selectIcon(this, 'leaf')" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-green-100 hover:text-green-600">
+                            <i class="fas fa-leaf"></i>
+                        </button>
+                        <button onclick="selectIcon(this, 'tools')" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-green-100 hover:text-green-600">
+                            <i class="fas fa-tools"></i>
+                        </button>
+                        <button onclick="selectIcon(this, 'mountain')" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-green-100 hover:text-green-600">
+                            <i class="fas fa-mountain"></i>
+                        </button>
+                        <button onclick="selectIcon(this, 'box')" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-green-100 hover:text-green-600">
+                            <i class="fas fa-box"></i>
+                        </button>
+                        <button onclick="selectIcon(this, 'spa')" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-green-100 hover:text-green-600">
+                            <i class="fas fa-spa"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">分类颜色</label>
+                    <div class="grid grid-cols-8 gap-2">
+                        <button onclick="selectColor(this, 'green')" class="w-8 h-8 bg-green-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button onclick="selectColor(this, 'blue')" class="w-8 h-8 bg-blue-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button onclick="selectColor(this, 'purple')" class="w-8 h-8 bg-purple-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button onclick="selectColor(this, 'yellow')" class="w-8 h-8 bg-yellow-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button onclick="selectColor(this, 'red')" class="w-8 h-8 bg-red-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button onclick="selectColor(this, 'orange')" class="w-8 h-8 bg-orange-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button onclick="selectColor(this, 'pink')" class="w-8 h-8 bg-pink-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button onclick="selectColor(this, 'gray')" class="w-8 h-8 bg-gray-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">分类描述</label>
+                    <textarea id="categoryDescription" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" rows="3" placeholder="请输入分类描述"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">排序权重</label>
+                    <input type="number" id="categorySort" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="数字越大排序越靠前" value="0">
+                </div>
+                <div>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="categoryEnabled" class="rounded border-gray-300 text-green-600 focus:ring-green-500" checked>
+                        <span class="ml-2 text-sm text-gray-700">启用分类</span>
+                    </label>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
+                <button onclick="closeCategoryModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
+                    取消
+                </button>
+                <button onclick="saveCategory()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            mainContent.classList.toggle('ml-0');
+            mainContent.classList.toggle('ml-64');
+        });
+
+        // 树形结构切换
+        function toggleTree(button) {
+            const treeItem = button.closest('.tree-item');
+            const isCollapsed = treeItem.classList.contains('collapsed');
+            
+            if (isCollapsed) {
+                treeItem.classList.remove('collapsed');
+                button.classList.add('rotated');
+            } else {
+                treeItem.classList.add('collapsed');
+                button.classList.remove('rotated');
+            }
+        }
+
+        // 全部展开
+        function expandAll() {
+            document.querySelectorAll('.tree-item').forEach(item => {
+                item.classList.remove('collapsed');
+            });
+            document.querySelectorAll('.tree-toggle').forEach(toggle => {
+                toggle.classList.add('rotated');
+            });
+        }
+
+        // 全部收起
+        function collapseAll() {
+            document.querySelectorAll('.tree-item').forEach(item => {
+                item.classList.add('collapsed');
+            });
+            document.querySelectorAll('.tree-toggle').forEach(toggle => {
+                toggle.classList.remove('rotated');
+            });
+        }
+
+        // 打开分类模态框
+        function openCategoryModal(categoryName = '') {
+            document.getElementById('categoryModal').classList.remove('hidden');
+            document.getElementById('categoryModal').classList.add('flex');
+            
+            if (categoryName) {
+                document.getElementById('categoryName').value = categoryName;
+            }
+        }
+
+        // 关闭分类模态框
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.add('hidden');
+            document.getElementById('categoryModal').classList.remove('flex');
+        }
+
+        // 编辑分类
+        function editCategory(categoryName) {
+            openCategoryModal(categoryName);
+        }
+
+        // 删除分类
+        function deleteCategory(categoryName) {
+            if (confirm(`确定要删除分类"${categoryName}"吗？`)) {
+                console.log('删除分类:', categoryName);
+            }
+        }
+
+        // 选择图标
+        function selectIcon(button, iconName) {
+            document.querySelectorAll('.grid button').forEach(btn => {
+                btn.classList.remove('bg-green-100', 'text-green-600');
+                btn.classList.add('bg-gray-100');
+            });
+            button.classList.remove('bg-gray-100');
+            button.classList.add('bg-green-100', 'text-green-600');
+        }
+
+        // 选择颜色
+        function selectColor(button, colorName) {
+            document.querySelectorAll('.grid button').forEach(btn => {
+                btn.classList.remove('border-gray-600');
+                btn.classList.add('border-transparent');
+            });
+            button.classList.remove('border-transparent');
+            button.classList.add('border-gray-600');
+        }
+
+        // 保存分类
+        function saveCategory() {
+            const categoryName = document.getElementById('categoryName').value;
+            if (!categoryName.trim()) {
+                alert('请输入分类名称');
+                return;
+            }
+            
+            console.log('保存分类:', categoryName);
+            closeCategoryModal();
+        }
+
+        // 导出分类
+        function exportCategories() {
+            console.log('导出分类');
+        }
+
+        // 导入分类
+        function importCategories() {
+            console.log('导入分类');
+        }
+
+        // 批量启用
+        function batchEnable() {
+            console.log('批量启用分类');
+        }
+
+        // 批量禁用
+        function batchDisable() {
+            console.log('批量禁用分类');
+        }
+
+        // 分类排序
+        function sortCategories() {
+            console.log('分类排序');
+        }
+
+        // 合并分类
+        function mergeCategories() {
+            console.log('合并分类');
+        }
+    </script>
+</body>
+</html>

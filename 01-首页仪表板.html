@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香草生活 - 后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- 侧边栏 -->
+        <div class="w-64 gradient-bg text-white flex-shrink-0">
+            <div class="p-6">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-leaf text-2xl"></i>
+                    <h1 class="text-xl font-bold">香草生活</h1>
+                </div>
+                <p class="text-sm opacity-75 mt-1">后台管理系统</p>
+            </div>
+            
+            <nav class="mt-8">
+                <a href="#" class="flex items-center px-6 py-3 bg-white bg-opacity-20 border-r-4 border-white">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>首页仪表板</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-images mr-3"></i>
+                    <span>Banner管理</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-box mr-3"></i>
+                    <span>商品管理</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-shopping-cart mr-3"></i>
+                    <span>订单管理</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-book mr-3"></i>
+                    <span>香草图鉴</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-users mr-3"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-chart-bar mr-3"></i>
+                    <span>数据统计</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center space-x-4">
+                        <nav class="text-sm text-gray-500">
+                            <span>首页</span>
+                            <i class="fas fa-chevron-right mx-2"></i>
+                            <span class="text-gray-900">仪表板</span>
+                        </nav>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="relative p-2 text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-bell"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </button>
+                        <div class="flex items-center space-x-3">
+                            <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                            <span class="text-sm font-medium text-gray-700">管理员</span>
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主要内容 -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">仪表板概览</h2>
+                    <p class="text-gray-600 mt-1">欢迎回来！这里是您的运营数据概览</p>
+                </div>
+
+                <!-- 数据概览卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">总用户数</p>
+                                <p class="text-2xl font-bold text-gray-900">12,847</p>
+                                <p class="text-sm text-green-600 mt-1">
+                                    <i class="fas fa-arrow-up"></i> +12.5%
+                                </p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">今日订单</p>
+                                <p class="text-2xl font-bold text-gray-900">156</p>
+                                <p class="text-sm text-green-600 mt-1">
+                                    <i class="fas fa-arrow-up"></i> +8.2%
+                                </p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-shopping-cart text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">今日销售额</p>
+                                <p class="text-2xl font-bold text-gray-900">¥28,456</p>
+                                <p class="text-sm text-green-600 mt-1">
+                                    <i class="fas fa-arrow-up"></i> +15.3%
+                                </p>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-full">
+                                <i class="fas fa-dollar-sign text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">待处理订单</p>
+                                <p class="text-2xl font-bold text-gray-900">23</p>
+                                <p class="text-sm text-red-600 mt-1">
+                                    <i class="fas fa-exclamation-triangle"></i> 需处理
+                                </p>
+                            </div>
+                            <div class="bg-red-100 p-3 rounded-full">
+                                <i class="fas fa-clock text-red-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表和快捷操作 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- 销售趋势图表 -->
+                    <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">销售趋势</h3>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">7天</button>
+                                <button class="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">30天</button>
+                                <button class="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">90天</button>
+                            </div>
+                        </div>
+                        <div class="relative" style="height: 300px;">
+                            <canvas id="salesChart" style="width: 100%; height: 100%;"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 快捷操作 -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">快捷操作</h3>
+                        <div class="space-y-3">
+                            <button class="w-full flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                                <div class="flex items-center">
+                                    <i class="fas fa-plus text-blue-600 mr-3"></i>
+                                    <span class="text-blue-700">添加商品</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-blue-400"></i>
+                            </button>
+                            <button class="w-full flex items-center justify-between p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                                <div class="flex items-center">
+                                    <i class="fas fa-image text-green-600 mr-3"></i>
+                                    <span class="text-green-700">管理Banner</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-green-400"></i>
+                            </button>
+                            <button class="w-full flex items-center justify-between p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+                                <div class="flex items-center">
+                                    <i class="fas fa-leaf text-purple-600 mr-3"></i>
+                                    <span class="text-purple-700">香草图鉴</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-purple-400"></i>
+                            </button>
+                            <button class="w-full flex items-center justify-between p-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors">
+                                <div class="flex items-center">
+                                    <i class="fas fa-bullhorn text-orange-600 mr-3"></i>
+                                    <span class="text-orange-700">营销活动</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-orange-400"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 待处理事项和最新动态 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 待处理事项 -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">待处理事项</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-shipping-fast text-red-600 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium text-red-800">23个订单待发货</p>
+                                        <p class="text-sm text-red-600">超过24小时未处理</p>
+                                    </div>
+                                </div>
+                                <button class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-exclamation-triangle text-yellow-600 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium text-yellow-800">5个商品库存不足</p>
+                                        <p class="text-sm text-yellow-600">需要及时补货</p>
+                                    </div>
+                                </div>
+                                <button class="text-yellow-600 hover:text-yellow-800">
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-comments text-blue-600 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium text-blue-800">12条用户反馈待回复</p>
+                                        <p class="text-sm text-blue-600">平均响应时间2小时</p>
+                                    </div>
+                                </div>
+                                <button class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium text-green-800">3个香草图鉴待审核</p>
+                                        <p class="text-sm text-green-600">用户提交的新内容</p>
+                                    </div>
+                                </div>
+                                <button class="text-green-600 hover:text-green-800">
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 最新动态 -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">最新动态</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-3">
+                                <div class="bg-green-100 p-2 rounded-full">
+                                    <i class="fas fa-user-plus text-green-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">新用户注册</p>
+                                    <p class="text-xs text-gray-500">用户"香草爱好者"刚刚注册</p>
+                                    <p class="text-xs text-gray-400">2分钟前</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="bg-blue-100 p-2 rounded-full">
+                                    <i class="fas fa-shopping-cart text-blue-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">订单支付成功</p>
+                                    <p class="text-xs text-gray-500">订单#12345，金额¥128.50</p>
+                                    <p class="text-xs text-gray-400">5分钟前</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="bg-purple-100 p-2 rounded-full">
+                                    <i class="fas fa-leaf text-purple-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">香草图鉴更新</p>
+                                    <p class="text-xs text-gray-500">"薄荷"图鉴内容已更新</p>
+                                    <p class="text-xs text-gray-400">10分钟前</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="bg-yellow-100 p-2 rounded-full">
+                                    <i class="fas fa-star text-yellow-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">商品评价</p>
+                                    <p class="text-xs text-gray-500">"有机薰衣草"收到5星好评</p>
+                                    <p class="text-xs text-gray-400">15分钟前</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="bg-red-100 p-2 rounded-full">
+                                    <i class="fas fa-heart text-red-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">社区互动</p>
+                                    <p class="text-xs text-gray-500">"我的香草阳台"获得20个赞</p>
+                                    <p class="text-xs text-gray-400">20分钟前</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 初始化销售趋势图表
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [{
+                    label: '销售额',
+                    data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '¥' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

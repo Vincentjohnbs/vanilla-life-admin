@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分群分析 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .segment-card {
+            transition: all 0.2s ease;
+        }
+        .segment-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .modal {
+            backdrop-filter: blur(4px);
+        }
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-tachometer-alt w-5"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-users w-5"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-lg">
+                    <i class="fas fa-user-tag w-5"></i>
+                    <span>用户画像</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-cog w-5"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-0 transition-all duration-300 ease-in-out" id="main-content">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="p-2 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-bars text-gray-600"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">分群分析</h1>
+                        <p class="text-sm text-gray-500">深度分析用户分群特征和行为模式</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-lg hover:bg-gray-100 relative">
+                        <i class="fas fa-bell text-gray-600"></i>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm">用户分群</p>
+                            <p class="text-2xl font-bold mt-1">12</p>
+                            <p class="text-blue-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +2
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-layer-group text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm">覆盖用户</p>
+                            <p class="text-2xl font-bold mt-1">15.6K</p>
+                            <p class="text-green-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +12%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm">活跃分群</p>
+                            <p class="text-2xl font-bold mt-1">8</p>
+                            <p class="text-purple-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +1
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-100 text-sm">转化率</p>
+                            <p class="text-2xl font-bold mt-1">23.8%</p>
+                            <p class="text-orange-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +3.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-percentage text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作栏 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                    <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" placeholder="搜索分群名称..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>全部类型</option>
+                            <option>行为分群</option>
+                            <option>价值分群</option>
+                            <option>兴趣分群</option>
+                            <option>地域分群</option>
+                        </select>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>全部状态</option>
+                            <option>活跃</option>
+                            <option>非活跃</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                            <i class="fas fa-download mr-2"></i>导出分析
+                        </button>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onclick="openCreateModal()">
+                            <i class="fas fa-plus mr-2"></i>创建分群
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分群标签页 -->
+            <div class="bg-white rounded-xl shadow-sm mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6" id="segmentTabs">
+                        <button class="py-4 px-2 border-b-2 border-blue-500 text-blue-600 font-medium text-sm" data-tab="overview">分群概览</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="behavior">行为分析</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="comparison">分群对比</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="trends">趋势分析</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="insights">智能洞察</button>
+                    </nav>
+                </div>
+
+                <!-- 标签页内容 -->
+                <div class="p-6">
+                    <!-- 分群概览 -->
+                    <div id="overviewTab" class="tab-content">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="segmentGrid">
+                            <!-- 分群卡片将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 行为分析 -->
+                    <div id="behaviorTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">用户行为热力图</h3>
+                                <canvas id="behaviorHeatmap" class="w-full h-64"></canvas>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">行为路径分析</h3>
+                                <canvas id="behaviorPath" class="w-full h-64"></canvas>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">分群行为对比</h3>
+                                <canvas id="behaviorComparison" class="w-full h-80"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 分群对比 -->
+                    <div id="comparisonTab" class="tab-content hidden">
+                        <div class="mb-6">
+                            <div class="flex space-x-4">
+                                <select class="px-4 py-2 border border-gray-300 rounded-lg">
+                                    <option>选择分群A</option>
+                                    <option>高价值用户</option>
+                                    <option>活跃用户</option>
+                                    <option>新用户</option>
+                                </select>
+                                <span class="flex items-center text-gray-500">VS</span>
+                                <select class="px-4 py-2 border border-gray-300 rounded-lg">
+                                    <option>选择分群B</option>
+                                    <option>普通用户</option>
+                                    <option>流失用户</option>
+                                    <option>潜在用户</option>
+                                </select>
+                                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">开始对比</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">用户属性对比</h3>
+                                <canvas id="attributeComparison" class="w-full h-64"></canvas>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">消费行为对比</h3>
+                                <canvas id="consumptionComparison" class="w-full h-64"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 趋势分析 -->
+                    <div id="trendsTab" class="tab-content hidden">
+                        <div class="mb-6">
+                            <div class="flex space-x-4">
+                                <select class="px-4 py-2 border border-gray-300 rounded-lg">
+                                    <option>最近7天</option>
+                                    <option>最近30天</option>
+                                    <option>最近90天</option>
+                                </select>
+                                <select class="px-4 py-2 border border-gray-300 rounded-lg">
+                                    <option>全部分群</option>
+                                    <option>高价值用户</option>
+                                    <option>活跃用户</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">分群规模趋势</h3>
+                                <canvas id="segmentSizeTrend" class="w-full h-64"></canvas>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">分群活跃度趋势</h3>
+                                <canvas id="segmentActivityTrend" class="w-full h-64"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 智能洞察 -->
+                    <div id="insightsTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>关键洞察
+                                </h3>
+                                <div class="space-y-4" id="keyInsights">
+                                    <!-- 洞察内容将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-chart-line text-green-500 mr-2"></i>增长机会
+                                </h3>
+                                <div class="space-y-4" id="growthOpportunities">
+                                    <!-- 增长机会将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-target text-purple-500 mr-2"></i>推荐策略
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="recommendedStrategies">
+                                    <!-- 推荐策略将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 创建分群模态框 -->
+    <div id="createModal" class="fixed inset-0 bg-black bg-opacity-50 modal hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-800">创建用户分群</h3>
+                <button onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">分群名称</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="请输入分群名称">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">分群类型</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>行为分群</option>
+                            <option>价值分群</option>
+                            <option>兴趣分群</option>
+                            <option>地域分群</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">分群描述</label>
+                    <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="3" placeholder="请输入分群描述"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">筛选条件</label>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <select class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option>用户属性</option>
+                                <option>行为数据</option>
+                                <option>消费数据</option>
+                            </select>
+                            <select class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option>等于</option>
+                                <option>大于</option>
+                                <option>小于</option>
+                                <option>包含</option>
+                            </select>
+                            <input type="text" class="px-3 py-2 border border-gray-300 rounded-lg" placeholder="筛选值">
+                            <button type="button" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <button type="button" class="px-4 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200">
+                            <i class="fas fa-plus mr-2"></i>添加条件
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="autoUpdate" class="mr-2">
+                        <label for="autoUpdate" class="text-sm text-gray-700">自动更新分群</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="enableNotification" class="mr-2">
+                        <label for="enableNotification" class="text-sm text-gray-700">启用变化通知</label>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="flex space-x-3 mt-6">
+                <button onclick="closeCreateModal()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">取消</button>
+                <button class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">创建分群</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                mainContent.classList.remove('ml-64');
+            } else {
+                mainContent.classList.add('ml-64');
+            }
+        });
+
+        // 分群数据
+        const segmentData = [
+            {
+                id: 1,
+                name: '高价值用户',
+                type: '价值分群',
+                users: 2847,
+                growth: '+12%',
+                color: 'bg-red-100 text-red-600',
+                description: '消费金额超过1000元的用户群体',
+                conversionRate: 45.2,
+                avgOrderValue: 1250
+            },
+            {
+                id: 2,
+                name: '活跃用户',
+                type: '行为分群',
+                users: 5234,
+                growth: '+8%',
+                color: 'bg-green-100 text-green-600',
+                description: '近30天内有购买或浏览行为的用户',
+                conversionRate: 28.7,
+                avgOrderValue: 680
+            },
+            {
+                id: 3,
+                name: '新用户',
+                type: '行为分群',
+                users: 1856,
+                growth: '+25%',
+                color: 'bg-blue-100 text-blue-600',
+                description: '注册时间不超过30天的新用户',
+                conversionRate: 15.3,
+                avgOrderValue: 420
+            },
+            {
+                id: 4,
+                name: '香草爱好者',
+                type: '兴趣分群',
+                users: 3421,
+                growth: '+15%',
+                color: 'bg-purple-100 text-purple-600',
+                description: '对香草种植有浓厚兴趣的用户群体',
+                conversionRate: 35.8,
+                avgOrderValue: 890
+            },
+            {
+                id: 5,
+                name: '上海用户',
+                type: '地域分群',
+                users: 2156,
+                growth: '+5%',
+                color: 'bg-yellow-100 text-yellow-600',
+                description: '居住在上海地区的用户群体',
+                conversionRate: 32.1,
+                avgOrderValue: 750
+            },
+            {
+                id: 6,
+                name: '流失用户',
+                type: '行为分群',
+                users: 987,
+                growth: '-8%',
+                color: 'bg-gray-100 text-gray-600',
+                description: '超过90天未活跃的用户群体',
+                conversionRate: 5.2,
+                avgOrderValue: 320
+            }
+        ];
+
+        let currentTab = 'overview';
+
+        // 标签页切换
+        function initTabs() {
+            const tabs = document.querySelectorAll('#segmentTabs button');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有活跃状态
+                    tabs.forEach(t => {
+                        t.classList.remove('border-blue-500', 'text-blue-600');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    
+                    // 添加当前活跃状态
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    this.classList.add('border-blue-500', 'text-blue-600');
+                    
+                    // 隐藏所有标签页内容
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // 显示当前标签页内容
+                    const tabId = this.dataset.tab + 'Tab';
+                    document.getElementById(tabId).classList.remove('hidden');
+                    
+                    currentTab = this.dataset.tab;
+                    
+                    // 根据标签页初始化相应内容
+                    if (currentTab === 'behavior') {
+                        initBehaviorCharts();
+                    } else if (currentTab === 'comparison') {
+                        initComparisonCharts();
+                    } else if (currentTab === 'trends') {
+                        initTrendCharts();
+                    } else if (currentTab === 'insights') {
+                        renderInsights();
+                    }
+                });
+            });
+        }
+
+        // 渲染分群卡片
+        function renderSegmentCards() {
+            const segmentGrid = document.getElementById('segmentGrid');
+            
+            segmentGrid.innerHTML = segmentData.map(segment => `
+                <div class="segment-card bg-white border border-gray-200 rounded-lg p-6 cursor-pointer" onclick="viewSegmentDetail(${segment.id})">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="px-3 py-1 ${segment.color} rounded-full text-sm font-medium">${segment.name}</span>
+                        <div class="flex space-x-1">
+                            <button class="text-gray-400 hover:text-blue-600" onclick="event.stopPropagation(); editSegment(${segment.id})">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                            <button class="text-gray-400 hover:text-red-600" onclick="event.stopPropagation(); deleteSegment(${segment.id})">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-gray-600 mb-4">${segment.description}</p>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">用户数量</span>
+                            <span class="font-semibold text-gray-800">${segment.users.toLocaleString()}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">增长率</span>
+                            <span class="font-semibold ${segment.growth.startsWith('+') ? 'text-green-600' : 'text-red-600'}">${segment.growth}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">转化率</span>
+                            <span class="font-semibold text-gray-800">${segment.conversionRate}%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">平均订单价值</span>
+                            <span class="font-semibold text-gray-800">¥${segment.avgOrderValue}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span>${segment.type}</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-600 rounded-full">活跃</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 初始化行为分析图表
+        function initBehaviorCharts() {
+            // 行为热力图
+            const heatmapCtx = document.getElementById('behaviorHeatmap')?.getContext('2d');
+            if (heatmapCtx) {
+                new Chart(heatmapCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['浏览', '搜索', '加购', '下单', '支付', '评价'],
+                        datasets: [{
+                            label: '行为频次',
+                            data: [1200, 800, 600, 400, 350, 200],
+                            backgroundColor: [
+                                '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            // 行为路径分析
+            const pathCtx = document.getElementById('behaviorPath')?.getContext('2d');
+            if (pathCtx) {
+                new Chart(pathCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['首页', '分类页', '商品页', '购物车', '结算页', '支付页'],
+                        datasets: [{
+                            label: '用户流失率',
+                            data: [100, 85, 70, 45, 35, 30],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 分群行为对比
+            const comparisonCtx = document.getElementById('behaviorComparison')?.getContext('2d');
+            if (comparisonCtx) {
+                new Chart(comparisonCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['浏览深度', '停留时间', '互动频率', '购买意愿', '复购率', '推荐度'],
+                        datasets: [{
+                            label: '高价值用户',
+                            data: [85, 90, 75, 95, 88, 92],
+                            borderColor: '#FF6B6B',
+                            backgroundColor: 'rgba(255, 107, 107, 0.2)'
+                        }, {
+                            label: '普通用户',
+                            data: [65, 70, 55, 60, 45, 50],
+                            borderColor: '#4ECDC4',
+                            backgroundColor: 'rgba(78, 205, 196, 0.2)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // 初始化对比图表
+        function initComparisonCharts() {
+            // 用户属性对比
+            const attrCtx = document.getElementById('attributeComparison')?.getContext('2d');
+            if (attrCtx) {
+                new Chart(attrCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['18-25岁', '26-35岁', '36-45岁', '46岁以上'],
+                        datasets: [{
+                            data: [25, 45, 20, 10],
+                            backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            // 消费行为对比
+            const consumptionCtx = document.getElementById('consumptionComparison')?.getContext('2d');
+            if (consumptionCtx) {
+                new Chart(consumptionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['月均消费', '订单频次', '客单价', '复购率'],
+                        datasets: [{
+                            label: '分群A',
+                            data: [1200, 3.5, 350, 65],
+                            backgroundColor: '#667eea'
+                        }, {
+                            label: '分群B',
+                            data: [800, 2.1, 280, 45],
+                            backgroundColor: '#764ba2'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        }
+
+        // 初始化趋势图表
+        function initTrendCharts() {
+            // 分群规模趋势
+            const sizeCtx = document.getElementById('segmentSizeTrend')?.getContext('2d');
+            if (sizeCtx) {
+                new Chart(sizeCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                        datasets: [{
+                            label: '高价值用户',
+                            data: [2500, 2600, 2700, 2750, 2800, 2847],
+                            borderColor: '#FF6B6B',
+                            tension: 0.4
+                        }, {
+                            label: '活跃用户',
+                            data: [4800, 4900, 5000, 5100, 5200, 5234],
+                            borderColor: '#4ECDC4',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            // 分群活跃度趋势
+            const activityCtx = document.getElementById('segmentActivityTrend')?.getContext('2d');
+            if (activityCtx) {
+                new Chart(activityCtx, {
+                    type: 'area',
+                    data: {
+                        labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                        datasets: [{
+                            label: '活跃度',
+                            data: [75, 80, 85, 82, 88, 92, 78],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // 渲染智能洞察
+        function renderInsights() {
+            const keyInsights = document.getElementById('keyInsights');
+            const growthOpportunities = document.getElementById('growthOpportunities');
+            const recommendedStrategies = document.getElementById('recommendedStrategies');
+
+            // 关键洞察
+            keyInsights.innerHTML = `
+                <div class="p-4 bg-white rounded-lg border border-blue-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">高价值用户特征</h4>
+                    <p class="text-sm text-gray-600">高价值用户群体主要集中在26-35岁，平均客单价比普通用户高78%，复购率达到88%。</p>
+                </div>
+                <div class="p-4 bg-white rounded-lg border border-green-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">用户流失风险</h4>
+                    <p class="text-sm text-gray-600">新用户在注册后7天内的流失率达到45%，需要加强新用户引导和激活策略。</p>
+                </div>
+                <div class="p-4 bg-white rounded-lg border border-purple-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">地域差异分析</h4>
+                    <p class="text-sm text-gray-600">上海用户的平均订单价值比其他地区高32%，但购买频次相对较低。</p>
+                </div>
+            `;
+
+            // 增长机会
+            growthOpportunities.innerHTML = `
+                <div class="p-4 bg-white rounded-lg border border-green-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">新用户转化</h4>
+                    <p class="text-sm text-gray-600">通过优化新用户体验，预计可提升15%的转化率。</p>
+                    <div class="mt-2">
+                        <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">潜在收益: +¥120万</span>
+                    </div>
+                </div>
+                <div class="p-4 bg-white rounded-lg border border-blue-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">交叉销售机会</h4>
+                    <p class="text-sm text-gray-600">香草爱好者群体对相关工具产品有较高需求。</p>
+                    <div class="mt-2">
+                        <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">潜在收益: +¥80万</span>
+                    </div>
+                </div>
+                <div class="p-4 bg-white rounded-lg border border-purple-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">用户召回</h4>
+                    <p class="text-sm text-gray-600">流失用户中30%可通过个性化营销重新激活。</p>
+                    <div class="mt-2">
+                        <span class="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded-full">潜在收益: +¥50万</span>
+                    </div>
+                </div>
+            `;
+
+            // 推荐策略
+            recommendedStrategies.innerHTML = `
+                <div class="p-4 bg-white rounded-lg border border-orange-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">个性化推荐</h4>
+                    <p class="text-sm text-gray-600">基于用户行为数据优化商品推荐算法</p>
+                </div>
+                <div class="p-4 bg-white rounded-lg border border-pink-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">精准营销</h4>
+                    <p class="text-sm text-gray-600">针对不同分群制定差异化营销策略</p>
+                </div>
+                <div class="p-4 bg-white rounded-lg border border-indigo-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">用户体验优化</h4>
+                    <p class="text-sm text-gray-600">优化关键转化路径，提升用户体验</p>
+                </div>
+            `;
+        }
+
+        // 分群操作
+        function viewSegmentDetail(segmentId) {
+            console.log('查看分群详情:', segmentId);
+        }
+
+        function editSegment(segmentId) {
+            console.log('编辑分群:', segmentId);
+        }
+
+        function deleteSegment(segmentId) {
+            if (confirm('确定要删除这个分群吗？')) {
+                console.log('删除分群:', segmentId);
+            }
+        }
+
+        // 模态框控制
+        function openCreateModal() {
+            document.getElementById('createModal').classList.remove('hidden');
+            document.getElementById('createModal').classList.add('flex');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+            document.getElementById('createModal').classList.remove('flex');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initTabs();
+            renderSegmentCards();
+        });
+    </script>
+</body>
+</html>

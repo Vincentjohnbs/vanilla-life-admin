@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行为分析 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .behavior-item {
+            transition: all 0.3s ease;
+        }
+        .behavior-item:hover {
+            background-color: #f9fafb;
+        }
+        .funnel-step {
+            position: relative;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 20px;
+            margin: 10px 0;
+            clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 50%, calc(100% - 30px) 100%, 0 100%, 30px 50%);
+            transition: all 0.3s ease;
+        }
+        .funnel-step:hover {
+            transform: scale(1.02);
+        }
+        .heatmap-cell {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .heatmap-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        .path-node {
+            transition: all 0.3s ease;
+        }
+        .path-node:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">用户管理</h3>
+                <ul class="space-y-1">
+                    <li><a href="61-用户详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-user mr-3"></i>用户详情</a></li>
+                    <li><a href="62-会员管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-crown mr-3"></i>会员管理</a></li>
+                    <li><a href="63-用户标签管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-tags mr-3"></i>用户标签</a></li>
+                    <li><a href="64-积分管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-coins mr-3"></i>积分管理</a></li>
+                    <li><a href="65-权限配置.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-shield-alt mr-3"></i>权限配置</a></li>
+                    <li><a href="66-用户分群.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-users mr-3"></i>用户分群</a></li>
+                    <li><a href="67-行为分析.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-chart-line mr-3"></i>行为分析</a></li>
+                    <li><a href="68-消息推送.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-bell mr-3"></i>消息推送</a></li>
+                    <li><a href="69-黑名单管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-ban mr-3"></i>黑名单管理</a></li>
+                    <li><a href="70-用户导出.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-download mr-3"></i>用户导出</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-800">用户行为分析</h2>
+                        <p class="text-sm text-gray-600">深度分析用户行为轨迹，优化产品体验</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm text-gray-600">时间范围：</label>
+                        <select id="timeRange" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="7">最近7天</option>
+                            <option value="30" selected>最近30天</option>
+                            <option value="90">最近90天</option>
+                        </select>
+                    </div>
+                    <button id="refreshData" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                    </button>
+                    <button id="exportReport" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出报告
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 行为概览卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">页面浏览量</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">156,789</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+15.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-eye text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">独立访客</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">23,456</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8.7%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">平均停留时间</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">4:32</p>
+                            <p class="text-sm text-red-600 mt-1">
+                                <i class="fas fa-arrow-down mr-1"></i>-2.1%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">跳出率</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">32.5%</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-down mr-1"></i>-5.3%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-sign-out-alt text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- 用户行为趋势 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">用户行为趋势</h3>
+                            <div class="flex items-center space-x-2">
+                                <button class="px-3 py-1 text-sm bg-green-500 text-white rounded" id="behaviorTrendPV">PV</button>
+                                <button class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded" id="behaviorTrendUV">UV</button>
+                                <button class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded" id="behaviorTrendTime">停留时间</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <canvas id="behaviorTrendChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- 页面热力图 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">页面访问热力图</h3>
+                            <select id="heatmapPage" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="home">首页</option>
+                                <option value="product">商品页</option>
+                                <option value="cart">购物车</option>
+                                <option value="checkout">结算页</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div id="heatmapContainer" class="grid grid-cols-10 gap-1">
+                            <!-- 热力图将通过JavaScript动态生成 -->
+                        </div>
+                        <div class="flex items-center justify-between mt-4 text-sm text-gray-600">
+                            <span>低</span>
+                            <div class="flex items-center space-x-1">
+                                <div class="w-4 h-4 bg-blue-100 rounded"></div>
+                                <div class="w-4 h-4 bg-blue-200 rounded"></div>
+                                <div class="w-4 h-4 bg-blue-400 rounded"></div>
+                                <div class="w-4 h-4 bg-blue-600 rounded"></div>
+                                <div class="w-4 h-4 bg-blue-800 rounded"></div>
+                            </div>
+                            <span>高</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 转化漏斗分析 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">转化漏斗分析</h3>
+                        <div class="flex items-center space-x-3">
+                            <select id="funnelType" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="purchase">购买转化</option>
+                                <option value="register">注册转化</option>
+                                <option value="subscribe">订阅转化</option>
+                            </select>
+                            <button id="customizeFunnel" class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                <i class="fas fa-cog mr-2"></i>自定义漏斗
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div id="funnelContainer" class="space-y-4">
+                        <!-- 漏斗步骤将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 用户路径分析 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">用户路径分析</h3>
+                            <div class="flex items-center space-x-2">
+                                <button class="px-3 py-1 text-sm bg-green-500 text-white rounded" id="pathTypeCommon">常见路径</button>
+                                <button class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded" id="pathTypeConversion">转化路径</button>
+                                <button class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded" id="pathTypeLoss">流失路径</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div id="userPathContainer" class="space-y-4">
+                            <!-- 用户路径将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 行为事件统计 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">行为事件统计</h3>
+                            <div class="relative">
+                                <input type="text" id="searchEvents" placeholder="搜索事件..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div id="eventsList" class="space-y-3 max-h-96 overflow-y-auto">
+                            <!-- 事件列表将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 自定义漏斗模态框 -->
+    <div id="funnelModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">自定义转化漏斗</h3>
+                    <button id="closeFunnelModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form id="funnelForm" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">漏斗名称</label>
+                        <input type="text" id="funnelName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="请输入漏斗名称" required>
+                    </div>
+                    
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <label class="block text-sm font-medium text-gray-700">漏斗步骤</label>
+                            <button type="button" id="addFunnelStep" class="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600">
+                                <i class="fas fa-plus mr-1"></i>添加步骤
+                            </button>
+                        </div>
+                        <div id="funnelStepsList" class="space-y-3">
+                            <!-- 漏斗步骤将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">时间窗口</label>
+                            <select id="funnelTimeWindow" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="1">1小时</option>
+                                <option value="24">24小时</option>
+                                <option value="168">7天</option>
+                                <option value="720">30天</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">用户群体</label>
+                            <select id="funnelUserGroup" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="all">全部用户</option>
+                                <option value="new">新用户</option>
+                                <option value="returning">回访用户</option>
+                                <option value="vip">VIP用户</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancelFunnel" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">取消</button>
+                <button id="saveFunnel" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">创建漏斗</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        const behaviorData = {
+            trend: {
+                pv: [12000, 13500, 11800, 15200, 14600, 16800, 15400],
+                uv: [3200, 3600, 3100, 4100, 3900, 4500, 4200],
+                time: [280, 295, 265, 310, 285, 320, 305]
+            },
+            funnel: {
+                purchase: [
+                    { name: '访问首页', count: 10000, rate: 100 },
+                    { name: '浏览商品', count: 6500, rate: 65 },
+                    { name: '加入购物车', count: 2800, rate: 28 },
+                    { name: '进入结算', count: 1200, rate: 12 },
+                    { name: '完成支付', count: 850, rate: 8.5 }
+                ],
+                register: [
+                    { name: '访问网站', count: 8000, rate: 100 },
+                    { name: '点击注册', count: 2400, rate: 30 },
+                    { name: '填写信息', count: 1800, rate: 22.5 },
+                    { name: '验证邮箱', count: 1500, rate: 18.75 },
+                    { name: '完成注册', count: 1350, rate: 16.88 }
+                ]
+            },
+            events: [
+                { name: '点击商品', count: 45678, rate: 23.5, trend: 'up' },
+                { name: '加入购物车', count: 12345, rate: 6.3, trend: 'up' },
+                { name: '收藏商品', count: 8765, rate: 4.5, trend: 'down' },
+                { name: '分享商品', count: 3456, rate: 1.8, trend: 'up' },
+                { name: '搜索商品', count: 23456, rate: 12.1, trend: 'stable' },
+                { name: '查看评价', count: 15678, rate: 8.1, trend: 'up' },
+                { name: '咨询客服', count: 2345, rate: 1.2, trend: 'down' },
+                { name: '申请退款', count: 567, rate: 0.3, trend: 'stable' }
+            ],
+            paths: {
+                common: [
+                    { path: '首页 → 商品列表 → 商品详情 → 购物车', count: 1234, rate: 15.2 },
+                    { path: '首页 → 搜索 → 商品详情 → 收藏', count: 987, rate: 12.1 },
+                    { path: '商品列表 → 商品详情 → 分享', count: 765, rate: 9.4 },
+                    { path: '首页 → 分类 → 商品列表 → 商品详情', count: 654, rate: 8.0 },
+                    { path: '搜索 → 商品详情 → 购物车 → 结算', count: 543, rate: 6.7 }
+                ],
+                conversion: [
+                    { path: '首页 → 商品详情 → 购物车 → 结算 → 支付', count: 432, rate: 85.2 },
+                    { path: '搜索 → 商品详情 → 立即购买 → 支付', count: 321, rate: 78.9 },
+                    { path: '推荐 → 商品详情 → 购物车 → 支付', count: 234, rate: 72.1 }
+                ],
+                loss: [
+                    { path: '首页 → 商品列表 → 退出', count: 2345, rate: 28.7 },
+                    { path: '商品详情 → 购物车 → 退出', count: 1876, rate: 23.0 },
+                    { path: '结算页 → 退出', count: 987, rate: 12.1 }
+                ]
+            }
+        };
+
+        let currentChart = null;
+        let funnelStepCount = 0;
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 初始化行为趋势图表
+        function initBehaviorTrendChart(type = 'pv') {
+            const ctx = document.getElementById('behaviorTrendChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            let data, label, color;
+            
+            switch(type) {
+                case 'pv':
+                    data = behaviorData.trend.pv;
+                    label = '页面浏览量';
+                    color = 'rgb(34, 197, 94)';
+                    break;
+                case 'uv':
+                    data = behaviorData.trend.uv;
+                    label = '独立访客';
+                    color = 'rgb(59, 130, 246)';
+                    break;
+                case 'time':
+                    data = behaviorData.trend.time;
+                    label = '平均停留时间(秒)';
+                    color = 'rgb(168, 85, 247)';
+                    break;
+            }
+            
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 生成热力图
+        function generateHeatmap() {
+            const container = document.getElementById('heatmapContainer');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 100; i++) {
+                const cell = document.createElement('div');
+                const intensity = Math.random();
+                let bgColor;
+                
+                if (intensity < 0.2) bgColor = 'bg-blue-100';
+                else if (intensity < 0.4) bgColor = 'bg-blue-200';
+                else if (intensity < 0.6) bgColor = 'bg-blue-400';
+                else if (intensity < 0.8) bgColor = 'bg-blue-600';
+                else bgColor = 'bg-blue-800';
+                
+                cell.className = `heatmap-cell w-8 h-8 ${bgColor} rounded cursor-pointer`;
+                cell.title = `点击率: ${(intensity * 100).toFixed(1)}%`;
+                
+                cell.addEventListener('click', function() {
+                    alert(`区域点击率: ${(intensity * 100).toFixed(1)}%`);
+                });
+                
+                container.appendChild(cell);
+            }
+        }
+
+        // 渲染转化漏斗
+        function renderFunnel(type = 'purchase') {
+            const container = document.getElementById('funnelContainer');
+            const steps = behaviorData.funnel[type];
+            
+            container.innerHTML = '';
+            
+            steps.forEach((step, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'funnel-step';
+                stepDiv.style.width = `${Math.max(20, step.rate)}%`;
+                stepDiv.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-medium">${step.name}</h4>
+                            <p class="text-sm opacity-90">${step.count.toLocaleString()} 人</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-bold">${step.rate}%</p>
+                            ${index > 0 ? `<p class="text-sm opacity-90">流失 ${(steps[index-1].rate - step.rate).toFixed(1)}%</p>` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(stepDiv);
+            });
+        }
+
+        // 渲染用户路径
+        function renderUserPaths(type = 'common') {
+            const container = document.getElementById('userPathContainer');
+            const paths = behaviorData.paths[type];
+            
+            container.innerHTML = '';
+            
+            paths.forEach((pathData, index) => {
+                const pathDiv = document.createElement('div');
+                pathDiv.className = 'p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors';
+                pathDiv.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-900">#${index + 1}</span>
+                        <div class="text-right">
+                            <span class="text-sm font-medium text-blue-600">${pathData.count} 次</span>
+                            <span class="text-xs text-gray-500 ml-2">${pathData.rate}%</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        ${pathData.path.split(' → ').map((step, i, arr) => 
+                            `<span class="path-node px-2 py-1 bg-gray-100 rounded">${step}</span>${i < arr.length - 1 ? '<i class="fas fa-arrow-right text-gray-400"></i>' : ''}'
+                        ).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(pathDiv);
+            });
+        }
+
+        // 渲染事件列表
+        function renderEventsList() {
+            const container = document.getElementById('eventsList');
+            container.innerHTML = '';
+            
+            behaviorData.events.forEach(event => {
+                const eventDiv = document.createElement('div');
+                eventDiv.className = 'behavior-item flex items-center justify-between p-3 border border-gray-200 rounded-lg';
+                
+                let trendIcon, trendColor;
+                switch(event.trend) {
+                    case 'up':
+                        trendIcon = 'fa-arrow-up';
+                        trendColor = 'text-green-600';
+                        break;
+                    case 'down':
+                        trendIcon = 'fa-arrow-down';
+                        trendColor = 'text-red-600';
+                        break;
+                    default:
+                        trendIcon = 'fa-minus';
+                        trendColor = 'text-gray-600';
+                }
+                
+                eventDiv.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mouse-pointer text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-900">${event.name}</h4>
+                            <p class="text-sm text-gray-600">${event.count.toLocaleString()} 次触发</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-900">${event.rate}%</span>
+                            <i class="fas ${trendIcon} ${trendColor}"></i>
+                        </div>
+                        <p class="text-xs text-gray-500">占总事件比例</p>
+                    </div>
+                `;
+                
+                container.appendChild(eventDiv);
+            });
+        }
+
+        // 添加漏斗步骤
+        function addFunnelStep() {
+            funnelStepCount++;
+            const container = document.getElementById('funnelStepsList');
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'flex items-center space-x-3 p-3 border border-gray-200 rounded-lg';
+            stepDiv.innerHTML = `
+                <div class="flex-1">
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                           placeholder="步骤名称" required>
+                </div>
+                <div class="flex-1">
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        <option value="page_view">页面访问</option>
+                        <option value="click">点击事件</option>
+                        <option value="form_submit">表单提交</option>
+                        <option value="purchase">购买行为</option>
+                        <option value="custom">自定义事件</option>
+                    </select>
+                </div>
+                <button type="button" class="text-red-500 hover:text-red-700" onclick="removeFunnelStep(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            container.appendChild(stepDiv);
+        }
+
+        // 移除漏斗步骤
+        function removeFunnelStep(button) {
+            button.closest('.flex').remove();
+        }
+
+        // 事件绑定
+        document.getElementById('behaviorTrendPV').addEventListener('click', function() {
+            setActiveButton(this, ['behaviorTrendPV', 'behaviorTrendUV', 'behaviorTrendTime']);
+            initBehaviorTrendChart('pv');
+        });
+
+        document.getElementById('behaviorTrendUV').addEventListener('click', function() {
+            setActiveButton(this, ['behaviorTrendPV', 'behaviorTrendUV', 'behaviorTrendTime']);
+            initBehaviorTrendChart('uv');
+        });
+
+        document.getElementById('behaviorTrendTime').addEventListener('click', function() {
+            setActiveButton(this, ['behaviorTrendPV', 'behaviorTrendUV', 'behaviorTrendTime']);
+            initBehaviorTrendChart('time');
+        });
+
+        document.getElementById('funnelType').addEventListener('change', function() {
+            renderFunnel(this.value);
+        });
+
+        document.getElementById('pathTypeCommon').addEventListener('click', function() {
+            setActiveButton(this, ['pathTypeCommon', 'pathTypeConversion', 'pathTypeLoss']);
+            renderUserPaths('common');
+        });
+
+        document.getElementById('pathTypeConversion').addEventListener('click', function() {
+            setActiveButton(this, ['pathTypeCommon', 'pathTypeConversion', 'pathTypeLoss']);
+            renderUserPaths('conversion');
+        });
+
+        document.getElementById('pathTypeLoss').addEventListener('click', function() {
+            setActiveButton(this, ['pathTypeCommon', 'pathTypeConversion', 'pathTypeLoss']);
+            renderUserPaths('loss');
+        });
+
+        document.getElementById('customizeFunnel').addEventListener('click', function() {
+            document.getElementById('funnelModal').classList.remove('hidden');
+            document.getElementById('funnelModal').classList.add('flex');
+        });
+
+        document.getElementById('closeFunnelModal').addEventListener('click', function() {
+            document.getElementById('funnelModal').classList.add('hidden');
+            document.getElementById('funnelModal').classList.remove('flex');
+        });
+
+        document.getElementById('addFunnelStep').addEventListener('click', addFunnelStep);
+
+        document.getElementById('saveFunnel').addEventListener('click', function() {
+            alert('自定义漏斗创建成功！');
+            document.getElementById('funnelModal').classList.add('hidden');
+            document.getElementById('funnelModal').classList.remove('flex');
+        });
+
+        // 设置活跃按钮
+        function setActiveButton(activeBtn, buttonIds) {
+            buttonIds.forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn === activeBtn) {
+                    btn.className = 'px-3 py-1 text-sm bg-green-500 text-white rounded';
+                } else {
+                    btn.className = 'px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded';
+                }
+            });
+        }
+
+        // 刷新数据
+        document.getElementById('refreshData').addEventListener('click', function() {
+            initBehaviorTrendChart('pv');
+            generateHeatmap();
+            renderFunnel('purchase');
+            renderUserPaths('common');
+            renderEventsList();
+            alert('数据刷新成功！');
+        });
+
+        // 导出报告
+        document.getElementById('exportReport').addEventListener('click', function() {
+            alert('行为分析报告导出成功！');
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initBehaviorTrendChart('pv');
+            generateHeatmap();
+            renderFunnel('purchase');
+            renderUserPaths('common');
+            renderEventsList();
+            addFunnelStep(); // 添加默认漏斗步骤
+            console.log('用户行为分析页面初始化完成');
+        });
+    </script>
+</body>
+</html>

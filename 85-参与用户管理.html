@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参与用户管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .sidebar-item.active { background-color: #10b981; color: white; }
+        .user-card { transition: all 0.3s ease; }
+        .user-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .status-badge { transition: all 0.3s ease; }
+        .tab-button { transition: all 0.3s ease; }
+        .tab-button.active { background-color: #10b981; color: white; }
+        .modal { backdrop-filter: blur(4px); }
+        .progress-ring { transition: stroke-dasharray 0.3s ease; }
+        .user-avatar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50">
+        <div class="flex items-center justify-center h-16 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>仪表盘
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-box mr-3"></i>商品管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>订单管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>用户管理
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-bullhorn mr-3"></i>营销活动
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-truck mr-3"></i>供应商管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>香草图鉴
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>香草阳台
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-images mr-3"></i>Banner管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-cog mr-3"></i>系统设置
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 flex-1">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <a href="#" class="text-gray-500 hover:text-gray-700">营销活动</a>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                        <span class="text-gray-900 font-medium">参与用户管理</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面头部 -->
+        <div class="p-6">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-xl mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2">参与用户管理</h1>
+                        <p class="text-blue-100">管理活动参与用户，分析用户行为和参与效果</p>
+                        <div class="flex items-center space-x-6 mt-4">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-users text-blue-200"></i>
+                                <span class="text-sm">总参与用户: 12,456</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-chart-line text-blue-200"></i>
+                                <span class="text-sm">活跃用户: 8,234</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-trophy text-blue-200"></i>
+                                <span class="text-sm">获奖用户: 3,456</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <button id="export-users-btn" class="px-6 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors mr-3">
+                            <i class="fas fa-download mr-2"></i>导出数据
+                        </button>
+                        <button id="send-message-btn" class="px-6 py-3 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-colors">
+                            <i class="fas fa-paper-plane mr-2"></i>群发消息
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">今日新增参与</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-2">1,234</p>
+                            <p class="text-xs text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+12.5%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-user-plus text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">参与转化率</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-2">68.5%</p>
+                            <p class="text-xs text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+3.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-percentage text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">平均参与时长</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-2">8.5分钟</p>
+                            <p class="text-xs text-red-600 mt-1">
+                                <i class="fas fa-arrow-down mr-1"></i>-1.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">用户满意度</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-2">4.6分</p>
+                            <p class="text-xs text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+0.3
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-star text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和操作栏 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">用户列表</h2>
+                    <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <input type="text" placeholder="搜索用户昵称/手机号" class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                        <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option>全部活动</option>
+                            <option>春季大促</option>
+                            <option>新用户礼包</option>
+                            <option>会员专享日</option>
+                        </select>
+                        <button id="batch-action-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-tasks mr-2"></i>批量操作
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 标签页 -->
+                <div class="flex items-center space-x-2 mb-6">
+                    <button class="tab-button active px-4 py-2 text-sm rounded-lg border border-gray-300" data-tab="all">
+                        全部用户 (12,456)
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg border border-gray-300" data-tab="active">
+                        活跃用户 (8,234)
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg border border-gray-300" data-tab="winner">
+                        获奖用户 (3,456)
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg border border-gray-300" data-tab="new">
+                        新用户 (2,345)
+                    </button>
+                    <button class="tab-button px-4 py-2 text-sm rounded-lg border border-gray-300" data-tab="vip">
+                        VIP用户 (1,234)
+                    </button>
+                </div>
+
+                <!-- 筛选器 -->
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+                    <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option>参与状态</option>
+                        <option>已参与</option>
+                        <option>已获奖</option>
+                        <option>已领奖</option>
+                        <option>未领奖</option>
+                    </select>
+                    <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option>用户等级</option>
+                        <option>普通用户</option>
+                        <option>VIP用户</option>
+                        <option>超级VIP</option>
+                    </select>
+                    <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option>注册时间</option>
+                        <option>今天</option>
+                        <option>本周</option>
+                        <option>本月</option>
+                        <option>3个月内</option>
+                    </select>
+                    <input type="date" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="date" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-redo mr-2"></i>重置
+                    </button>
+                </div>
+
+                <!-- 用户列表 -->
+                <div class="space-y-4" id="user-list">
+                    <!-- 用户卡片 1 -->
+                    <div class="user-card bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <div class="user-avatar w-12 h-12 rounded-full flex items-center justify-center text-white font-bold">
+                                    张
+                                </div>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <h3 class="font-medium text-gray-900">张小明</h3>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <i class="fas fa-crown mr-1"></i>VIP
+                                        </span>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            已获奖
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">手机: 138****5678 | 注册: 2023-08-15</p>
+                                    <div class="flex items-center space-x-4 mt-1">
+                                        <span class="text-xs text-gray-500">参与活动: 春季大促</span>
+                                        <span class="text-xs text-gray-500">参与时间: 2024-01-15 14:30</span>
+                                        <span class="text-xs text-gray-500">获得奖励: 50元优惠券</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-6">
+                                <div class="text-center">
+                                    <p class="text-sm font-medium text-gray-900">参与次数</p>
+                                    <p class="text-lg font-bold text-blue-600">15</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm font-medium text-gray-900">获奖次数</p>
+                                    <p class="text-lg font-bold text-green-600">8</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm font-medium text-gray-900">消费金额</p>
+                                    <p class="text-lg font-bold text-purple-600">¥2,580</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="text-green-600 hover:text-green-800 text-sm">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                    <button class="text-gray-600 hover:text-gray-800 text-sm">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 用户卡片 2 -->
+                    <div class="user-card bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <div class="user-avatar w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                    李
+                                </div>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <h3 class="font-medium text-gray-900">李小红</h3>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            普通用户
+                                        </span>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            已参与
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">手机: 139****9876 | 注册: 2024-01-10</p>
+                                    <div class="flex items-center space-x-4 mt-1">
+                                        <span class="text-xs text-gray-500">参与活动: 新用户礼包</span>
+                                        <span class="text-xs text-gray-500">参与时间: 2024-01-16 09:15</span>
+                                        <span class="text-xs text-gray-500">获得奖励: 新人大礼包</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-6">
+                                <div class="text-center">
+                                    <p class="text-sm font-medium text-gray-900">参与次数</p>
+                                    <p class="text-lg font-bold text-blue-600">3</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm font-medium text-gray-900">获奖次数</p>
+                                    <p class="text-lg font-bold text-green-600">2</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm font-medium text-gray-900">消费金额</p>
+                                    <p class="text-lg font-bold text-purple-600">¥456</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="text-green-600 hover:text-green-800 text-sm">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                    <button class="text-gray-600 hover:text-gray-800 text-sm">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 用户卡片 3 -->
+                    <div class="user-card bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <div class="user-avatar w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                    王
+                                </div>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <h3 class="font-medium text-gray-900">王大华</h3>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            <i class="fas fa-gem mr-1"></i>超级VIP
+                                        </span>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            未领奖
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">手机: 137****1234 | 注册: 2022-05-20</p>
+                                    <div class="flex items-center space-x-4 mt-1">
+                                        <span class="text-xs text-gray-500">参与活动: 会员专享日</span>
+                                        <span class="text-xs text-gray-500">参与时间: 2024-01-14 16:45</span>
+                                        <span class="text-xs text-gray-500">获得奖励: 100元现金券</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-6">
+                                <div class="text-center">
+                                    <p class="text-sm font-medium text-gray-900">参与次数</p>
+                                    <p class="text-lg font-bold text-blue-600">28</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm font-medium text-gray-900">获奖次数</p>
+                                    <p class="text-lg font-bold text-green-600">18</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm font-medium text-gray-900">消费金额</p>
+                                    <p class="text-lg font-bold text-purple-600">¥8,960</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="text-green-600 hover:text-green-800 text-sm">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                    <button class="text-gray-600 hover:text-gray-800 text-sm">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分页 -->
+                <div class="flex items-center justify-between mt-6">
+                    <div class="text-sm text-gray-700">
+                        显示 <span class="font-medium">1</span> 到 <span class="font-medium">20</span> 条，共 <span class="font-medium">12,456</span> 条记录
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="px-3 py-2 border border-gray-300 text-gray-500 rounded-md hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="px-3 py-2 bg-blue-600 text-white rounded-md">1</button>
+                        <button class="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">2</button>
+                        <button class="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">3</button>
+                        <span class="px-3 py-2 text-gray-500">...</span>
+                        <button class="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">623</button>
+                        <button class="px-3 py-2 border border-gray-300 text-gray-500 rounded-md hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户详情模态框 -->
+    <div id="user-detail-modal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">用户详情</h3>
+                <button id="close-user-detail" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <!-- 用户基本信息 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-gray-900 mb-3">基本信息</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">用户昵称:</span>
+                                <span class="font-medium">张小明</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">手机号码:</span>
+                                <span class="font-medium">138****5678</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">用户等级:</span>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-crown mr-1"></i>VIP
+                                </span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">注册时间:</span>
+                                <span class="font-medium">2023-08-15</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-gray-900 mb-3">活动数据</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">总参与次数:</span>
+                                <span class="font-medium text-blue-600">15次</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">获奖次数:</span>
+                                <span class="font-medium text-green-600">8次</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">获奖率:</span>
+                                <span class="font-medium text-purple-600">53.3%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">累计消费:</span>
+                                <span class="font-medium text-red-600">¥2,580</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 参与活动记录 -->
+                <div class="mb-6">
+                    <h4 class="font-medium text-gray-900 mb-3">参与活动记录</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">活动名称</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">参与时间</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">参与状态</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">获得奖励</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">领取状态</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">春季大促</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 14:30</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            已获奖
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">50元优惠券</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            已领取
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">会员专享日</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-10 10:20</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            已获奖
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">100积分</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            已领取
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 用户行为分析 -->
+                <div>
+                    <h4 class="font-medium text-gray-900 mb-3">用户行为分析</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-blue-600 mb-1">8.5分钟</div>
+                            <div class="text-sm text-gray-600">平均参与时长</div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-green-600 mb-1">3.2次</div>
+                            <div class="text-sm text-gray-600">月均参与频次</div>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-purple-600 mb-1">85%</div>
+                            <div class="text-sm text-gray-600">活动完成率</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-4 p-6 border-t border-gray-200">
+                <button class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    发送消息
+                </button>
+                <button class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    编辑用户
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 群发消息模态框 -->
+    <div id="send-message-modal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">群发消息</h3>
+                <button id="close-message-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">发送对象</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center p-3 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="target" value="all" class="text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm">全部用户</span>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="target" value="selected" class="text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm">选中用户</span>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="target" value="winner" class="text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm">获奖用户</span>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="target" value="vip" class="text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm">VIP用户</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">消息类型</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option>系统通知</option>
+                            <option>活动提醒</option>
+                            <option>奖励通知</option>
+                            <option>营销推广</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">消息标题</label>
+                        <input type="text" placeholder="请输入消息标题" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">消息内容</label>
+                        <textarea rows="4" placeholder="请输入消息内容" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">发送时间</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center">
+                                <input type="radio" name="send_time" value="now" class="text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm">立即发送</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="send_time" value="scheduled" class="text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm">定时发送</span>
+                            </label>
+                        </div>
+                        <div class="mt-2 grid grid-cols-2 gap-3">
+                            <input type="date" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <input type="time" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="flex items-center justify-end space-x-4 p-6 border-t border-gray-200">
+                <button id="cancel-message" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    取消
+                </button>
+                <button class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    发送消息
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            // 侧边栏切换逻辑
+        });
+
+        // 标签页切换
+        document.querySelectorAll('.tab-button').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                filterUsersByTab(this.getAttribute('data-tab'));
+            });
+        });
+
+        // 根据标签筛选用户
+        function filterUsersByTab(tab) {
+            console.log('筛选用户标签:', tab);
+            // 根据标签筛选用户的逻辑
+        }
+
+        // 搜索用户
+        document.querySelector('input[placeholder="搜索用户昵称/手机号"]').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            console.log('搜索用户:', searchTerm);
+            // 搜索用户的逻辑
+        });
+
+        // 筛选器变化
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', function() {
+                console.log('筛选条件变化:', this.value);
+                // 应用筛选条件
+            });
+        });
+
+        // 全选功能
+        const selectAllCheckbox = document.querySelector('input[type="checkbox"]');
+        const userCheckboxes = document.querySelectorAll('.user-card input[type="checkbox"]');
+        
+        // 用户操作
+        document.querySelectorAll('.user-card').forEach(card => {
+            // 查看用户详情
+            const viewBtn = card.querySelector('.fa-eye').parentElement;
+            viewBtn.addEventListener('click', function() {
+                document.getElementById('user-detail-modal').classList.remove('hidden');
+                document.getElementById('user-detail-modal').classList.add('flex');
+            });
+
+            // 发送消息
+            const messageBtn = card.querySelector('.fa-paper-plane').parentElement;
+            messageBtn.addEventListener('click', function() {
+                console.log('发送消息给用户');
+                // 发送单个消息的逻辑
+            });
+        });
+
+        // 批量操作
+        document.getElementById('batch-action-btn').addEventListener('click', function() {
+            console.log('批量操作');
+            // 显示批量操作菜单
+        });
+
+        // 导出数据
+        document.getElementById('export-users-btn').addEventListener('click', function() {
+            console.log('导出用户数据');
+            // 导出数据的逻辑
+        });
+
+        // 群发消息
+        document.getElementById('send-message-btn').addEventListener('click', function() {
+            document.getElementById('send-message-modal').classList.remove('hidden');
+            document.getElementById('send-message-modal').classList.add('flex');
+        });
+
+        // 关闭用户详情模态框
+        document.getElementById('close-user-detail').addEventListener('click', function() {
+            document.getElementById('user-detail-modal').classList.add('hidden');
+            document.getElementById('user-detail-modal').classList.remove('flex');
+        });
+
+        // 关闭群发消息模态框
+        document.getElementById('close-message-modal').addEventListener('click', function() {
+            document.getElementById('send-message-modal').classList.add('hidden');
+            document.getElementById('send-message-modal').classList.remove('flex');
+        });
+
+        document.getElementById('cancel-message').addEventListener('click', function() {
+            document.getElementById('send-message-modal').classList.add('hidden');
+            document.getElementById('send-message-modal').classList.remove('flex');
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('user-detail-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+                this.classList.remove('flex');
+            }
+        });
+
+        document.getElementById('send-message-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+                this.classList.remove('flex');
+            }
+        });
+
+        // 重置筛选
+        document.querySelector('button:has(.fa-redo)').addEventListener('click', function() {
+            console.log('重置筛选条件');
+            // 重置所有筛选条件
+        });
+    </script>
+</body>
+</html>

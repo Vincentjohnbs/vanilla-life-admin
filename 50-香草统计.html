@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香草统计 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .trend-up {
+            color: #10b981;
+        }
+        .trend-down {
+            color: #ef4444;
+        }
+        .data-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg sidebar-transition">
+        <div class="flex items-center justify-center h-16 bg-green-600">
+            <h1 class="text-xl font-bold text-white">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    仪表盘
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>
+                    香草图鉴
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 bg-green-50 text-green-600 rounded-lg">
+                    <i class="fas fa-chart-bar mr-3"></i>
+                    香草统计
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>
+                    商品管理
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>
+                    用户管理
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700 mr-4">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold text-gray-800">香草统计</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm text-gray-600">时间范围:</label>
+                        <select id="time-range" class="border border-gray-300 rounded-md px-3 py-1 text-sm">
+                            <option value="7">最近7天</option>
+                            <option value="30" selected>最近30天</option>
+                            <option value="90">最近90天</option>
+                            <option value="365">最近一年</option>
+                        </select>
+                    </div>
+                    <button id="export-data" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">
+                        <i class="fas fa-download mr-2"></i>导出数据
+                    </button>
+                    <button id="refresh-stats" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 统计卡片 -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">香草总数</p>
+                            <p class="text-2xl font-bold text-gray-900">1,234</p>
+                            <p class="text-sm text-green-600 trend-up">
+                                <i class="fas fa-arrow-up mr-1"></i>+12.5%
+                            </p>
+                        </div>
+                        <div class="p-3 bg-green-100 rounded-full">
+                            <i class="fas fa-leaf text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">浏览总量</p>
+                            <p class="text-2xl font-bold text-gray-900">45,678</p>
+                            <p class="text-sm text-green-600 trend-up">
+                                <i class="fas fa-arrow-up mr-1"></i>+8.3%
+                            </p>
+                        </div>
+                        <div class="p-3 bg-blue-100 rounded-full">
+                            <i class="fas fa-eye text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">收藏数量</p>
+                            <p class="text-2xl font-bold text-gray-900">8,901</p>
+                            <p class="text-sm text-red-600 trend-down">
+                                <i class="fas fa-arrow-down mr-1"></i>-2.1%
+                            </p>
+                        </div>
+                        <div class="p-3 bg-yellow-100 rounded-full">
+                            <i class="fas fa-heart text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">搜索次数</p>
+                            <p class="text-2xl font-bold text-gray-900">23,456</p>
+                            <p class="text-sm text-green-600 trend-up">
+                                <i class="fas fa-arrow-up mr-1"></i>+15.7%
+                            </p>
+                        </div>
+                        <div class="p-3 bg-purple-100 rounded-full">
+                            <i class="fas fa-search text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- 浏览趋势图 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">浏览趋势</h3>
+                        <div class="flex space-x-2">
+                            <button class="chart-type-btn active px-3 py-1 text-sm bg-green-100 text-green-600 rounded" data-type="line">
+                                线图
+                            </button>
+                            <button class="chart-type-btn px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded" data-type="bar">
+                                柱图
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="viewTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 分类统计图 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">香草分类统计</h3>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 热门香草排行 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">热门香草排行</h3>
+                        <select id="ranking-type" class="border border-gray-300 rounded-md px-3 py-1 text-sm">
+                            <option value="views">按浏览量</option>
+                            <option value="favorites">按收藏量</option>
+                            <option value="searches">按搜索量</option>
+                        </select>
+                    </div>
+                    <div class="data-table">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="w-6 h-6 bg-yellow-500 text-white text-xs font-bold rounded-full flex items-center justify-center mr-3">1</span>
+                                    <div>
+                                        <p class="font-medium text-gray-900">薰衣草</p>
+                                        <p class="text-sm text-gray-500">Lavandula</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-900">12,345</p>
+                                    <p class="text-sm text-green-600">+23.5%</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="w-6 h-6 bg-gray-400 text-white text-xs font-bold rounded-full flex items-center justify-center mr-3">2</span>
+                                    <div>
+                                        <p class="font-medium text-gray-900">迷迭香</p>
+                                        <p class="text-sm text-gray-500">Rosmarinus</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-900">9,876</p>
+                                    <p class="text-sm text-green-600">+18.2%</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="w-6 h-6 bg-orange-500 text-white text-xs font-bold rounded-full flex items-center justify-center mr-3">3</span>
+                                    <div>
+                                        <p class="font-medium text-gray-900">薄荷</p>
+                                        <p class="text-sm text-gray-500">Mentha</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-900">8,654</p>
+                                    <p class="text-sm text-red-600">-5.3%</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="w-6 h-6 bg-gray-300 text-gray-600 text-xs font-bold rounded-full flex items-center justify-center mr-3">4</span>
+                                    <div>
+                                        <p class="font-medium text-gray-900">罗勒</p>
+                                        <p class="text-sm text-gray-500">Ocimum basilicum</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-900">7,321</p>
+                                    <p class="text-sm text-green-600">+12.8%</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="w-6 h-6 bg-gray-300 text-gray-600 text-xs font-bold rounded-full flex items-center justify-center mr-3">5</span>
+                                    <div>
+                                        <p class="font-medium text-gray-900">百里香</p>
+                                        <p class="text-sm text-gray-500">Thymus</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-900">6,789</p>
+                                    <p class="text-sm text-green-600">+8.9%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 用户行为分析 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">用户行为分析</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">平均浏览时长</span>
+                            <span class="font-semibold text-gray-900">3分42秒</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-600 h-2 rounded-full" style="width: 75%"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">跳出率</span>
+                            <span class="font-semibold text-gray-900">32.5%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 32.5%"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">收藏转化率</span>
+                            <span class="font-semibold text-gray-900">19.8%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 19.8%"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">分享率</span>
+                            <span class="font-semibold text-gray-900">8.3%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-purple-600 h-2 rounded-full" style="width: 8.3%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <h4 class="text-sm font-semibold text-gray-800 mb-3">热门搜索关键词</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">薰衣草种植</span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">迷迭香用途</span>
+                            <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">薄荷茶</span>
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">香草护肤</span>
+                            <span class="px-3 py-1 bg-pink-100 text-pink-800 text-sm rounded-full">芳香疗法</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 详细数据表格 -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800">详细统计数据</h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <input type="text" id="search-table" placeholder="搜索香草..." 
+                                       class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                            </div>
+                            <select id="table-category" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <option value="">所有分类</option>
+                                <option value="烹饪香草">烹饪香草</option>
+                                <option value="药用香草">药用香草</option>
+                                <option value="观赏香草">观赏香草</option>
+                                <option value="芳香香草">芳香香草</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="name">
+                                    香草名称 <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="category">
+                                    分类 <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="views">
+                                    浏览量 <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="favorites">
+                                    收藏量 <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="searches">
+                                    搜索量 <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" data-sort="trend">
+                                    趋势 <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    操作
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                                                <i class="fas fa-leaf text-purple-600"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">薰衣草</div>
+                                            <div class="text-sm text-gray-500">Lavandula</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                        芳香香草
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">12,345</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2,456</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3,789</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm text-green-600 font-medium">
+                                        <i class="fas fa-arrow-up mr-1"></i>+23.5%
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-green-600 hover:text-green-900 mr-3">
+                                        <i class="fas fa-chart-line"></i>
+                                    </button>
+                                    <button class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                                <i class="fas fa-leaf text-green-600"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">迷迭香</div>
+                                            <div class="text-sm text-gray-500">Rosmarinus</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        烹饪香草
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">9,876</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1,987</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2,654</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm text-green-600 font-medium">
+                                        <i class="fas fa-arrow-up mr-1"></i>+18.2%
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-green-600 hover:text-green-900 mr-3">
+                                        <i class="fas fa-chart-line"></i>
+                                    </button>
+                                    <button class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                <i class="fas fa-leaf text-blue-600"></i>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">薄荷</div>
+                                            <div class="text-sm text-gray-500">Mentha</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        药用香草
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">8,654</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1,543</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2,198</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm text-red-600 font-medium">
+                                        <i class="fas fa-arrow-down mr-1"></i>-5.3%
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-green-600 hover:text-green-900 mr-3">
+                                        <i class="fas fa-chart-line"></i>
+                                    </button>
+                                    <button class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">97</span> 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50" disabled>
+                                上一页
+                            </button>
+                            <button class="px-3 py-1 text-sm bg-green-600 text-white rounded">1</button>
+                            <button class="px-3 py-1 text-sm text-gray-700 hover:text-gray-900">2</button>
+                            <button class="px-3 py-1 text-sm text-gray-700 hover:text-gray-900">3</button>
+                            <span class="px-3 py-1 text-sm text-gray-500">...</span>
+                            <button class="px-3 py-1 text-sm text-gray-700 hover:text-gray-900">10</button>
+                            <button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 初始化图表
+        let viewTrendChart, categoryChart;
+
+        // 浏览趋势图
+        const viewCtx = document.getElementById('viewTrendChart').getContext('2d');
+        viewTrendChart = new Chart(viewCtx, {
+            type: 'line',
+            data: {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                datasets: [{
+                    label: '浏览量',
+                    data: [1200, 1900, 3000, 5000, 4200, 3800, 4500, 5200, 4800, 5500, 6200, 6800],
+                    borderColor: 'rgb(34, 197, 94)',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 分类统计图
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        categoryChart = new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['烹饪香草', '药用香草', '观赏香草', '芳香香草', '其他'],
+                datasets: [{
+                    data: [35, 25, 20, 15, 5],
+                    backgroundColor: [
+                        'rgb(34, 197, 94)',
+                        'rgb(59, 130, 246)',
+                        'rgb(168, 85, 247)',
+                        'rgb(245, 158, 11)',
+                        'rgb(156, 163, 175)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // 图表类型切换
+        document.querySelectorAll('.chart-type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.chart-type-btn').forEach(b => {
+                    b.classList.remove('active', 'bg-green-100', 'text-green-600');
+                    b.classList.add('text-gray-600', 'hover:bg-gray-100');
+                });
+                
+                this.classList.add('active', 'bg-green-100', 'text-green-600');
+                this.classList.remove('text-gray-600', 'hover:bg-gray-100');
+                
+                const chartType = this.getAttribute('data-type');
+                
+                viewTrendChart.destroy();
+                viewTrendChart = new Chart(viewCtx, {
+                    type: chartType,
+                    data: {
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                        datasets: [{
+                            label: '浏览量',
+                            data: [1200, 1900, 3000, 5000, 4200, 3800, 4500, 5200, 4800, 5500, 6200, 6800],
+                            borderColor: 'rgb(34, 197, 94)',
+                            backgroundColor: chartType === 'line' ? 'rgba(34, 197, 94, 0.1)' : 'rgb(34, 197, 94)',
+                            tension: chartType === 'line' ? 0.4 : 0,
+                            fill: chartType === 'line'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+        });
+
+        // 时间范围切换
+        document.getElementById('time-range').addEventListener('change', function() {
+            const range = this.value;
+            console.log('切换时间范围:', range + '天');
+            // 这里可以重新加载数据
+            updateStatistics(range);
+        });
+
+        // 排行榜类型切换
+        document.getElementById('ranking-type').addEventListener('change', function() {
+            const type = this.value;
+            console.log('切换排行榜类型:', type);
+            // 这里可以重新加载排行榜数据
+        });
+
+        // 表格搜索
+        document.getElementById('search-table').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const herbName = row.querySelector('.text-sm.font-medium.text-gray-900').textContent.toLowerCase();
+                const scientificName = row.querySelector('.text-sm.text-gray-500').textContent.toLowerCase();
+                
+                if (herbName.includes(searchTerm) || scientificName.includes(searchTerm)) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // 表格分类筛选
+        document.getElementById('table-category').addEventListener('change', function() {
+            const category = this.value;
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const rowCategory = row.querySelector('.px-2.inline-flex').textContent.trim();
+                
+                if (category === '' || rowCategory === category) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // 表格排序
+        document.querySelectorAll('[data-sort]').forEach(header => {
+            header.addEventListener('click', function() {
+                const sortBy = this.getAttribute('data-sort');
+                console.log('排序字段:', sortBy);
+                // 这里可以实现排序逻辑
+            });
+        });
+
+        // 导出数据
+        document.getElementById('export-data').addEventListener('click', function() {
+            console.log('导出统计数据');
+            alert('正在导出数据...');
+        });
+
+        // 刷新统计
+        document.getElementById('refresh-stats').addEventListener('click', function() {
+            console.log('刷新统计数据');
+            const btn = this;
+            const icon = btn.querySelector('i');
+            
+            icon.classList.add('fa-spin');
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                btn.disabled = false;
+                alert('数据已刷新！');
+            }, 2000);
+        });
+
+        // 更新统计数据
+        function updateStatistics(range) {
+            // 模拟数据更新
+            console.log('更新统计数据，时间范围:', range + '天');
+            
+            // 这里可以根据时间范围更新图表和统计卡片
+            const multiplier = range / 30; // 基于30天的倍数
+            
+            // 更新统计卡片（示例）
+            const cards = document.querySelectorAll('.stat-card');
+            cards.forEach((card, index) => {
+                const valueElement = card.querySelector('.text-2xl.font-bold');
+                const currentValue = parseInt(valueElement.textContent.replace(/,/g, ''));
+                const newValue = Math.round(currentValue * multiplier);
+                valueElement.textContent = newValue.toLocaleString();
+            });
+        }
+
+        // 查看详细图表
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.fa-chart-line')) {
+                const row = e.target.closest('tr');
+                const herbName = row.querySelector('.text-sm.font-medium.text-gray-900').textContent;
+                console.log('查看详细图表:', herbName);
+                alert(`查看 ${herbName} 的详细统计图表`);
+            }
+        });
+
+        // 查看详情
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.fa-eye')) {
+                const row = e.target.closest('tr');
+                const herbName = row.querySelector('.text-sm.font-medium.text-gray-900').textContent;
+                console.log('查看详情:', herbName);
+                alert(`查看 ${herbName} 的详细信息`);
+            }
+        });
+    </script>
+</body>
+</html>

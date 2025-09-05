@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物流管理 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .logistics-card {
+            transition: all 0.3s ease;
+        }
+        .logistics-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .status-shipped {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+        .status-transit {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .status-delivered {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .status-exception {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .tracking-step {
+            position: relative;
+        }
+        .tracking-step::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 40px;
+            width: 2px;
+            height: calc(100% - 40px);
+            background: #e5e7eb;
+        }
+        .tracking-step:last-child::before {
+            display: none;
+        }
+        .tracking-step.completed::before {
+            background: #10b981;
+        }
+        .map-container {
+            height: 300px;
+            background: linear-gradient(45deg, #f0f9ff, #e0f2fe);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .route-line {
+            position: absolute;
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            top: 50%;
+            left: 20%;
+            transform: translateY(-50%);
+        }
+        .location-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transition-all duration-300 z-50">
+        <div class="p-6 border-b">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div id="logo-text">
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-tachometer-alt w-5"></i>
+                        <span class="nav-text">仪表盘</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-box w-5"></i>
+                        <span class="nav-text">商品管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-green-50 text-green-600 rounded-lg">
+                        <i class="fas fa-shopping-cart w-5"></i>
+                        <span class="nav-text">订单管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-users w-5"></i>
+                        <span class="nav-text">用户管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-seedling w-5"></i>
+                        <span class="nav-text">香草图鉴</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-comments w-5"></i>
+                        <span class="nav-text">香草阳台</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <a href="#" class="hover:text-green-600">订单管理</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-green-600">物流管理</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 页面标题和操作 -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">物流管理</h1>
+                    <p class="text-gray-600 mt-1">管理订单物流信息和配送状态</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-truck mr-2"></i>批量发货
+                    </button>
+                    <button class="px-4 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出物流单
+                    </button>
+                    <button class="px-4 py-2 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                        <i class="fas fa-cog mr-2"></i>物流设置
+                    </button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="stats-card text-white p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm opacity-90">待发货订单</p>
+                            <p class="text-3xl font-bold mt-2">156</p>
+                            <p class="text-xs opacity-75 mt-1">较昨日 +12</p>
+                        </div>
+                        <i class="fas fa-box text-3xl opacity-75"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">运输中订单</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">89</p>
+                            <p class="text-xs text-blue-600 mt-1">较昨日 +5</p>
+                        </div>
+                        <i class="fas fa-shipping-fast text-3xl text-blue-500"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">今日签收</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">234</p>
+                            <p class="text-xs text-green-600 mt-1">签收率 98.5%</p>
+                        </div>
+                        <i class="fas fa-check-circle text-3xl text-green-500"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">异常订单</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">7</p>
+                            <p class="text-xs text-red-600 mt-1">需要处理</p>
+                        </div>
+                        <i class="fas fa-exclamation-triangle text-3xl text-red-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 物流订单列表 -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">物流订单</h3>
+                                <div class="flex items-center space-x-2">
+                                    <select class="px-3 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                        <option value="">全部状态</option>
+                                        <option value="pending">待发货</option>
+                                        <option value="shipped">已发货</option>
+                                        <option value="transit">运输中</option>
+                                        <option value="delivered">已签收</option>
+                                        <option value="exception">异常</option>
+                                    </select>
+                                    <button class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors">
+                                        <i class="fas fa-sync-alt mr-1"></i>刷新
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="divide-y divide-gray-200">
+                            <div class="logistics-card p-4 hover:bg-gray-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-shrink-0">
+                                            <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=50&h=50&fit=crop" alt="商品" class="w-12 h-12 rounded-lg object-cover">
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2">
+                                                <h4 class="text-sm font-medium text-gray-900">#ORD202401150001</h4>
+                                                <span class="status-shipped text-white px-2 py-1 rounded-full text-xs font-medium">
+                                                    已发货
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-1">薄荷盆栽套装 x1</p>
+                                            <p class="text-xs text-gray-500">收货人: 张小花 | 北京市朝阳区</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">SF1234567890</p>
+                                        <p class="text-xs text-gray-500">顺丰速运</p>
+                                        <button onclick="trackOrder('SF1234567890')" class="text-xs text-blue-600 hover:text-blue-800 mt-1">
+                                            查看物流
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="logistics-card p-4 hover:bg-gray-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-shrink-0">
+                                            <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=50&h=50&fit=crop" alt="商品" class="w-12 h-12 rounded-lg object-cover">
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2">
+                                                <h4 class="text-sm font-medium text-gray-900">#ORD202401150002</h4>
+                                                <span class="status-transit text-white px-2 py-1 rounded-full text-xs font-medium">
+                                                    运输中
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-1">迷迭香种植套装 x1</p>
+                                            <p class="text-xs text-gray-500">收货人: 李小明 | 上海市浦东新区</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">YTO9876543210</p>
+                                        <p class="text-xs text-gray-500">圆通速递</p>
+                                        <button onclick="trackOrder('YTO9876543210')" class="text-xs text-blue-600 hover:text-blue-800 mt-1">
+                                            查看物流
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="logistics-card p-4 hover:bg-gray-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-shrink-0">
+                                            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=50&h=50&fit=crop" alt="商品" class="w-12 h-12 rounded-lg object-cover">
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2">
+                                                <h4 class="text-sm font-medium text-gray-900">#ORD202401150003</h4>
+                                                <span class="status-delivered text-white px-2 py-1 rounded-full text-xs font-medium">
+                                                    已签收
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-1">薰衣草种子套装 x2</p>
+                                            <p class="text-xs text-gray-500">收货人: 王小美 | 广州市天河区</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">EMS1122334455</p>
+                                        <p class="text-xs text-gray-500">中国邮政</p>
+                                        <button onclick="trackOrder('EMS1122334455')" class="text-xs text-blue-600 hover:text-blue-800 mt-1">
+                                            查看物流
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="logistics-card p-4 hover:bg-gray-50">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-shrink-0">
+                                            <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=50&h=50&fit=crop" alt="商品" class="w-12 h-12 rounded-lg object-cover">
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2">
+                                                <h4 class="text-sm font-medium text-gray-900">#ORD202401150004</h4>
+                                                <span class="status-exception text-white px-2 py-1 rounded-full text-xs font-medium">
+                                                    异常
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-1">香草种植工具套装 x1</p>
+                                            <p class="text-xs text-gray-500">收货人: 赵小刚 | 深圳市南山区</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">ZTO5566778899</p>
+                                        <p class="text-xs text-gray-500">中通快递</p>
+                                        <button onclick="handleException('ZTO5566778899')" class="text-xs text-red-600 hover:text-red-800 mt-1">
+                                            处理异常
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="px-4 py-3 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条，共 <span class="font-medium">245</span> 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                                上一页
+                            </button>
+                            <button class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                                1
+                            </button>
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                                2
+                            </button>
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                                3
+                            </button>
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 物流追踪和地图 -->
+        <div class="space-y-6">
+            <!-- 实时地图 -->
+            <div class="bg-white rounded-lg shadow-sm border">
+                <div class="p-4 border-b">
+                    <h3 class="text-lg font-semibold text-gray-900">实时配送地图</h3>
+                </div>
+                <div class="p-4">
+                    <div class="map-container">
+                        <div class="route-line"></div>
+                        <div class="location-dot" style="left: 20%; top: 45%;"></div>
+                        <div class="location-dot" style="left: 50%; top: 55%;"></div>
+                        <div class="location-dot" style="left: 80%; top: 45%;"></div>
+                        <div class="text-center">
+                            <i class="fas fa-map-marked-alt text-6xl text-blue-300 mb-4"></i>
+                            <p class="text-gray-500">配送路线可视化</p>
+                            <p class="text-sm text-gray-400 mt-2">显示当前配送车辆位置和路线</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 快速操作 -->
+            <div class="bg-white rounded-lg shadow-sm border">
+                <div class="p-4 border-b">
+                    <h3 class="text-lg font-semibold text-gray-900">快速操作</h3>
+                </div>
+                <div class="p-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="batchShip()" class="p-4 border-2 border-dashed border-blue-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-center">
+                            <i class="fas fa-truck text-2xl text-blue-500 mb-2"></i>
+                            <p class="text-sm font-medium text-gray-900">批量发货</p>
+                            <p class="text-xs text-gray-500">选择多个订单批量发货</p>
+                        </button>
+                        
+                        <button onclick="printLabels()" class="p-4 border-2 border-dashed border-green-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors text-center">
+                            <i class="fas fa-print text-2xl text-green-500 mb-2"></i>
+                            <p class="text-sm font-medium text-gray-900">打印面单</p>
+                            <p class="text-xs text-gray-500">批量打印快递面单</p>
+                        </button>
+                        
+                        <button onclick="syncLogistics()" class="p-4 border-2 border-dashed border-purple-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors text-center">
+                            <i class="fas fa-sync-alt text-2xl text-purple-500 mb-2"></i>
+                            <p class="text-sm font-medium text-gray-900">同步物流</p>
+                            <p class="text-xs text-gray-500">同步最新物流信息</p>
+                        </button>
+                        
+                        <button onclick="exportReport()" class="p-4 border-2 border-dashed border-orange-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors text-center">
+                            <i class="fas fa-chart-bar text-2xl text-orange-500 mb-2"></i>
+                            <p class="text-sm font-medium text-gray-900">物流报表</p>
+                            <p class="text-xs text-gray-500">导出物流统计报表</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</div>
+
+<!-- 物流追踪模态框 -->
+<div id="trackingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+            <div class="p-6 border-b">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">物流追踪</h3>
+                    <button onclick="closeTracking()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <!-- 基本信息 -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600">快递单号:</span>
+                            <span class="font-medium ml-2" id="trackingNumber">SF1234567890</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">快递公司:</span>
+                            <span class="font-medium ml-2">顺丰速运</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">订单号:</span>
+                            <span class="font-medium ml-2">#ORD202401150001</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">当前状态:</span>
+                            <span class="font-medium ml-2 text-blue-600">运输中</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 物流轨迹 -->
+                <div class="space-y-4">
+                    <h4 class="font-semibold text-gray-900">物流轨迹</h4>
+                    
+                    <div class="space-y-4">
+                        <div class="tracking-step completed flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">快件已签收</p>
+                                <p class="text-xs text-gray-500">签收人: 本人签收</p>
+                                <p class="text-xs text-gray-400">2024-01-16 14:30:25</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tracking-step completed flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-truck text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">快件派送中</p>
+                                <p class="text-xs text-gray-500">派送员: 张师傅 (138****8888)</p>
+                                <p class="text-xs text-gray-400">2024-01-16 08:15:30</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tracking-step completed flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-warehouse text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">快件到达目的地网点</p>
+                                <p class="text-xs text-gray-500">北京朝阳三里屯营业点</p>
+                                <p class="text-xs text-gray-400">2024-01-16 06:20:15</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tracking-step completed flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-plane text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">快件运输中</p>
+                                <p class="text-xs text-gray-500">从深圳转运中心发往北京</p>
+                                <p class="text-xs text-gray-400">2024-01-15 22:45:00</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tracking-step completed flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-box text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">快件已发出</p>
+                                <p class="text-xs text-gray-500">深圳宝安营业点已收件</p>
+                                <p class="text-xs text-gray-400">2024-01-15 16:30:00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t bg-gray-50">
+                <div class="flex items-center justify-end space-x-3">
+                    <button onclick="copyTrackingInfo()" class="px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-copy mr-2"></i>复制信息
+                    </button>
+                    <button onclick="closeTracking()" class="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 侧边栏切换
+    document.getElementById('sidebar-toggle').addEventListener('click', function() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const logoText = document.getElementById('logo-text');
+        const navTexts = document.querySelectorAll('.nav-text');
+        
+        sidebar.classList.toggle('sidebar-collapsed');
+        mainContent.classList.toggle('main-content-expanded');
+        
+        if (sidebar.classList.contains('sidebar-collapsed')) {
+            logoText.style.display = 'none';
+            navTexts.forEach(text => text.style.display = 'none');
+        } else {
+            logoText.style.display = 'block';
+            navTexts.forEach(text => text.style.display = 'inline');
+        }
+    });
+
+    // 查看物流追踪
+    function trackOrder(trackingNumber) {
+        document.getElementById('trackingNumber').textContent = trackingNumber;
+        document.getElementById('trackingModal').classList.remove('hidden');
+        console.log('查看物流追踪:', trackingNumber);
+    }
+
+    // 关闭物流追踪
+    function closeTracking() {
+        document.getElementById('trackingModal').classList.add('hidden');
+    }
+
+    // 处理异常
+    function handleException(trackingNumber) {
+        const action = prompt('请选择处理方式:\n1. 联系快递公司\n2. 重新发货\n3. 申请理赔\n请输入数字:');
+        
+        switch(action) {
+            case '1':
+                alert('已联系快递公司处理异常订单: ' + trackingNumber);
+                break;
+            case '2':
+                if (confirm('确定重新发货吗？')) {
+                    alert('重新发货申请已提交');
+                }
+                break;
+            case '3':
+                alert('理赔申请已提交，请等待处理结果');
+                break;
+            default:
+                alert('无效的操作选择');
+        }
+        
+        console.log('处理异常订单:', trackingNumber, '操作:', action);
+    }
+
+    // 批量发货
+    function batchShip() {
+        alert('打开批量发货页面');
+        console.log('批量发货操作');
+    }
+
+    // 打印面单
+    function printLabels() {
+        alert('正在准备打印面单...');
+        console.log('打印面单操作');
+    }
+
+    // 同步物流
+    function syncLogistics() {
+        const btn = event.target.closest('button');
+        const icon = btn.querySelector('i');
+        icon.classList.add('fa-spin');
+        
+        setTimeout(() => {
+            icon.classList.remove('fa-spin');
+            alert('物流信息同步完成');
+        }, 2000);
+        
+        console.log('同步物流信息');
+    }
+
+    // 导出报表
+    function exportReport() {
+        alert('正在生成物流报表...');
+        console.log('导出物流报表');
+    }
+
+    // 复制追踪信息
+    function copyTrackingInfo() {
+        const trackingNumber = document.getElementById('trackingNumber').textContent;
+        navigator.clipboard.writeText(trackingNumber).then(() => {
+            alert('快递单号已复制到剪贴板');
+        }).catch(() => {
+            alert('复制失败，请手动复制');
+        });
+    }
+
+    // 状态筛选
+    document.querySelector('select').addEventListener('change', function() {
+        const status = this.value;
+        console.log('筛选状态:', status);
+        // 这里可以添加实际的筛选逻辑
+    });
+
+    // 刷新数据
+    document.querySelector('.fa-sync-alt').parentElement.addEventListener('click', function() {
+        this.querySelector('i').classList.add('fa-spin');
+        setTimeout(() => {
+            this.querySelector('i').classList.remove('fa-spin');
+            alert('数据已刷新');
+        }, 1000);
+    });
+
+    // 批量发货按钮
+    document.querySelector('.fa-truck').parentElement.addEventListener('click', function() {
+        batchShip();
+    });
+
+    // 导出物流单
+    document.querySelector('.fa-download').parentElement.addEventListener('click', function() {
+        alert('正在导出物流单...');
+    });
+
+    // 物流设置
+    document.querySelector('.fa-cog').parentElement.addEventListener('click', function() {
+        alert('打开物流设置页面');
+    });
+</script>
+</body>
+</html>

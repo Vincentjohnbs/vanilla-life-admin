@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标签管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .tag-item {
+            transition: all 0.2s ease;
+        }
+        .tag-item:hover {
+            transform: scale(1.02);
+        }
+        .modal {
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-tachometer-alt w-5"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-users w-5"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-lg">
+                    <i class="fas fa-user-tag w-5"></i>
+                    <span>用户画像</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-cog w-5"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-0 transition-all duration-300 ease-in-out" id="main-content">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="p-2 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-bars text-gray-600"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">标签管理</h1>
+                        <p class="text-sm text-gray-500">管理用户画像标签体系</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-lg hover:bg-gray-100 relative">
+                        <i class="fas fa-bell text-gray-600"></i>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm">标签总数</p>
+                            <p class="text-2xl font-bold mt-1">156</p>
+                            <p class="text-blue-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +12
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tags text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm">活跃标签</p>
+                            <p class="text-2xl font-bold mt-1">89</p>
+                            <p class="text-green-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +8
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm">标签分类</p>
+                            <p class="text-2xl font-bold mt-1">8</p>
+                            <p class="text-purple-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +1
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-layer-group text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-100 text-sm">覆盖用户</p>
+                            <p class="text-2xl font-bold mt-1">12.8K</p>
+                            <p class="text-orange-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +15%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作栏 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                    <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" placeholder="搜索标签名称..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>全部分类</option>
+                            <option>行为标签</option>
+                            <option>兴趣标签</option>
+                            <option>属性标签</option>
+                            <option>价值标签</option>
+                        </select>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>全部状态</option>
+                            <option>启用</option>
+                            <option>禁用</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                            <i class="fas fa-download mr-2"></i>导出
+                        </button>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onclick="openCreateModal()">
+                            <i class="fas fa-plus mr-2"></i>创建标签
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签分类标签页 -->
+            <div class="bg-white rounded-xl shadow-sm mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6" id="categoryTabs">
+                        <button class="py-4 px-2 border-b-2 border-blue-500 text-blue-600 font-medium text-sm" data-category="all">全部标签</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-category="behavior">行为标签</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-category="interest">兴趣标签</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-category="attribute">属性标签</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-category="value">价值标签</button>
+                    </nav>
+                </div>
+
+                <!-- 标签内容区域 -->
+                <div class="p-6">
+                    <div id="tagContent">
+                        <!-- 标签网格将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签统计图表 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 标签使用统计 -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">标签使用统计</h3>
+                        <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <option>最近7天</option>
+                            <option>最近30天</option>
+                            <option>最近90天</option>
+                        </select>
+                    </div>
+                    <canvas id="tagUsageChart" class="w-full h-64"></canvas>
+                </div>
+
+                <!-- 标签分类分布 -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">标签分类分布</h3>
+                        <button class="text-blue-600 hover:text-blue-700 text-sm">
+                            <i class="fas fa-refresh mr-1"></i>刷新
+                        </button>
+                    </div>
+                    <canvas id="categoryChart" class="w-full h-64"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 创建标签模态框 -->
+    <div id="createModal" class="fixed inset-0 bg-black bg-opacity-50 modal hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-800">创建新标签</h3>
+                <button onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标签名称</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="请输入标签名称">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标签分类</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option>行为标签</option>
+                        <option>兴趣标签</option>
+                        <option>属性标签</option>
+                        <option>价值标签</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标签颜色</label>
+                    <div class="flex space-x-2">
+                        <button type="button" class="w-8 h-8 bg-red-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button type="button" class="w-8 h-8 bg-blue-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button type="button" class="w-8 h-8 bg-green-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button type="button" class="w-8 h-8 bg-yellow-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button type="button" class="w-8 h-8 bg-purple-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                        <button type="button" class="w-8 h-8 bg-pink-500 rounded-full border-2 border-transparent hover:border-gray-300"></button>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标签描述</label>
+                    <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="3" placeholder="请输入标签描述"></textarea>
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" id="autoTag" class="mr-2">
+                    <label for="autoTag" class="text-sm text-gray-700">启用自动打标</label>
+                </div>
+            </form>
+            
+            <div class="flex space-x-3 mt-6">
+                <button onclick="closeCreateModal()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">取消</button>
+                <button class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">创建标签</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                mainContent.classList.remove('ml-64');
+            } else {
+                mainContent.classList.add('ml-64');
+            }
+        });
+
+        // 标签数据
+        const tagData = {
+            all: [
+                { id: 1, name: '香草爱好者', category: 'interest', users: 3247, color: 'bg-green-100 text-green-600', status: 'active', description: '对香草种植有浓厚兴趣的用户' },
+                { id: 2, name: '高价值用户', category: 'value', users: 1856, color: 'bg-red-100 text-red-600', status: 'active', description: '消费金额超过1000元的用户' },
+                { id: 3, name: '活跃买家', category: 'behavior', users: 2134, color: 'bg-blue-100 text-blue-600', status: 'active', description: '近30天有购买行为的用户' },
+                { id: 4, name: '种植新手', category: 'attribute', users: 1245, color: 'bg-yellow-100 text-yellow-600', status: 'active', description: '刚开始接触香草种植的用户' },
+                { id: 5, name: '社区达人', category: 'behavior', users: 987, color: 'bg-purple-100 text-purple-600', status: 'active', description: '在社区活跃度高的用户' },
+                { id: 6, name: '忠实用户', category: 'value', users: 756, color: 'bg-pink-100 text-pink-600', status: 'active', description: '复购率超过80%的用户' },
+                { id: 7, name: '移动端用户', category: 'attribute', users: 4521, color: 'bg-indigo-100 text-indigo-600', status: 'active', description: '主要使用移动端访问的用户' },
+                { id: 8, name: '上海用户', category: 'attribute', users: 2847, color: 'bg-gray-100 text-gray-600', status: 'active', description: '居住在上海地区的用户' }
+            ],
+            behavior: [
+                { id: 3, name: '活跃买家', category: 'behavior', users: 2134, color: 'bg-blue-100 text-blue-600', status: 'active', description: '近30天有购买行为的用户' },
+                { id: 5, name: '社区达人', category: 'behavior', users: 987, color: 'bg-purple-100 text-purple-600', status: 'active', description: '在社区活跃度高的用户' }
+            ],
+            interest: [
+                { id: 1, name: '香草爱好者', category: 'interest', users: 3247, color: 'bg-green-100 text-green-600', status: 'active', description: '对香草种植有浓厚兴趣的用户' }
+            ],
+            attribute: [
+                { id: 4, name: '种植新手', category: 'attribute', users: 1245, color: 'bg-yellow-100 text-yellow-600', status: 'active', description: '刚开始接触香草种植的用户' },
+                { id: 7, name: '移动端用户', category: 'attribute', users: 4521, color: 'bg-indigo-100 text-indigo-600', status: 'active', description: '主要使用移动端访问的用户' },
+                { id: 8, name: '上海用户', category: 'attribute', users: 2847, color: 'bg-gray-100 text-gray-600', status: 'active', description: '居住在上海地区的用户' }
+            ],
+            value: [
+                { id: 2, name: '高价值用户', category: 'value', users: 1856, color: 'bg-red-100 text-red-600', status: 'active', description: '消费金额超过1000元的用户' },
+                { id: 6, name: '忠实用户', category: 'value', users: 756, color: 'bg-pink-100 text-pink-600', status: 'active', description: '复购率超过80%的用户' }
+            ]
+        };
+
+        let currentCategory = 'all';
+
+        // 标签页切换
+        function initCategoryTabs() {
+            const tabs = document.querySelectorAll('#categoryTabs button');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有活跃状态
+                    tabs.forEach(t => {
+                        t.classList.remove('border-blue-500', 'text-blue-600');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    
+                    // 添加当前活跃状态
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    this.classList.add('border-blue-500', 'text-blue-600');
+                    
+                    // 更新当前分类
+                    currentCategory = this.dataset.category;
+                    renderTags();
+                });
+            });
+        }
+
+        // 渲染标签
+        function renderTags() {
+            const tags = tagData[currentCategory] || [];
+            const tagContent = document.getElementById('tagContent');
+            
+            if (tags.length === 0) {
+                tagContent.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-tags text-gray-300 text-4xl mb-4"></i>
+                        <p class="text-gray-500">暂无标签数据</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            tagContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    ${tags.map(tag => `
+                        <div class="tag-item border border-gray-200 rounded-lg p-4 hover:border-blue-300 cursor-pointer">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="px-3 py-1 ${tag.color} rounded-full text-sm font-medium">${tag.name}</span>
+                                <div class="flex space-x-1">
+                                    <button class="text-gray-400 hover:text-blue-600" onclick="editTag(${tag.id})">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </button>
+                                    <button class="text-gray-400 hover:text-red-600" onclick="deleteTag(${tag.id})">
+                                        <i class="fas fa-trash text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">${tag.description}</p>
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <span><i class="fas fa-users mr-1"></i>${tag.users.toLocaleString()} 用户</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-600 rounded-full">${tag.status === 'active' ? '启用' : '禁用'}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // 初始化图表
+        function initCharts() {
+            // 标签使用统计图表
+            const usageCtx = document.getElementById('tagUsageChart').getContext('2d');
+            new Chart(usageCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'],
+                    datasets: [{
+                        label: '新增标签',
+                        data: [12, 19, 8, 15, 10, 18, 25],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: '活跃标签',
+                        data: [8, 15, 12, 20, 15, 22, 30],
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // 标签分类分布图表
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['行为标签', '兴趣标签', '属性标签', '价值标签'],
+                    datasets: [{
+                        data: [35, 25, 30, 10],
+                        backgroundColor: [
+                            '#FF6B6B',
+                            '#4ECDC4',
+                            '#45B7D1',
+                            '#96CEB4'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 模态框控制
+        function openCreateModal() {
+            document.getElementById('createModal').classList.remove('hidden');
+            document.getElementById('createModal').classList.add('flex');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+            document.getElementById('createModal').classList.remove('flex');
+        }
+
+        // 标签操作
+        function editTag(tagId) {
+            console.log('编辑标签:', tagId);
+            // 这里可以打开编辑模态框
+        }
+
+        function deleteTag(tagId) {
+            if (confirm('确定要删除这个标签吗？')) {
+                console.log('删除标签:', tagId);
+                // 这里可以执行删除操作
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initCategoryTabs();
+            renderTags();
+            initCharts();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>供应商统计 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .metric-card.blue {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .metric-card.green {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .metric-card.orange {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .metric-card.purple {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        .metric-card.indigo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .chart-container.large {
+            height: 400px;
+        }
+        .stat-item {
+            border-left: 4px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        .stat-item.excellent {
+            border-left-color: #10b981;
+        }
+        .stat-item.good {
+            border-left-color: #3b82f6;
+        }
+        .stat-item.average {
+            border-left-color: #f59e0b;
+        }
+        .stat-item.poor {
+            border-left-color: #ef4444;
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .filter-tab {
+            transition: all 0.2s ease;
+        }
+        .filter-tab.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .ranking-item {
+            transition: all 0.2s ease;
+        }
+        .ranking-item:hover {
+            background-color: #f9fafb;
+        }
+        .trend-up {
+            color: #10b981;
+        }
+        .trend-down {
+            color: #ef4444;
+        }
+        .trend-stable {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">供应商管理</h3>
+                <ul class="space-y-1">
+                    <li><a href="71-供应商详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-building mr-3"></i>供应商详情</a></li>
+                    <li><a href="72-商品供应管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-boxes mr-3"></i>商品供应管理</a></li>
+                    <li><a href="73-结算管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-calculator mr-3"></i>结算管理</a></li>
+                    <li><a href="74-合作协议.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-handshake mr-3"></i>合作协议</a></li>
+                    <li><a href="75-资质管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-certificate mr-3"></i>资质管理</a></li>
+                    <li><a href="76-评级管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-star mr-3"></i>评级管理</a></li>
+                    <li><a href="77-采购订单.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-shopping-cart mr-3"></i>采购订单</a></li>
+                    <li><a href="78-对账管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-balance-scale mr-3"></i>对账管理</a></li>
+                    <li><a href="79-付款记录.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-credit-card mr-3"></i>付款记录</a></li>
+                    <li><a href="80-供应商统计.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-chart-bar mr-3"></i>供应商统计</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-800">供应商统计</h2>
+                        <p class="text-sm text-gray-600">供应商数据分析和绩效统计</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <select id="timeRange" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="7d">最近7天</option>
+                        <option value="30d" selected>最近30天</option>
+                        <option value="90d">最近90天</option>
+                        <option value="1y">最近1年</option>
+                    </select>
+                    <button id="exportReport" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-file-export mr-2"></i>导出报告
+                    </button>
+                    <button id="refreshData" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 核心指标卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-6">
+                <div class="metric-card rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">供应商总数</p>
+                            <p class="text-2xl font-bold mt-1">156</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8 新增
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-building text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card blue rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">活跃供应商</p>
+                            <p class="text-2xl font-bold mt-1">128</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-percentage mr-1"></i>82.1% 活跃率
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card green rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">优质供应商</p>
+                            <p class="text-2xl font-bold mt-1">89</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-star mr-1"></i>S级+A级
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-award text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card orange rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">采购总额</p>
+                            <p class="text-2xl font-bold mt-1">¥2.8M</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+15.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-money-bill-wave text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card purple rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">平均评分</p>
+                            <p class="text-2xl font-bold mt-1">4.6</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-star mr-1"></i>满分5.0
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-star text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card indigo rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">准时交付率</p>
+                            <p class="text-2xl font-bold mt-1">96.8%</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-clock mr-1"></i>高准时率
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shipping-fast text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- 供应商分布图 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">供应商地区分布</h3>
+                        <div class="flex space-x-2">
+                            <button class="filter-tab active px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-type="region">地区</button>
+                            <button class="filter-tab px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-type="category">分类</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 采购趋势图 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">采购金额趋势</h3>
+                    <div class="chart-container">
+                        <canvas id="purchaseTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 供应商评级分析 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- 评级分布 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">供应商评级分布</h3>
+                    <div class="chart-container">
+                        <canvas id="ratingChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 绩效指标 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">关键绩效指标</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">质量合格率</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 98%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">98%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">准时交付率</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 96.8%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">96.8%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">服务响应率</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-purple-500 h-2 rounded-full" style="width: 94%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">94%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">价格竞争力</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-orange-500 h-2 rounded-full" style="width: 87%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">87%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">合作稳定性</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 92%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">92%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 供应商排行榜 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">供应商排行榜</h3>
+                    <div class="space-y-3" id="supplierRanking">
+                        <!-- 排行榜数据将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 详细统计表格 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 供应商分类统计 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">供应商分类统计</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 text-sm font-medium text-gray-500">分类</th>
+                                    <th class="text-right py-3 text-sm font-medium text-gray-500">数量</th>
+                                    <th class="text-right py-3 text-sm font-medium text-gray-500">占比</th>
+                                    <th class="text-right py-3 text-sm font-medium text-gray-500">采购额</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="stat-item excellent">
+                                    <td class="py-3 text-sm text-gray-900">香草种植</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">45</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">28.8%</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">¥1.2M</td>
+                                </tr>
+                                <tr class="stat-item good">
+                                    <td class="py-3 text-sm text-gray-900">包装材料</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">32</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">20.5%</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">¥680K</td>
+                                </tr>
+                                <tr class="stat-item average">
+                                    <td class="py-3 text-sm text-gray-900">物流运输</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">28</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">17.9%</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">¥450K</td>
+                                </tr>
+                                <tr class="stat-item good">
+                                    <td class="py-3 text-sm text-gray-900">加工设备</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">25</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">16.0%</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">¥320K</td>
+                                </tr>
+                                <tr class="stat-item average">
+                                    <td class="py-3 text-sm text-gray-900">其他服务</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">26</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">16.7%</td>
+                                    <td class="py-3 text-sm text-gray-900 text-right">¥150K</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 月度对比分析 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">月度对比分析</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <div class="text-sm text-gray-600">新增供应商</div>
+                                <div class="text-xl font-bold text-gray-900">8</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm trend-up">
+                                    <i class="fas fa-arrow-up mr-1"></i>+33%
+                                </div>
+                                <div class="text-xs text-gray-500">vs 上月</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <div class="text-sm text-gray-600">采购订单数</div>
+                                <div class="text-xl font-bold text-gray-900">245</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm trend-up">
+                                    <i class="fas fa-arrow-up mr-1"></i>+12%
+                                </div>
+                                <div class="text-xs text-gray-500">vs 上月</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <div class="text-sm text-gray-600">平均交付时间</div>
+                                <div class="text-xl font-bold text-gray-900">3.2天</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm trend-down">
+                                    <i class="fas fa-arrow-down mr-1"></i>-0.5天
+                                </div>
+                                <div class="text-xs text-gray-500">vs 上月</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <div class="text-sm text-gray-600">供应商满意度</div>
+                                <div class="text-xl font-bold text-gray-900">4.6分</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm trend-stable">
+                                    <i class="fas fa-minus mr-1"></i>持平
+                                </div>
+                                <div class="text-xs text-gray-500">vs 上月</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 供应商排行榜数据
+        const rankingData = [
+            { name: '绿野香草农场', score: 4.9, trend: 'up', change: '+0.2' },
+            { name: '天然香草园', score: 4.8, trend: 'up', change: '+0.1' },
+            { name: '有机香草基地', score: 4.7, trend: 'stable', change: '0' },
+            { name: '优质包装材料', score: 4.6, trend: 'down', change: '-0.1' },
+            { name: '快运物流服务', score: 4.5, trend: 'up', change: '+0.3' }
+        ];
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 筛选标签切换
+        function initFilterTabs() {
+            const filterTabs = document.querySelectorAll('.filter-tab');
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有active类
+                    filterTabs.forEach(t => t.classList.remove('active'));
+                    // 添加active类到当前标签
+                    this.classList.add('active');
+                    
+                    const type = this.getAttribute('data-type');
+                    updateDistributionChart(type);
+                });
+            });
+        }
+
+        // 渲染供应商排行榜
+        function renderSupplierRanking() {
+            const container = document.getElementById('supplierRanking');
+            container.innerHTML = '';
+
+            rankingData.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'ranking-item flex items-center justify-between p-3 rounded-lg';
+                
+                const trendIcon = {
+                    'up': 'fas fa-arrow-up trend-up',
+                    'down': 'fas fa-arrow-down trend-down',
+                    'stable': 'fas fa-minus trend-stable'
+                }[item.trend];
+
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
+                            ${index + 1}
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">${item.name}</div>
+                            <div class="text-xs text-gray-500">评分: ${item.score}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm ${item.trend === 'up' ? 'trend-up' : item.trend === 'down' ? 'trend-down' : 'trend-stable'}">
+                            <i class="${trendIcon} mr-1"></i>${item.change}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        // 更新分布图表
+        function updateDistributionChart(type) {
+            // 这里可以根据type参数更新图表数据
+            console.log(`更新分布图表类型: ${type}`);
+        }
+
+        // 时间范围变化
+        document.getElementById('timeRange').addEventListener('change', function() {
+            const range = this.value;
+            console.log(`时间范围变更为: ${range}`);
+            // 重新加载所有图表数据
+            initCharts();
+        });
+
+        // 导出报告
+        document.getElementById('exportReport').addEventListener('click', function() {
+            alert('导出供应商统计报告');
+        });
+
+        // 刷新数据
+        document.getElementById('refreshData').addEventListener('click', function() {
+            alert('刷新统计数据');
+            // 重新加载所有数据
+            initCharts();
+            renderSupplierRanking();
+        });
+
+        // 初始化图表
+        function initCharts() {
+            // 供应商分布图表
+            const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+            new Chart(distributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['华东地区', '华南地区', '华北地区', '西南地区', '其他地区'],
+                    datasets: [{
+                        data: [35, 25, 20, 15, 5],
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#8b5cf6'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // 采购趋势图表
+            const trendCtx = document.getElementById('purchaseTrendChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [{
+                        label: '采购金额(万元)',
+                        data: [180, 220, 195, 240, 265, 280],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: '供应商数量',
+                        data: [120, 125, 130, 135, 145, 156],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+
+            // 评级分布图表
+            const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+            new Chart(ratingCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['S级', 'A级', 'B级', 'C级', 'D级'],
+                    datasets: [{
+                        label: '供应商数量',
+                        data: [25, 64, 45, 18, 4],
+                        backgroundColor: [
+                            '#10b981',
+                            '#3b82f6',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#6b7280'
+                        ],
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initFilterTabs();
+            renderSupplierRanking();
+            initCharts();
+        });
+    </script>
+</body>
+</html>

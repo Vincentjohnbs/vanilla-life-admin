@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香草编辑页 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#059669'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-500">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-home mr-3"></i>
+                        首页仪表板
+                    </a>
+                    <a href="02-Banner管理.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-image mr-3"></i>
+                        Banner管理
+                    </a>
+                    <a href="03-商品管理.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-box mr-3"></i>
+                        商品管理
+                    </a>
+                    <a href="04-订单管理.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-shopping-cart mr-3"></i>
+                        订单管理
+                    </a>
+                    <a href="05-香草图鉴管理.html" class="flex items-center px-4 py-2 bg-primary text-white rounded-lg">
+                        <i class="fas fa-leaf mr-3"></i>
+                        香草图鉴管理
+                    </a>
+                    <a href="06-香草阳台内容管理.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-seedling mr-3"></i>
+                        香草阳台管理
+                    </a>
+                    <a href="07-用户管理.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-users mr-3"></i>
+                        用户管理
+                    </a>
+                    <a href="08-供应商管理.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-truck mr-3"></i>
+                        供应商管理
+                    </a>
+                    <a href="09-营销活动管理.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-bullhorn mr-3"></i>
+                        营销活动
+                    </a>
+                    <a href="10-数据统计分析.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-chart-bar mr-3"></i>
+                        数据统计
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle" class="lg:hidden text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">香草编辑页</h2>
+                        <p class="text-sm text-gray-500">编辑香草图鉴信息</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 操作栏 -->
+        <div class="bg-white border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button onclick="goBack()" class="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        返回列表
+                    </button>
+                    <button onclick="previewHerb()" class="flex items-center px-4 py-2 text-blue-600 hover:text-blue-800 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors">
+                        <i class="fas fa-eye mr-2"></i>
+                        预览
+                    </button>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="saveDraft()" class="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-save mr-2"></i>
+                        保存草稿
+                    </button>
+                    <button onclick="publishHerb()" class="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        发布
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要内容 -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左侧编辑表单 -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- 基本信息 -->
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">基本信息</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">香草名称 *</label>
+                                <input type="text" id="herbName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入香草名称" value="薰衣草">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">英文名称</label>
+                                <input type="text" id="englishName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入英文名称" value="Lavender">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">学名</label>
+                                <input type="text" id="scientificName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入学名" value="Lavandula angustifolia">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">分类 *</label>
+                                    <select id="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="">请选择分类</option>
+                                        <option value="aromatic" selected>芳香类</option>
+                                        <option value="medicinal">药用类</option>
+                                        <option value="culinary">烹饪类</option>
+                                        <option value="ornamental">观赏类</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">难度等级</label>
+                                    <select id="difficulty" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="easy" selected>简单</option>
+                                        <option value="medium">中等</option>
+                                        <option value="hard">困难</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">简短描述</label>
+                                <textarea id="shortDescription" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入简短描述">薰衣草是一种芳香植物，以其独特的香味和美丽的紫色花朵而闻名。</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 图片管理 -->
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">图片管理</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">主图 *</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer" onclick="uploadMainImage()">
+                                    <div id="mainImagePreview" class="hidden">
+                                        <img src="https://via.placeholder.com/300x200" alt="主图预览" class="mx-auto max-h-48 rounded-lg">
+                                        <button onclick="removeMainImage(event)" class="mt-2 text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash mr-1"></i>删除
+                                        </button>
+                                    </div>
+                                    <div id="mainImageUpload">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                                        <p class="text-gray-600">点击上传主图</p>
+                                        <p class="text-sm text-gray-400">支持 JPG、PNG 格式，建议尺寸 800x600</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">图片库</label>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="imageGallery">
+                                    <div class="relative group">
+                                        <img src="https://via.placeholder.com/150" alt="图片1" class="w-full h-24 object-cover rounded-lg">
+                                        <button onclick="removeImage(this)" class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <i class="fas fa-times text-xs"></i>
+                                        </button>
+                                    </div>
+                                    <div class="relative group">
+                                        <img src="https://via.placeholder.com/150" alt="图片2" class="w-full h-24 object-cover rounded-lg">
+                                        <button onclick="removeImage(this)" class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <i class="fas fa-times text-xs"></i>
+                                        </button>
+                                    </div>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg h-24 flex items-center justify-center cursor-pointer hover:border-primary transition-colors" onclick="addMoreImages()">
+                                        <i class="fas fa-plus text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 详细信息 -->
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">详细信息</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">植物特征</label>
+                                <textarea id="characteristics" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请描述植物特征">薰衣草是多年生草本植物，株高30-60厘米，叶片狭长呈银绿色，花朵呈紫色穗状花序，具有浓郁的香味。</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">生长环境</label>
+                                <textarea id="environment" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请描述生长环境">喜阳光充足、排水良好的环境，耐旱性强，适宜在pH值6.5-7.5的土壤中生长。</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">种植要点</label>
+                                <textarea id="plantingTips" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入种植要点">1. 选择排水良好的土壤\n2. 保持充足的阳光照射\n3. 适量浇水，避免积水\n4. 定期修剪促进分枝</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">主要用途</label>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="usageList">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2" checked> 芳香疗法
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2" checked> 制作香包
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2"> 烹饪调味
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2" checked> 观赏装饰
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2"> 驱虫防蚊
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="mr-2"> 制作精油
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 种植指南 -->
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">种植指南</h3>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">播种时间</label>
+                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" value="春季3-5月，秋季9-11月">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">开花时间</label>
+                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" value="夏季6-8月">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">浇水频率</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="daily">每天</option>
+                                        <option value="every-other-day">隔天</option>
+                                        <option value="weekly" selected>每周2-3次</option>
+                                        <option value="bi-weekly">每两周</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">光照需求</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="full-sun" selected>全日照</option>
+                                        <option value="partial-sun">半日照</option>
+                                        <option value="shade">阴凉</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧信息面板 -->
+                <div class="space-y-6">
+                    <!-- 发布设置 -->
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">发布设置</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                                <select id="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    <option value="draft">草稿</option>
+                                    <option value="published" selected>已发布</option>
+                                    <option value="archived">已归档</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">可见性</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="radio" name="visibility" value="public" class="mr-2" checked>
+                                        公开
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="visibility" value="private" class="mr-2">
+                                        私有
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">发布时间</label>
+                                <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" value="2024-01-15T10:00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 标签管理 -->
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">标签管理</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <input type="text" id="tagInput" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="输入标签后按回车">
+                            </div>
+                            <div class="flex flex-wrap gap-2" id="tagList">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary text-white">
+                                    芳香植物
+                                    <button onclick="removeTag(this)" class="ml-2 text-white hover:text-gray-200">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </button>
+                                </span>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary text-white">
+                                    紫色花朵
+                                    <button onclick="removeTag(this)" class="ml-2 text-white hover:text-gray-200">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </button>
+                                </span>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary text-white">
+                                    易种植
+                                    <button onclick="removeTag(this)" class="ml-2 text-white hover:text-gray-200">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 关联商品 -->
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">关联商品</h3>
+                        <div class="space-y-4">
+                            <button onclick="selectProducts()" class="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>
+                                选择商品
+                            </button>
+                            <div class="space-y-2" id="relatedProducts">
+                                <div class="flex items-center justify-between p-3 border rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="https://via.placeholder.com/40" alt="商品" class="w-10 h-10 rounded">
+                                        <div>
+                                            <p class="text-sm font-medium">薰衣草种子</p>
+                                            <p class="text-xs text-gray-500">¥15.00</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="removeProduct(this)" class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 border rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="https://via.placeholder.com/40" alt="商品" class="w-10 h-10 rounded">
+                                        <div>
+                                            <p class="text-sm font-medium">薰衣草精油</p>
+                                            <p class="text-xs text-gray-500">¥89.00</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="removeProduct(this)" class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 操作历史 -->
+                    <div class="bg-white rounded-lg shadow-sm border p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">操作历史</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">创建时间</span>
+                                <span class="text-gray-800">2024-01-15 10:00</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">最后修改</span>
+                                <span class="text-gray-800">2024-01-15 14:30</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">修改次数</span>
+                                <span class="text-gray-800">3次</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">浏览次数</span>
+                                <span class="text-gray-800">156次</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        });
+
+        // 点击遮罩层关闭侧边栏
+        document.getElementById('overlay').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+
+        // 返回列表
+        function goBack() {
+            window.history.back();
+        }
+
+        // 预览香草
+        function previewHerb() {
+            alert('预览功能开发中...');
+        }
+
+        // 保存草稿
+        function saveDraft() {
+            // 模拟保存
+            const herbName = document.getElementById('herbName').value;
+            if (!herbName.trim()) {
+                alert('请输入香草名称');
+                return;
+            }
+            
+            alert('草稿保存成功！');
+        }
+
+        // 发布香草
+        function publishHerb() {
+            // 表单验证
+            const herbName = document.getElementById('herbName').value;
+            const category = document.getElementById('category').value;
+            
+            if (!herbName.trim()) {
+                alert('请输入香草名称');
+                return;
+            }
+            
+            if (!category) {
+                alert('请选择分类');
+                return;
+            }
+            
+            if (confirm('确定要发布这个香草信息吗？')) {
+                alert('发布成功！');
+            }
+        }
+
+        // 上传主图
+        function uploadMainImage() {
+            // 模拟文件上传
+            const preview = document.getElementById('mainImagePreview');
+            const upload = document.getElementById('mainImageUpload');
+            
+            preview.classList.remove('hidden');
+            upload.classList.add('hidden');
+        }
+
+        // 删除主图
+        function removeMainImage(event) {
+            event.stopPropagation();
+            const preview = document.getElementById('mainImagePreview');
+            const upload = document.getElementById('mainImageUpload');
+            
+            preview.classList.add('hidden');
+            upload.classList.remove('hidden');
+        }
+
+        // 添加更多图片
+        function addMoreImages() {
+            alert('选择图片功能开发中...');
+        }
+
+        // 删除图片
+        function removeImage(button) {
+            if (confirm('确定要删除这张图片吗？')) {
+                button.parentElement.remove();
+            }
+        }
+
+        // 标签输入处理
+        document.getElementById('tagInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const tagText = this.value.trim();
+                if (tagText) {
+                    addTag(tagText);
+                    this.value = '';
+                }
+            }
+        });
+
+        // 添加标签
+        function addTag(text) {
+            const tagList = document.getElementById('tagList');
+            const tagElement = document.createElement('span');
+            tagElement.className = 'inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary text-white';
+            tagElement.innerHTML = `
+                ${text}
+                <button onclick="removeTag(this)" class="ml-2 text-white hover:text-gray-200">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            `;
+            tagList.appendChild(tagElement);
+        }
+
+        // 删除标签
+        function removeTag(button) {
+            button.parentElement.remove();
+        }
+
+        // 选择关联商品
+        function selectProducts() {
+            alert('选择商品功能开发中...');
+        }
+
+        // 删除关联商品
+        function removeProduct(button) {
+            if (confirm('确定要移除这个关联商品吗？')) {
+                button.closest('.flex').remove();
+            }
+        }
+
+        // 自动保存功能
+        let autoSaveTimer;
+        const formInputs = document.querySelectorAll('input, textarea, select');
+        
+        formInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                clearTimeout(autoSaveTimer);
+                autoSaveTimer = setTimeout(() => {
+                    console.log('自动保存中...');
+                    // 这里可以添加自动保存逻辑
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>

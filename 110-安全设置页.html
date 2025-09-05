@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全设置 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .security-card {
+            transition: all 0.3s ease;
+        }
+        .security-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #10B981;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg sidebar-transition z-30">
+        <!-- Logo -->
+        <div class="p-6 border-b">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 导航菜单 -->
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                        <i class="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
+                        <span>仪表盘</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                        <i class="fas fa-users w-5 h-5 mr-3"></i>
+                        <span>用户画像</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                        <i class="fas fa-shield-alt w-5 h-5 mr-3"></i>
+                        <span>权限管理</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                        <i class="fas fa-tools w-5 h-5 mr-3"></i>
+                        <span>系统维护</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                        <i class="fas fa-history w-5 h-5 mr-3"></i>
+                        <span>操作日志</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 bg-blue-50 text-blue-600 rounded-lg">
+                        <i class="fas fa-lock w-5 h-5 mr-3"></i>
+                        <span>安全设置</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">安全设置</h2>
+                        <p class="text-sm text-gray-500">管理系统安全策略和防护措施</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 bg-green-100 px-3 py-1 rounded-full">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="text-sm text-green-700">安全状态良好</span>
+                    </div>
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="Avatar" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 安全概览卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">安全评分</p>
+                            <p class="text-2xl font-bold text-green-600">95</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-600 h-2 rounded-full" style="width: 95%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">威胁拦截</p>
+                            <p class="text-2xl font-bold text-gray-900">1,234</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-ban text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600">-15.2%</span>
+                        <span class="text-gray-500 ml-1">较上月</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">登录异常</p>
+                            <p class="text-2xl font-bold text-gray-900">12</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-yellow-600">+3</span>
+                        <span class="text-gray-500 ml-1">今日新增</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">安全策略</p>
+                            <p class="text-2xl font-bold text-gray-900">8</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-cogs text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-blue-600">已启用</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="border-b">
+                    <nav class="flex space-x-8 px-6" id="securityTabs">
+                        <button data-tab="policy" class="py-4 px-1 border-b-2 border-blue-500 text-blue-600 font-medium text-sm">
+                            安全策略
+                        </button>
+                        <button data-tab="authentication" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                            身份认证
+                        </button>
+                        <button data-tab="firewall" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                            防火墙设置
+                        </button>
+                        <button data-tab="monitoring" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                            安全监控
+                        </button>
+                        <button data-tab="backup" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                            数据备份
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- 安全策略标签页 -->
+                <div id="policyTab" class="tab-content active p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 密码策略 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">密码策略</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">最小长度</span>
+                                    <select class="px-3 py-1 border border-gray-300 rounded text-sm">
+                                        <option>8位</option>
+                                        <option selected>12位</option>
+                                        <option>16位</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">包含大小写字母</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">包含数字</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">包含特殊字符</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">密码有效期（天）</span>
+                                    <input type="number" value="90" class="px-3 py-1 border border-gray-300 rounded text-sm w-20">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 登录安全 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">登录安全</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">最大失败次数</span>
+                                    <input type="number" value="5" class="px-3 py-1 border border-gray-300 rounded text-sm w-20">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">锁定时间（分钟）</span>
+                                    <input type="number" value="30" class="px-3 py-1 border border-gray-300 rounded text-sm w-20">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">会话超时（分钟）</span>
+                                    <input type="number" value="120" class="px-3 py-1 border border-gray-300 rounded text-sm w-20">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">强制HTTPS</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">IP白名单验证</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 数据加密 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">数据加密</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">数据库加密</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">文件加密</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">传输加密</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">加密算法</span>
+                                    <select class="px-3 py-1 border border-gray-300 rounded text-sm">
+                                        <option>AES-128</option>
+                                        <option selected>AES-256</option>
+                                        <option>RSA-2048</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 审计日志 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">审计日志</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">登录日志</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">操作日志</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">系统日志</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">日志保留期（天）</span>
+                                    <input type="number" value="365" class="px-3 py-1 border border-gray-300 rounded text-sm w-20">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 身份认证标签页 -->
+                <div id="authenticationTab" class="tab-content p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 双因子认证 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">双因子认证</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">短信验证</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">邮箱验证</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Google Authenticator</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">验证码有效期（分钟）</span>
+                                    <input type="number" value="5" class="px-3 py-1 border border-gray-300 rounded text-sm w-20">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 单点登录 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">单点登录 (SSO)</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">LDAP集成</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">OAuth 2.0</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">SAML 2.0</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-2">SSO服务器地址</label>
+                                    <input type="url" placeholder="https://sso.example.com" class="w-full px-3 py-2 border border-gray-300 rounded text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- API安全 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">API安全</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">API密钥认证</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">JWT Token</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">请求频率限制</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">每分钟请求数</span>
+                                    <input type="number" value="1000" class="px-3 py-1 border border-gray-300 rounded text-sm w-20">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 权限控制 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">权限控制</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">基于角色的访问控制</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">细粒度权限</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">权限继承</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">权限审计</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 防火墙设置标签页 -->
+                <div id="firewallTab" class="tab-content p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- IP访问控制 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">IP访问控制</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-2">IP白名单</label>
+                                    <textarea class="w-full px-3 py-2 border border-gray-300 rounded text-sm h-24" placeholder="192.168.1.0/24\n10.0.0.0/8"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-2">IP黑名单</label>
+                                    <textarea class="w-full px-3 py-2 border border-gray-300 rounded text-sm h-24" placeholder="输入要屏蔽的IP地址"></textarea>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">地理位置限制</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DDoS防护 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">DDoS防护</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">自动检测</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">阈值（请求/秒）</span>
+                                    <input type="number" value="1000" class="px-3 py-1 border border-gray-300 rounded text-sm w-20">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">自动封禁</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">封禁时长（分钟）</span>
+                                    <input type="number" value="60" class="px-3 py-1 border border-gray-300 rounded text-sm w-20">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- WAF规则 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">WAF规则</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">SQL注入防护</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">XSS防护</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">CSRF防护</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">文件上传检查</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 端口管理 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">端口管理</h3>
+                                <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+                                    添加规则
+                                </button>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-white rounded border">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm font-medium">HTTP</span>
+                                        <span class="text-sm text-gray-600">端口 80</span>
+                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">允许</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded border">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm font-medium">HTTPS</span>
+                                        <span class="text-sm text-gray-600">端口 443</span>
+                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">允许</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded border">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-sm font-medium">SSH</span>
+                                        <span class="text-sm text-gray-600">端口 22</span>
+                                        <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">拒绝</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 安全监控标签页 -->
+                <div id="monitoringTab" class="tab-content p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- 实时威胁 -->
+                        <div class="bg-white border border-red-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-red-800 mb-4">实时威胁监控</h3>
+                            <div class="space-y-3" id="threatList">
+                                <!-- 威胁列表将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+
+                        <!-- 安全事件 -->
+                        <div class="bg-white border border-yellow-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-yellow-800 mb-4">安全事件</h3>
+                            <div class="space-y-3" id="securityEvents">
+                                <!-- 安全事件将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 监控配置 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">监控配置</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">实时监控</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">异常检测</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">自动响应</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">邮件通知</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">告警设置</h3>
+                                <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+                                    添加规则
+                                </button>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-white rounded border">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-medium">登录失败超限</span>
+                                        <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">高</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">5分钟内失败次数 > 10</p>
+                                </div>
+                                <div class="p-3 bg-white rounded border">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-medium">异常IP访问</span>
+                                        <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">中</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">非白名单IP访问敏感页面</p>
+                                </div>
+                                <div class="p-3 bg-white rounded border">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-medium">数据异常访问</span>
+                                        <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">低</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600">单用户1小时内访问 > 1000次</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据备份标签页 -->
+                <div id="backupTab" class="tab-content p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 备份策略 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">备份策略</h3>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">自动备份</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">备份频率</span>
+                                    <select class="px-3 py-1 border border-gray-300 rounded text-sm">
+                                        <option>每小时</option>
+                                        <option selected>每天</option>
+                                        <option>每周</option>
+                                        <option>每月</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">保留份数</span>
+                                    <input type="number" value="30" class="px-3 py-1 border border-gray-300 rounded text-sm w-20">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">压缩备份</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">加密备份</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 备份存储 -->
+                        <div class="security-card bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">备份存储</h3>
+                                <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+                                    测试连接
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">本地存储</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">云存储</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">FTP服务器</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-2">存储路径</label>
+                                    <input type="text" value="/backup/" class="w-full px-3 py-2 border border-gray-300 rounded text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 备份记录 -->
+                        <div class="bg-white rounded-lg border p-6 lg:col-span-2">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">备份记录</h3>
+                                <button onclick="createBackup()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                    <i class="fas fa-plus mr-2"></i>立即备份
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">备份时间</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">备份类型</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">文件大小</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200" id="backupRecords">
+                                        <!-- 备份记录将通过JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 保存按钮 -->
+            <div class="mt-6 flex justify-end space-x-4">
+                <button onclick="resetSettings()" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                    重置设置
+                </button>
+                <button onclick="saveSecuritySettings()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-save mr-2"></i>保存设置
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 标签页切换
+        function initTabs() {
+            const tabs = document.querySelectorAll('#securityTabs button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // 移除所有活跃状态
+                    tabs.forEach(t => {
+                        t.classList.remove('border-blue-500', 'text-blue-600');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    
+                    // 添加当前标签活跃状态
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    this.classList.add('border-blue-500', 'text-blue-600');
+                    
+                    // 隐藏所有标签页内容
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // 显示目标标签页内容
+                    const targetContent = document.getElementById(targetTab + 'Tab');
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                    
+                    // 根据标签页初始化相应内容
+                    if (targetTab === 'monitoring') {
+                        renderThreatMonitoring();
+                        renderSecurityEvents();
+                    } else if (targetTab === 'backup') {
+                        renderBackupRecords();
+                    }
+                });
+            });
+        }
+
+        // 渲染威胁监控
+        function renderThreatMonitoring() {
+            const threats = [
+                {
+                    time: '14:35:22',
+                    type: 'SQL注入尝试',
+                    ip: '192.168.1.100',
+                    level: 'high',
+                    status: 'blocked'
+                },
+                {
+                    time: '14:32:15',
+                    type: '暴力破解',
+                    ip: '10.0.0.50',
+                    level: 'medium',
+                    status: 'monitoring'
+                },
+                {
+                    time: '14:28:43',
+                    type: '异常访问',
+                    ip: '172.16.0.25',
+                    level: 'low',
+                    status: 'logged'
+                }
+            ];
+
+            const backupRecords = document.getElementById('backupRecords');
+            backupRecords.innerHTML = backups.map(backup => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${backup.time}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${backup.type}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${backup.size}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded ${
+                            backup.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }">
+                            ${backup.status === 'success' ? '成功' : '失败'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center space-x-2">
+                            <button class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="text-green-600 hover:text-green-800">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 创建备份
+        function createBackup() {
+            showNotification('正在创建备份...', 'info');
+            // 模拟备份过程
+            setTimeout(() => {
+                showNotification('备份创建成功！', 'success');
+                renderBackupRecords();
+            }, 2000);
+        }
+
+        // 保存安全设置
+        function saveSecuritySettings() {
+            // 收集所有设置数据
+            const settings = {
+                passwordPolicy: {
+                    enabled: document.querySelector('#policyTab .toggle-switch input') ? document.querySelector('#policyTab .toggle-switch input').checked : false,
+                    minLength: document.querySelector('#policyTab select') ? document.querySelector('#policyTab select').value : 8,
+                    requireUppercase: document.querySelectorAll('#policyTab .toggle-switch input')[1] ? document.querySelectorAll('#policyTab .toggle-switch input')[1].checked : false,
+                    requireNumbers: document.querySelectorAll('#policyTab .toggle-switch input')[2] ? document.querySelectorAll('#policyTab .toggle-switch input')[2].checked : false,
+                    requireSpecialChars: document.querySelectorAll('#policyTab .toggle-switch input')[3] ? document.querySelectorAll('#policyTab .toggle-switch input')[3].checked : false,
+                    passwordExpiry: document.querySelector('#policyTab input[type="number"]') ? document.querySelector('#policyTab input[type="number"]').value : 90
+                },
+                loginSecurity: {
+                    enabled: document.querySelectorAll('#policyTab .toggle-switch input')[4] ? document.querySelectorAll('#policyTab .toggle-switch input')[4].checked : false,
+                    maxFailAttempts: document.querySelectorAll('#policyTab input[type="number"]')[1] ? document.querySelectorAll('#policyTab input[type="number"]')[1].value : 5,
+                    lockoutDuration: document.querySelectorAll('#policyTab input[type="number"]')[2] ? document.querySelectorAll('#policyTab input[type="number"]')[2].value : 30,
+                    sessionTimeout: document.querySelectorAll('#policyTab input[type="number"]')[3] ? document.querySelectorAll('#policyTab input[type="number"]')[3].value : 120,
+                    forceHttps: document.querySelectorAll('#policyTab .toggle-switch input')[5] ? document.querySelectorAll('#policyTab .toggle-switch input')[5].checked : false,
+                    ipWhitelist: document.querySelectorAll('#policyTab .toggle-switch input')[6] ? document.querySelectorAll('#policyTab .toggle-switch input')[6].checked : false
+                }
+            };
+
+            // 模拟保存过程
+            showNotification('正在保存设置...', 'info');
+            setTimeout(() => {
+                showNotification('安全设置保存成功！', 'success');
+            }, 1000);
+        }
+
+        // 重置设置
+        function resetSettings() {
+            if (confirm('确定要重置所有安全设置吗？此操作不可撤销。')) {
+                showNotification('设置已重置为默认值', 'info');
+                // 重新加载页面或重置表单
+                location.reload();
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500 text-white' :
+                type === 'error' ? 'bg-red-500 text-white' :
+                type === 'warning' ? 'bg-yellow-500 text-white' :
+                'bg-blue-500 text-white'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initTabs();
+            renderThreatMonitoring();
+            renderSecurityEvents();
+            renderBackupRecords();
+        });
+    </script>
+</body>
+</html>
+
+            const threatList = document.getElementById('threatList');
+            threatList.innerHTML = threats.map(threat => `
+                <div class="flex items-center justify-between p-3 bg-white rounded border">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 rounded-full ${
+                            threat.level === 'high' ? 'bg-red-500' :
+                            threat.level === 'medium' ? 'bg-yellow-500' : 'bg-blue-500'
+                        }"></div>
+                        <div>
+                            <p class="text-sm font-medium">${threat.type}</p>
+                            <p class="text-xs text-gray-500">${threat.time} - ${threat.ip}</p>
+                        </div>
+                    </div>
+                    <span class="px-2 py-1 text-xs rounded ${
+                        threat.status === 'blocked' ? 'bg-red-100 text-red-800' :
+                        threat.status === 'monitoring' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-blue-100 text-blue-800'
+                    }">
+                        ${threat.status === 'blocked' ? '已拦截' :
+                          threat.status === 'monitoring' ? '监控中' : '已记录'}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // 渲染安全事件
+        function renderSecurityEvents() {
+            const events = [
+                {
+                    time: '14:30:00',
+                    event: '管理员登录',
+                    user: '张三',
+                    level: 'info'
+                },
+                {
+                    time: '14:25:00',
+                    event: '权限变更',
+                    user: '李四',
+                    level: 'warning'
+                },
+                {
+                    time: '14:20:00',
+                    event: '系统配置修改',
+                    user: '系统',
+                    level: 'info'
+                }
+            ];
+
+            const securityEvents = document.getElementById('securityEvents');
+            securityEvents.innerHTML = events.map(event => `
+                <div class="flex items-center justify-between p-3 bg-white rounded border">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 rounded-full ${
+                            event.level === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+                        }"></div>
+                        <div>
+                            <p class="text-sm font-medium">${event.event}</p>
+                            <p class="text-xs text-gray-500">${event.time} - ${event.user}</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            `).join('');
+        }
+
+        // 渲染备份记录
+        function renderBackupRecords() {
+            const backups = [
+                {
+                    time: '2024-01-20 02:00:00',
+                    type: '完整备份',
+                    size: '2.5 GB',
+                    status: 'success'
+                },
+                {
+                    time: '2024-01-19 02:00:00',
+                    type: '增量备份',
+                    size: '156 MB',
+                    status: 'success'
+                },
+                {
+                    time: '2024-01-18 02:00:00',
+                    type: '完整备份',
+                    size: '2.4 GB',
+                    status: 'failed'
+                },
+                {
+                    time: '2024-01-17 02:00:00',
+                    type: '增量备份',
+                    size: '203 MB',
+                    status: 'success'
+                }
+            ];

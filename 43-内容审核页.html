@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内容审核页 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .audit-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+        .audit-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #10b981;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-approved {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .priority-high {
+            border-left: 4px solid #ef4444;
+        }
+        .priority-medium {
+            border-left: 4px solid #f59e0b;
+        }
+        .priority-low {
+            border-left: 4px solid #10b981;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600 transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        <span>首页仪表板</span>
+                    </a>
+                    <a href="05-香草图鉴管理.html" class="flex items-center px-4 py-3 text-green-600 bg-green-50 rounded-lg">
+                        <i class="fas fa-book w-5 h-5 mr-3"></i>
+                        <span>香草图鉴管理</span>
+                    </a>
+                    <div class="ml-8 space-y-1">
+                        <a href="41-香草编辑页.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-edit w-4 h-4 mr-2"></i>
+                            <span>香草编辑</span>
+                        </a>
+                        <a href="42-分类标签管理.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-tags w-4 h-4 mr-2"></i>
+                            <span>分类标签管理</span>
+                        </a>
+                        <a href="43-内容审核页.html" class="flex items-center px-4 py-2 text-sm text-green-600 bg-green-50 rounded-lg">
+                            <i class="fas fa-check-circle w-4 h-4 mr-2"></i>
+                            <span>内容审核</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300 ease-in-out">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">内容审核页</h2>
+                        <p class="text-sm text-gray-500">审核香草图鉴内容，确保信息准确性</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-bell text-gray-400 text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 统计卡片 -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">待审核内容</p>
+                            <p class="text-2xl font-bold text-orange-600 mt-2">24</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-orange-600">+3</span>
+                        <span class="text-gray-500 ml-1">今日新增</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">已通过</p>
+                            <p class="text-2xl font-bold text-green-600 mt-2">156</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600">+12</span>
+                        <span class="text-gray-500 ml-1">今日通过</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">已拒绝</p>
+                            <p class="text-2xl font-bold text-red-600 mt-2">8</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-times text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-red-600">+1</span>
+                        <span class="text-gray-500 ml-1">今日拒绝</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">审核效率</p>
+                            <p class="text-2xl font-bold text-blue-600 mt-2">92%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-blue-600">+2%</span>
+                        <span class="text-gray-500 ml-1">较昨日</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和操作栏 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" placeholder="搜索香草名称、内容..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-full sm:w-64">
+                        </div>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">全部状态</option>
+                            <option value="pending">待审核</option>
+                            <option value="approved">已通过</option>
+                            <option value="rejected">已拒绝</option>
+                        </select>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">全部类型</option>
+                            <option value="herb">香草信息</option>
+                            <option value="guide">种植指南</option>
+                            <option value="usage">用途说明</option>
+                        </select>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">全部优先级</option>
+                            <option value="high">高优先级</option>
+                            <option value="medium">中优先级</option>
+                            <option value="low">低优先级</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-check mr-2"></i>批量通过
+                        </button>
+                        <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            <i class="fas fa-times mr-2"></i>批量拒绝
+                        </button>
+                        <button class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-download mr-2"></i>导出
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 审核列表 -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800">审核列表</h3>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="select-all" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <label for="select-all" class="text-sm text-gray-600">全选</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="divide-y divide-gray-200">
+                    <!-- 审核项目1 -->
+                    <div class="audit-card p-6 priority-high">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <div class="flex-shrink-0">
+                                <img src="https://via.placeholder.com/80x80" alt="薰衣草" class="w-20 h-20 rounded-lg object-cover">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="text-lg font-semibold text-gray-800">薰衣草种植指南更新</h4>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="status-badge status-pending">待审核</span>
+                                        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">高优先级</span>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 mb-3">更新了薰衣草的种植方法和注意事项，添加了病虫害防治相关内容...</p>
+                                <div class="flex items-center justify-between text-sm text-gray-500">
+                                    <div class="flex items-center space-x-4">
+                                        <span><i class="fas fa-user mr-1"></i>张小花</span>
+                                        <span><i class="fas fa-clock mr-1"></i>2024-01-15 14:30</span>
+                                        <span><i class="fas fa-tag mr-1"></i>种植指南</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>预览
+                                        </button>
+                                        <button class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                            <i class="fas fa-check mr-1"></i>通过
+                                        </button>
+                                        <button class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
+                                            <i class="fas fa-times mr-1"></i>拒绝
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 审核项目2 -->
+                    <div class="audit-card p-6 priority-medium">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <div class="flex-shrink-0">
+                                <img src="https://via.placeholder.com/80x80" alt="迷迭香" class="w-20 h-20 rounded-lg object-cover">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="text-lg font-semibold text-gray-800">迷迭香基本信息</h4>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="status-badge status-pending">待审核</span>
+                                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">中优先级</span>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 mb-3">新增迷迭香的基本信息，包括植物特征、生长环境、药用价值等内容...</p>
+                                <div class="flex items-center justify-between text-sm text-gray-500">
+                                    <div class="flex items-center space-x-4">
+                                        <span><i class="fas fa-user mr-1"></i>李园丁</span>
+                                        <span><i class="fas fa-clock mr-1"></i>2024-01-15 13:45</span>
+                                        <span><i class="fas fa-tag mr-1"></i>香草信息</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>预览
+                                        </button>
+                                        <button class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                            <i class="fas fa-check mr-1"></i>通过
+                                        </button>
+                                        <button class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
+                                            <i class="fas fa-times mr-1"></i>拒绝
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 审核项目3 -->
+                    <div class="audit-card p-6 priority-low">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <div class="flex-shrink-0">
+                                <img src="https://via.placeholder.com/80x80" alt="薄荷" class="w-20 h-20 rounded-lg object-cover">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="text-lg font-semibold text-gray-800">薄荷用途说明</h4>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="status-badge status-approved">已通过</span>
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">低优先级</span>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 mb-3">补充了薄荷在烹饪、药用、美容等方面的详细用途说明...</p>
+                                <div class="flex items-center justify-between text-sm text-gray-500">
+                                    <div class="flex items-center space-x-4">
+                                        <span><i class="fas fa-user mr-1"></i>王专家</span>
+                                        <span><i class="fas fa-clock mr-1"></i>2024-01-15 12:20</span>
+                                        <span><i class="fas fa-tag mr-1"></i>用途说明</span>
+                                        <span><i class="fas fa-check-circle text-green-500 mr-1"></i>已审核</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>查看
+                                        </button>
+                                        <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                                            <i class="fas fa-history mr-1"></i>历史
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分页 -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            显示 1-10 条，共 24 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                                上一页
+                            </button>
+                            <button class="px-3 py-1 bg-green-600 text-white rounded-lg">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审核模态框 -->
+    <div id="audit-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-semibold text-gray-800">内容审核</h3>
+                        <button id="close-audit-modal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 内容预览 -->
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4">内容预览</h4>
+                            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <div class="mb-4">
+                                    <img src="https://via.placeholder.com/300x200" alt="内容图片" class="w-full h-48 object-cover rounded-lg">
+                                </div>
+                                <h5 class="text-lg font-semibold mb-2">薰衣草种植指南</h5>
+                                <p class="text-gray-600 mb-4">薰衣草是一种非常受欢迎的香草植物，不仅具有美丽的紫色花朵，还有着独特的香味。本指南将详细介绍薰衣草的种植方法...</p>
+                                <div class="space-y-2">
+                                    <p><strong>种植时间：</strong>春季3-4月或秋季9-10月</p>
+                                    <p><strong>土壤要求：</strong>排水良好的沙质土壤</p>
+                                    <p><strong>光照需求：</strong>充足的阳光照射</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 审核信息 -->
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4">审核信息</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">审核意见</label>
+                                    <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" rows="4" placeholder="请输入审核意见..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">审核结果</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="radio" name="audit-result" value="approved" class="text-green-600 focus:ring-green-500">
+                                            <span class="ml-2 text-green-600">通过</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="audit-result" value="rejected" class="text-red-600 focus:ring-red-500">
+                                            <span class="ml-2 text-red-600">拒绝</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="audit-result" value="pending" class="text-yellow-600 focus:ring-yellow-500">
+                                            <span class="ml-2 text-yellow-600">需要修改</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">优先级</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="high">高优先级</option>
+                                        <option value="medium">中优先级</option>
+                                        <option value="low">低优先级</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
+                        <button id="cancel-audit" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            取消
+                        </button>
+                        <button id="submit-audit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            提交审核
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+        });
+
+        // 全选功能
+        document.getElementById('select-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:not(#select-all)');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // 审核模态框
+        const auditModal = document.getElementById('audit-modal');
+        const closeAuditModal = document.getElementById('close-audit-modal');
+        const cancelAudit = document.getElementById('cancel-audit');
+        const submitAudit = document.getElementById('submit-audit');
+
+        // 打开审核模态框
+        document.querySelectorAll('.audit-card button').forEach(button => {
+            if (button.textContent.includes('通过') || button.textContent.includes('拒绝')) {
+                button.addEventListener('click', function() {
+                    auditModal.classList.remove('hidden');
+                });
+            }
+        });
+
+        // 关闭审核模态框
+        closeAuditModal.addEventListener('click', function() {
+            auditModal.classList.add('hidden');
+        });
+
+        cancelAudit.addEventListener('click', function() {
+            auditModal.classList.add('hidden');
+        });
+
+        // 提交审核
+        submitAudit.addEventListener('click', function() {
+            const auditResult = document.querySelector('input[name="audit-result"]:checked');
+            const auditComment = document.querySelector('textarea').value;
+            
+            if (!auditResult) {
+                alert('请选择审核结果');
+                return;
+            }
+            
+            // 这里可以添加提交审核的逻辑
+            console.log('审核结果:', auditResult.value);
+            console.log('审核意见:', auditComment);
+            
+            alert('审核提交成功！');
+            auditModal.classList.add('hidden');
+        });
+
+        // 批量操作
+        document.querySelector('button:contains("批量通过")').addEventListener('click', function() {
+            const selectedItems = document.querySelectorAll('input[type="checkbox"]:checked:not(#select-all)');
+            if (selectedItems.length === 0) {
+                alert('请选择要操作的项目');
+                return;
+            }
+            
+            if (confirm(`确定要批量通过 ${selectedItems.length} 个项目吗？`)) {
+                alert('批量通过成功！');
+                // 这里可以添加批量通过的逻辑
+            }
+        });
+
+        // 搜索功能
+        document.querySelector('input[placeholder*="搜索"]').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const auditCards = document.querySelectorAll('.audit-card');
+            
+            auditCards.forEach(card => {
+                const title = card.querySelector('h4').textContent.toLowerCase();
+                const content = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || content.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // 筛选功能
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', function() {
+                // 这里可以添加筛选逻辑
+                console.log('筛选条件:', this.value);
+            });
+        });
+    </script>
+</body>
+</html>

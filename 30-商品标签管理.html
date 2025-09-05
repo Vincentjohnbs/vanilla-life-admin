@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品标签管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar-transition { transition: all 0.3s ease; }
+        .content-transition { transition: all 0.3s ease; }
+        .tag-item { transition: all 0.2s ease; }
+        .tag-item:hover { transform: translateY(-2px); }
+        .color-picker { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+        .color-option { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .color-option.selected { border-color: #374151; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg sidebar-transition z-30">
+        <!-- Logo区域 -->
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        <span>首页仪表板</span>
+                    </a>
+                    <div class="space-y-1">
+                        <div class="flex items-center px-4 py-3 text-green-600 bg-green-50 rounded-lg">
+                            <i class="fas fa-box w-5 h-5 mr-3"></i>
+                            <span class="font-medium">商品管理</span>
+                        </div>
+                        <div class="ml-8 space-y-1">
+                            <a href="21-商品编辑页.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded">商品编辑</a>
+                            <a href="22-商品分类管理.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded">分类管理</a>
+                            <a href="23-库存管理页.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded">库存管理</a>
+                            <a href="24-规格管理.html" class="block px-4 py-2 text-sm text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded">规格管理</a>
+                            <a href="30-商品标签管理.html" class="block px-4 py-2 text-sm text-green-600 bg-green-100 rounded font-medium">标签管理</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 content-transition">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">商品标签管理</h2>
+                        <p class="text-sm text-gray-500">管理商品标签分类和标签属性</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="exportTags()" class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出标签
+                    </button>
+                    <button onclick="importTags()" class="px-4 py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors">
+                        <i class="fas fa-upload mr-2"></i>导入标签
+                    </button>
+                    <button onclick="openTagModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>新建标签
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">标签总数</p>
+                            <p class="text-2xl font-bold text-gray-900">156</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tags text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-green-600 text-sm font-medium">+12</span>
+                        <span class="text-gray-500 text-sm">本月新增</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">使用中标签</p>
+                            <p class="text-2xl font-bold text-gray-900">128</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-green-600 text-sm font-medium">82%</span>
+                        <span class="text-gray-500 text-sm">使用率</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">关联商品</p>
+                            <p class="text-2xl font-bold text-gray-900">1,234</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-box text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-purple-600 text-sm font-medium">平均7.9个</span>
+                        <span class="text-gray-500 text-sm">每商品</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">标签分类</p>
+                            <p class="text-2xl font-bold text-gray-900">18</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-folder text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-orange-600 text-sm font-medium">8.7个</span>
+                        <span class="text-gray-500 text-sm">平均标签</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 标签列表 -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">标签列表</h3>
+                            <div class="flex items-center space-x-2">
+                                <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">全部分类</option>
+                                    <option value="feature">特色标签</option>
+                                    <option value="season">季节标签</option>
+                                    <option value="usage">用途标签</option>
+                                    <option value="difficulty">难度标签</option>
+                                </select>
+                                <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="">全部状态</option>
+                                    <option value="active">启用</option>
+                                    <option value="inactive">禁用</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <input type="text" placeholder="搜索标签名称..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- 标签卡片 -->
+                            <div class="tag-item border border-gray-200 rounded-lg p-4 hover:shadow-md">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-leaf text-white text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">新手友好</h4>
+                                            <p class="text-sm text-gray-500">难度标签</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">启用</span>
+                                        <button onclick="editTag('beginner')" class="text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="text-sm text-gray-600 mb-2">描述: 适合初学者种植的香草品种</p>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-500">关联商品:</span>
+                                        <span class="text-sm font-medium text-gray-900">45个</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between text-sm text-gray-500">
+                                    <span>使用次数: 245</span>
+                                    <span>创建时间: 2024-01-15</span>
+                                </div>
+                            </div>
+
+                            <div class="tag-item border border-gray-200 rounded-lg p-4 hover:shadow-md">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-snowflake text-white text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">冬季种植</h4>
+                                            <p class="text-sm text-gray-500">季节标签</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">启用</span>
+                                        <button onclick="editTag('winter')" class="text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="text-sm text-gray-600 mb-2">描述: 适合在冬季种植的香草</p>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-500">关联商品:</span>
+                                        <span class="text-sm font-medium text-gray-900">28个</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between text-sm text-gray-500">
+                                    <span>使用次数: 156</span>
+                                    <span>创建时间: 2024-01-10</span>
+                                </div>
+                            </div>
+
+                            <div class="tag-item border border-gray-200 rounded-lg p-4 hover:shadow-md">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-utensils text-white text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">烹饪香料</h4>
+                                            <p class="text-sm text-gray-500">用途标签</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">启用</span>
+                                        <button onclick="editTag('cooking')" class="text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="text-sm text-gray-600 mb-2">描述: 可用于烹饪调味的香草</p>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-500">关联商品:</span>
+                                        <span class="text-sm font-medium text-gray-900">67个</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between text-sm text-gray-500">
+                                    <span>使用次数: 389</span>
+                                    <span>创建时间: 2024-01-08</span>
+                                </div>
+                            </div>
+
+                            <div class="tag-item border border-gray-200 rounded-lg p-4 hover:shadow-md">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-pink-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-heart text-white text-sm"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">观赏价值</h4>
+                                            <p class="text-sm text-gray-500">特色标签</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">启用</span>
+                                        <button onclick="editTag('ornamental')" class="text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="text-sm text-gray-600 mb-2">描述: 具有较高观赏价值的香草</p>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-500">关联商品:</span>
+                                        <span class="text-sm font-medium text-gray-900">34个</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between text-sm text-gray-500">
+                                    <span>使用次数: 198</span>
+                                    <span>创建时间: 2024-01-05</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 py-4 border-t border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-500">
+                                显示 1-4 条，共 156 条记录
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50" disabled>
+                                    上一页
+                                </button>
+                                <button class="px-3 py-1 text-sm bg-green-600 text-white rounded">
+                                    1
+                                </button>
+                                <button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">
+                                    2
+                                </button>
+                                <button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">
+                                    3
+                                </button>
+                                <button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">
+                                    下一页
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧面板 -->
+                <div class="space-y-6">
+                    <!-- 标签分类 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">标签分类</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-star text-blue-600"></i>
+                                    <span class="text-blue-700 font-medium">特色标签</span>
+                                </div>
+                                <span class="text-blue-600 text-sm font-medium">24个</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-calendar text-green-600"></i>
+                                    <span class="text-green-700 font-medium">季节标签</span>
+                                </div>
+                                <span class="text-green-600 text-sm font-medium">16个</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-tools text-purple-600"></i>
+                                    <span class="text-purple-700 font-medium">用途标签</span>
+                                </div>
+                                <span class="text-purple-600 text-sm font-medium">32个</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-chart-line text-orange-600"></i>
+                                    <span class="text-orange-700 font-medium">难度标签</span>
+                                </div>
+                                <span class="text-orange-600 text-sm font-medium">12个</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 热门标签 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">热门标签</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">烹饪香料</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-20 h-2 bg-gray-200 rounded-full">
+                                        <div class="w-18 h-2 bg-purple-500 rounded-full"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">389</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">新手友好</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-20 h-2 bg-gray-200 rounded-full">
+                                        <div class="w-16 h-2 bg-green-500 rounded-full"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">245</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">观赏价值</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-20 h-2 bg-gray-200 rounded-full">
+                                        <div class="w-14 h-2 bg-pink-500 rounded-full"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">198</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">冬季种植</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-20 h-2 bg-gray-200 rounded-full">
+                                        <div class="w-12 h-2 bg-blue-500 rounded-full"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">156</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 快速操作 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">快速操作</h3>
+                        <div class="space-y-3">
+                            <button onclick="batchManageTags()" class="w-full px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-left">
+                                <i class="fas fa-tasks mr-3"></i>批量管理标签
+                            </button>
+                            <button onclick="mergeTags()" class="w-full px-4 py-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-left">
+                                <i class="fas fa-compress-arrows-alt mr-3"></i>合并重复标签
+                            </button>
+                            <button onclick="cleanUnusedTags()" class="w-full px-4 py-3 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition-colors text-left">
+                                <i class="fas fa-broom mr-3"></i>清理无用标签
+                            </button>
+                            <button onclick="generateReport()" class="w-full px-4 py-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors text-left">
+                                <i class="fas fa-chart-bar mr-3"></i>生成使用报告
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 新建/编辑标签模态框 -->
+    <div id="tagModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">新建标签</h3>
+                <button onclick="closeTagModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">标签名称 *</label>
+                        <input type="text" id="tagName" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="请输入标签名称">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">标签分类 *</label>
+                        <select id="tagCategory" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">请选择分类</option>
+                            <option value="feature">特色标签</option>
+                            <option value="season">季节标签</option>
+                            <option value="usage">用途标签</option>
+                            <option value="difficulty">难度标签</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标签描述</label>
+                    <textarea id="tagDescription" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" rows="3" placeholder="请输入标签描述"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">标签颜色</label>
+                        <div class="color-picker">
+                            <div class="color-option bg-red-500" data-color="red" onclick="selectColor('red')"></div>
+                            <div class="color-option bg-blue-500" data-color="blue" onclick="selectColor('blue')"></div>
+                            <div class="color-option bg-green-500 selected" data-color="green" onclick="selectColor('green')"></div>
+                            <div class="color-option bg-yellow-500" data-color="yellow" onclick="selectColor('yellow')"></div>
+                            <div class="color-option bg-purple-500" data-color="purple" onclick="selectColor('purple')"></div>
+                            <div class="color-option bg-pink-500" data-color="pink" onclick="selectColor('pink')"></div>
+                            <div class="color-option bg-orange-500" data-color="orange" onclick="selectColor('orange')"></div>
+                            <div class="color-option bg-gray-500" data-color="gray" onclick="selectColor('gray')"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">标签图标</label>
+                        <select id="tagIcon" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="leaf">🍃 叶子</option>
+                            <option value="star">⭐ 星星</option>
+                            <option value="heart">❤️ 爱心</option>
+                            <option value="sun">☀️ 太阳</option>
+                            <option value="snowflake">❄️ 雪花</option>
+                            <option value="utensils">🍴 餐具</option>
+                            <option value="seedling">🌱 幼苗</option>
+                            <option value="flower">🌸 花朵</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">排序权重</label>
+                        <input type="number" id="tagSort" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="数值越大越靠前" value="0">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                        <select id="tagStatus" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="active">启用</option>
+                            <option value="inactive">禁用</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="isHot" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                    <label for="isHot" class="ml-2 text-sm text-gray-700">热门标签</label>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
+                <button onclick="closeTagModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors">
+                    取消
+                </button>
+                <button onclick="saveTag()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    保存标签
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedColor = 'green';
+
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            mainContent.classList.toggle('ml-0');
+            mainContent.classList.toggle('ml-64');
+        });
+
+        // 打开标签模态框
+        function openTagModal() {
+            document.getElementById('tagModal').classList.remove('hidden');
+            document.getElementById('tagModal').classList.add('flex');
+        }
+
+        // 关闭标签模态框
+        function closeTagModal() {
+            document.getElementById('tagModal').classList.add('hidden');
+            document.getElementById('tagModal').classList.remove('flex');
+        }
+
+        // 选择颜色
+        function selectColor(color) {
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`[data-color="${color}"]`).classList.add('selected');
+            selectedColor = color;
+        }
+
+        // 编辑标签
+        function editTag(tagId) {
+            console.log('编辑标签:', tagId);
+            openTagModal();
+        }
+
+        // 保存标签
+        function saveTag() {
+            const name = document.getElementById('tagName').value;
+            const category = document.getElementById('tagCategory').value;
+            const description = document.getElementById('tagDescription').value;
+            const icon = document.getElementById('tagIcon').value;
+            const sort = document.getElementById('tagSort').value;
+            const status = document.getElementById('tagStatus').value;
+            const isHot = document.getElementById('isHot').checked;
+            
+            if (!name || !category) {
+                alert('请填写必填项');
+                return;
+            }
+            
+            console.log('保存标签:', { name, category, description, color: selectedColor, icon, sort, status, isHot });
+            closeTagModal();
+        }
+
+        // 导出标签
+        function exportTags() {
+            console.log('导出标签数据');
+        }
+
+        // 导入标签
+        function importTags() {
+            console.log('导入标签数据');
+        }
+
+        // 批量管理标签
+        function batchManageTags() {
+            console.log('批量管理标签');
+        }
+
+        // 合并标签
+        function mergeTags() {
+            console.log('合并重复标签');
+        }
+
+        // 清理无用标签
+        function cleanUnusedTags() {
+            console.log('清理无用标签');
+        }
+
+        // 生成报告
+        function generateReport() {
+            console.log('生成使用报告');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>移动端预览 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#f3f4f6'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-500">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-home mr-3"></i>
+                        首页仪表板
+                    </a>
+                    <div class="space-y-1">
+                        <div class="flex items-center px-4 py-2 text-primary bg-green-50 rounded-lg">
+                            <i class="fas fa-image mr-3"></i>
+                            Banner管理
+                        </div>
+                        <div class="ml-6 space-y-1">
+                            <a href="11-Banner列表页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">Banner列表</a>
+                            <a href="12-Banner新增编辑页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">新增编辑</a>
+                            <a href="13-图文页面管理.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">图文管理</a>
+                            <a href="14-跳转配置页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">跳转配置</a>
+                            <a href="15-Banner统计页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">统计分析</a>
+                            <a href="16-图片库管理.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">图片库</a>
+                            <a href="17-模板管理.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">模板管理</a>
+                            <a href="18-发布审核.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">发布审核</a>
+                            <a href="19-效果分析.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">效果分析</a>
+                            <a href="20-移动端预览.html" class="block px-4 py-1 text-sm text-primary font-medium bg-green-100 rounded">移动端预览</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden mr-4 text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold text-gray-800">移动端预览</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 操作栏 -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                        <select id="bannerSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">选择Banner</option>
+                            <option value="banner1" selected>春季种植指南</option>
+                            <option value="banner2">夏季促销活动</option>
+                            <option value="banner3">新品推荐</option>
+                        </select>
+                        <select id="deviceType" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="iphone" selected>iPhone</option>
+                            <option value="android">Android</option>
+                            <option value="ipad">iPad</option>
+                        </select>
+                        <select id="orientation" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="portrait" selected>竖屏</option>
+                            <option value="landscape">横屏</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="refreshPreview()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>刷新预览
+                        </button>
+                        <button onclick="sharePreview()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-share mr-2"></i>分享预览
+                        </button>
+                        <button onclick="generateQR()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-qrcode mr-2"></i>生成二维码
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 预览区域 -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <!-- 手机预览 -->
+                <div class="xl:col-span-2">
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">实时预览</h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-gray-500">缩放比例:</span>
+                                <select id="scaleSelect" class="px-2 py-1 border border-gray-300 rounded text-sm">
+                                    <option value="0.5">50%</option>
+                                    <option value="0.75" selected>75%</option>
+                                    <option value="1">100%</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- 手机外壳 -->
+                        <div class="flex justify-center">
+                            <div id="phoneFrame" class="relative bg-black rounded-3xl p-2 shadow-2xl" style="transform: scale(0.75);">
+                                <!-- iPhone外壳 -->
+                                <div class="bg-black rounded-3xl p-1">
+                                    <!-- 屏幕区域 -->
+                                    <div class="bg-white rounded-2xl overflow-hidden" style="width: 375px; height: 812px;">
+                                        <!-- 状态栏 -->
+                                        <div class="bg-white px-4 py-2 flex items-center justify-between text-black text-sm font-medium">
+                                            <span>9:41</span>
+                                            <div class="flex items-center space-x-1">
+                                                <i class="fas fa-signal text-xs"></i>
+                                                <i class="fas fa-wifi text-xs"></i>
+                                                <i class="fas fa-battery-three-quarters text-xs"></i>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- App内容区域 -->
+                                        <div id="appContent" class="h-full bg-gray-50 overflow-hidden">
+                                            <!-- Banner展示区域 -->
+                                            <div class="relative">
+                                                <img id="bannerImage" src="https://via.placeholder.com/375x200/10b981/ffffff?text=春季种植指南" alt="Banner" class="w-full h-48 object-cover">
+                                                <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                                                    <div class="text-white text-center">
+                                                        <h2 class="text-xl font-bold mb-2">春季种植指南</h2>
+                                                        <p class="text-sm opacity-90">让你的香草花园生机勃勃</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 模拟App内容 -->
+                                            <div class="p-4">
+                                                <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                                                    <h3 class="font-semibold text-gray-800 mb-2">推荐商品</h3>
+                                                    <div class="grid grid-cols-2 gap-3">
+                                                        <div class="bg-gray-100 rounded-lg p-3 text-center">
+                                                            <div class="w-12 h-12 bg-primary rounded-full mx-auto mb-2 flex items-center justify-center">
+                                                                <i class="fas fa-leaf text-white"></i>
+                                                            </div>
+                                                            <p class="text-xs text-gray-600">薄荷种子</p>
+                                                        </div>
+                                                        <div class="bg-gray-100 rounded-lg p-3 text-center">
+                                                            <div class="w-12 h-12 bg-primary rounded-full mx-auto mb-2 flex items-center justify-center">
+                                                                <i class="fas fa-seedling text-white"></i>
+                                                            </div>
+                                                            <p class="text-xs text-gray-600">罗勒幼苗</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="bg-white rounded-lg p-4 shadow-sm">
+                                                    <h3 class="font-semibold text-gray-800 mb-2">种植技巧</h3>
+                                                    <div class="space-y-2">
+                                                        <div class="flex items-center text-sm text-gray-600">
+                                                            <i class="fas fa-check-circle text-primary mr-2"></i>
+                                                            选择合适的土壤
+                                                        </div>
+                                                        <div class="flex items-center text-sm text-gray-600">
+                                                            <i class="fas fa-check-circle text-primary mr-2"></i>
+                                                            控制浇水频率
+                                                        </div>
+                                                        <div class="flex items-center text-sm text-gray-600">
+                                                            <i class="fas fa-check-circle text-primary mr-2"></i>
+                                                            保证充足光照
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 底部导航栏 -->
+                                        <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+                                            <div class="flex justify-around">
+                                                <div class="text-center">
+                                                    <i class="fas fa-home text-primary text-lg"></i>
+                                                    <p class="text-xs text-primary mt-1">首页</p>
+                                                </div>
+                                                <div class="text-center">
+                                                    <i class="fas fa-leaf text-gray-400 text-lg"></i>
+                                                    <p class="text-xs text-gray-400 mt-1">图鉴</p>
+                                                </div>
+                                                <div class="text-center">
+                                                    <i class="fas fa-shopping-cart text-gray-400 text-lg"></i>
+                                                    <p class="text-xs text-gray-400 mt-1">商城</p>
+                                                </div>
+                                                <div class="text-center">
+                                                    <i class="fas fa-user text-gray-400 text-lg"></i>
+                                                    <p class="text-xs text-gray-400 mt-1">我的</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Home指示器 -->
+                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-white rounded-full opacity-60"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 侧边信息面板 -->
+                <div class="space-y-6">
+                    <!-- Banner信息 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Banner信息</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-sm text-gray-600">标题</label>
+                                <p class="font-medium">春季种植指南</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">描述</label>
+                                <p class="text-sm text-gray-700">让你的香草花园生机勃勃</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">跳转链接</label>
+                                <p class="text-sm text-blue-600">app://guide/spring-planting</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">状态</label>
+                                <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">已发布</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 设备信息 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">设备信息</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-sm text-gray-600">设备类型</label>
+                                <p class="font-medium">iPhone 15 Pro</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">屏幕尺寸</label>
+                                <p class="font-medium">375 × 812</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">像素密度</label>
+                                <p class="font-medium">3x (@3x)</p>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">方向</label>
+                                <p class="font-medium">竖屏</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 二维码 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">扫码预览</h3>
+                        <div class="text-center">
+                            <div id="qrCode" class="w-32 h-32 bg-gray-100 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                                <i class="fas fa-qrcode text-4xl text-gray-400"></i>
+                            </div>
+                            <p class="text-sm text-gray-600">使用手机扫码查看实际效果</p>
+                            <button onclick="generateQR()" class="mt-2 px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-green-600 transition-colors">
+                                生成二维码
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 预览链接 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">预览链接</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-sm text-gray-600">移动端链接</label>
+                                <div class="flex items-center mt-1">
+                                    <input type="text" value="https://preview.vanillalife.com/mobile/banner1" class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg text-sm" readonly>
+                                    <button onclick="copyLink('mobile')" class="px-3 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200 transition-colors">
+                                        <i class="fas fa-copy text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600">桌面端链接</label>
+                                <div class="flex items-center mt-1">
+                                    <input type="text" value="https://preview.vanillalife.com/desktop/banner1" class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg text-sm" readonly>
+                                    <button onclick="copyLink('desktop')" class="px-3 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200 transition-colors">
+                                        <i class="fas fa-copy text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Banner选择
+        document.getElementById('bannerSelect').addEventListener('change', function() {
+            const bannerImage = document.getElementById('bannerImage');
+            const banners = {
+                'banner1': {
+                    image: 'https://via.placeholder.com/375x200/10b981/ffffff?text=春季种植指南',
+                    title: '春季种植指南',
+                    subtitle: '让你的香草花园生机勃勃'
+                },
+                'banner2': {
+                    image: 'https://via.placeholder.com/375x200/f59e0b/ffffff?text=夏季促销活动',
+                    title: '夏季促销活动',
+                    subtitle: '全场香草商品8折起'
+                },
+                'banner3': {
+                    image: 'https://via.placeholder.com/375x200/8b5cf6/ffffff?text=新品推荐',
+                    title: '新品推荐',
+                    subtitle: '发现更多优质香草品种'
+                }
+            };
+            
+            if (banners[this.value]) {
+                const banner = banners[this.value];
+                bannerImage.src = banner.image;
+                // 更新Banner文字内容
+                const titleElement = bannerImage.nextElementSibling.querySelector('h2');
+                const subtitleElement = bannerImage.nextElementSibling.querySelector('p');
+                if (titleElement) titleElement.textContent = banner.title;
+                if (subtitleElement) subtitleElement.textContent = banner.subtitle;
+            }
+        });
+
+        // 设备类型切换
+        document.getElementById('deviceType').addEventListener('change', function() {
+            const phoneFrame = document.getElementById('phoneFrame');
+            const appContent = document.getElementById('appContent');
+            
+            // 根据设备类型调整样式
+            if (this.value === 'iphone') {
+                phoneFrame.className = 'relative bg-black rounded-3xl p-2 shadow-2xl';
+                appContent.style.width = '375px';
+                appContent.style.height = '812px';
+            } else if (this.value === 'android') {
+                phoneFrame.className = 'relative bg-gray-800 rounded-2xl p-2 shadow-2xl';
+                appContent.style.width = '360px';
+                appContent.style.height = '800px';
+            } else if (this.value === 'ipad') {
+                phoneFrame.className = 'relative bg-black rounded-3xl p-3 shadow-2xl';
+                appContent.style.width = '768px';
+                appContent.style.height = '1024px';
+            }
+        });
+
+        // 方向切换
+        document.getElementById('orientation').addEventListener('change', function() {
+            const appContent = document.getElementById('appContent');
+            const currentWidth = appContent.style.width;
+            const currentHeight = appContent.style.height;
+            
+            if (this.value === 'landscape') {
+                appContent.style.width = currentHeight;
+                appContent.style.height = currentWidth;
+            } else {
+                // 恢复竖屏
+                const deviceType = document.getElementById('deviceType').value;
+                if (deviceType === 'iphone') {
+                    appContent.style.width = '375px';
+                    appContent.style.height = '812px';
+                } else if (deviceType === 'android') {
+                    appContent.style.width = '360px';
+                    appContent.style.height = '800px';
+                } else if (deviceType === 'ipad') {
+                    appContent.style.width = '768px';
+                    appContent.style.height = '1024px';
+                }
+            }
+        });
+
+        // 缩放比例
+        document.getElementById('scaleSelect').addEventListener('change', function() {
+            const phoneFrame = document.getElementById('phoneFrame');
+            phoneFrame.style.transform = `scale(${this.value})`;
+        });
+
+        // 功能函数
+        function refreshPreview() {
+            alert('正在刷新预览...');
+            // 这里可以添加实际的刷新逻辑
+        }
+
+        function sharePreview() {
+            alert('分享预览链接');
+            // 这里可以添加分享逻辑
+        }
+
+        function generateQR() {
+            const qrCode = document.getElementById('qrCode');
+            qrCode.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=https://preview.vanillalife.com/mobile/banner1" alt="二维码" class="w-full h-full object-contain">';
+        }
+
+        function copyLink(type) {
+            const link = type === 'mobile' ? 
+                'https://preview.vanillalife.com/mobile/banner1' : 
+                'https://preview.vanillalife.com/desktop/banner1';
+            
+            navigator.clipboard.writeText(link).then(() => {
+                alert('链接已复制到剪贴板');
+            }).catch(() => {
+                alert('复制失败，请手动复制');
+            });
+        }
+    </script>
+</body>
+</html>

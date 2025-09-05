@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内容详情页 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .content-preview {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .tag {
+            transition: all 0.2s ease;
+        }
+        .tag:hover {
+            transform: scale(1.05);
+        }
+        .action-btn {
+            transition: all 0.2s ease;
+        }
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+        .comment-item {
+            transition: all 0.2s ease;
+        }
+        .comment-item:hover {
+            background-color: #f9fafb;
+        }
+        .modal {
+            display: none;
+        }
+        .modal.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg sidebar-transition">
+        <div class="flex items-center justify-center h-16 bg-green-600">
+            <h1 class="text-xl font-bold text-white">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    仪表盘
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 bg-green-50 text-green-600 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>
+                    香草阳台
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>
+                    香草图鉴
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>
+                    商品管理
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>
+                    用户管理
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700 mr-4">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <nav class="flex items-center space-x-2 text-sm text-gray-600">
+                        <a href="#" class="hover:text-green-600">香草阳台</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <a href="#" class="hover:text-green-600">内容管理</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-gray-900 font-medium">内容详情</span>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="back-btn" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-arrow-left mr-2"></i>返回列表
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 内容详情 -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 主要内容区域 -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- 内容基本信息 -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <h1 class="text-2xl font-bold text-gray-900 mb-2">我的薰衣草种植日记 - 从种子到花开的美好旅程</h1>
+                                <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                    <span><i class="fas fa-user mr-1"></i>花园小仙女</span>
+                                    <span><i class="fas fa-clock mr-1"></i>2024-01-15 14:30</span>
+                                    <span><i class="fas fa-eye mr-1"></i>1,234 浏览</span>
+                                    <span><i class="fas fa-heart mr-1"></i>89 点赞</span>
+                                    <span><i class="fas fa-comment mr-1"></i>23 评论</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+                                    <i class="fas fa-check-circle mr-1"></i>已发布
+                                </span>
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                                    <i class="fas fa-star mr-1"></i>精选
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- 标签 -->
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="tag px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full cursor-pointer">#薰衣草</span>
+                            <span class="tag px-3 py-1 bg-pink-100 text-pink-800 text-sm rounded-full cursor-pointer">#种植日记</span>
+                            <span class="tag px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full cursor-pointer">#新手种植</span>
+                            <span class="tag px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full cursor-pointer">#阳台花园</span>
+                        </div>
+
+                        <!-- 内容预览 -->
+                        <div class="content-preview border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <div class="prose max-w-none">
+                                <p class="text-gray-700 leading-relaxed mb-4">
+                                    大家好！我是花园小仙女，今天想和大家分享我的薰衣草种植经历。从去年春天开始，我就一直梦想着在自己的小阳台上种出一片紫色的薰衣草花海...
+                                </p>
+                                
+                                <div class="grid grid-cols-2 gap-4 my-6">
+                                    <img src="https://via.placeholder.com/300x200/E6E6FA/9370DB?text=薰衣草种子" alt="薰衣草种子" class="rounded-lg shadow-sm">
+                                    <img src="https://via.placeholder.com/300x200/E6E6FA/9370DB?text=发芽阶段" alt="发芽阶段" class="rounded-lg shadow-sm">
+                                </div>
+                                
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">第一步：选择合适的种子</h3>
+                                <p class="text-gray-700 leading-relaxed mb-4">
+                                    选择薰衣草种子时，我特别注意了品种的选择。经过研究，我选择了适合阳台种植的矮生薰衣草品种，这种品种不仅香味浓郁，而且对环境的适应性很强...
+                                </p>
+                                
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">第二步：土壤准备</h3>
+                                <p class="text-gray-700 leading-relaxed mb-4">
+                                    薰衣草喜欢排水良好的土壤，我用了园艺土、珍珠岩和蛭石按照3:1:1的比例混合，这样既保证了透气性，又能保持适当的湿度...
+                                </p>
+                                
+                                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 my-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-lightbulb text-blue-400"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm text-blue-700">
+                                                <strong>小贴士：</strong>薰衣草不喜欢过于湿润的环境，浇水要适量，宁干勿湿！
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-gray-700 leading-relaxed">
+                                    经过三个月的精心照料，我的薰衣草终于开花了！那一刻的喜悦真的无法用言语形容。现在每天早上起来，阳台上都飘着淡淡的薰衣草香味，让整个家都充满了自然的气息...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 互动数据 -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">互动数据</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                                <div class="text-2xl font-bold text-blue-600">1,234</div>
+                                <div class="text-sm text-gray-600">浏览量</div>
+                            </div>
+                            <div class="text-center p-4 bg-red-50 rounded-lg">
+                                <div class="text-2xl font-bold text-red-600">89</div>
+                                <div class="text-sm text-gray-600">点赞数</div>
+                            </div>
+                            <div class="text-center p-4 bg-green-50 rounded-lg">
+                                <div class="text-2xl font-bold text-green-600">23</div>
+                                <div class="text-sm text-gray-600">评论数</div>
+                            </div>
+                            <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                                <div class="text-2xl font-bold text-yellow-600">15</div>
+                                <div class="text-sm text-gray-600">收藏数</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 评论管理 -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">评论管理 (23条)</h3>
+                            <div class="flex items-center space-x-2">
+                                <select class="border border-gray-300 rounded-md px-3 py-1 text-sm">
+                                    <option>全部评论</option>
+                                    <option>待审核</option>
+                                    <option>已通过</option>
+                                    <option>已拒绝</option>
+                                </select>
+                                <button class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
+                                    <i class="fas fa-trash mr-1"></i>批量删除
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="comment-item border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start space-x-3">
+                                        <input type="checkbox" class="mt-1">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-user text-pink-600"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <span class="font-medium text-gray-900">园艺爱好者</span>
+                                                <span class="text-sm text-gray-500">2024-01-16 09:15</span>
+                                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">已通过</span>
+                                            </div>
+                                            <p class="text-gray-700 text-sm mb-2">
+                                                太棒了！我也想在阳台种薰衣草，请问种子是在哪里买的呢？有推荐的店铺吗？
+                                            </p>
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <button class="hover:text-blue-600">
+                                                    <i class="fas fa-thumbs-up mr-1"></i>12
+                                                </button>
+                                                <button class="hover:text-green-600">
+                                                    <i class="fas fa-reply mr-1"></i>回复
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-800">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="comment-item border border-gray-200 rounded-lg p-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start space-x-3">
+                                        <input type="checkbox" class="mt-1">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-user text-blue-600"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <span class="font-medium text-gray-900">新手小白</span>
+                                                <span class="text-sm text-gray-500">2024-01-16 14:22</span>
+                                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">待审核</span>
+                                            </div>
+                                            <p class="text-gray-700 text-sm mb-2">
+                                                谢谢分享！我按照你的方法试试，希望我的薰衣草也能开出美丽的花朵。
+                                            </p>
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <button class="hover:text-blue-600">
+                                                    <i class="fas fa-thumbs-up mr-1"></i>5
+                                                </button>
+                                                <button class="hover:text-green-600">
+                                                    <i class="fas fa-reply mr-1"></i>回复
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-green-600 hover:text-green-800">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-800">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 flex justify-center">
+                            <button class="text-green-600 hover:text-green-800 text-sm">
+                                <i class="fas fa-chevron-down mr-1"></i>加载更多评论
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 侧边栏信息 -->
+                <div class="space-y-6">
+                    <!-- 操作面板 -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">操作面板</h3>
+                        <div class="space-y-3">
+                            <button class="action-btn w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700">
+                                <i class="fas fa-star mr-2"></i>设为精选
+                            </button>
+                            <button class="action-btn w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-bullhorn mr-2"></i>推荐到首页
+                            </button>
+                            <button class="action-btn w-full bg-yellow-600 text-white py-2 px-4 rounded-lg hover:bg-yellow-700">
+                                <i class="fas fa-edit mr-2"></i>编辑内容
+                            </button>
+                            <button class="action-btn w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700">
+                                <i class="fas fa-eye-slash mr-2"></i>隐藏内容
+                            </button>
+                            <button class="action-btn w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700">
+                                <i class="fas fa-trash mr-2"></i>删除内容
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 作者信息 -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">作者信息</h3>
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-pink-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">花园小仙女</div>
+                                <div class="text-sm text-gray-500">ID: 12345</div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">注册时间:</span>
+                                <span class="text-gray-900">2023-05-15</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">发布内容:</span>
+                                <span class="text-gray-900">28篇</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">获得点赞:</span>
+                                <span class="text-gray-900">1,234</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">粉丝数量:</span>
+                                <span class="text-gray-900">567</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">信用等级:</span>
+                                <span class="text-green-600 font-medium">优秀</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <button class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200">
+                                <i class="fas fa-user-circle mr-2"></i>查看用户详情
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 内容统计 -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">内容统计</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">发布时间</span>
+                                <span class="text-gray-900">2024-01-15</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">最后更新</span>
+                                <span class="text-gray-900">2024-01-16</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">字数统计</span>
+                                <span class="text-gray-900">1,256字</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">图片数量</span>
+                                <span class="text-gray-900">8张</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">阅读时长</span>
+                                <span class="text-gray-900">约5分钟</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 相关内容 -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">相关内容</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-seedling text-purple-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium text-gray-900">迷迭香种植心得</div>
+                                    <div class="text-xs text-gray-500">同一作者</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-leaf text-green-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium text-gray-900">阳台花园设计</div>
+                                    <div class="text-xs text-gray-500">相似标签</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-sun text-blue-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium text-gray-900">香草护理指南</div>
+                                    <div class="text-xs text-gray-500">热门推荐</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑内容模态框 -->
+    <div id="edit-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">编辑内容</h3>
+                <button id="close-edit-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">标题</label>
+                        <input type="text" value="我的薰衣草种植日记 - 从种子到花开的美好旅程" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">标签</label>
+                        <input type="text" value="薰衣草,种植日记,新手种植,阳台花园" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">内容</label>
+                        <textarea rows="10" 
+                                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+大家好！我是花园小仙女，今天想和大家分享我的薰衣草种植经历...
+                        </textarea>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" checked class="mr-2">
+                            <span class="text-sm text-gray-700">设为精选</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2">
+                            <span class="text-sm text-gray-700">推荐到首页</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="flex items-center justify-end space-x-4 p-6 border-t border-gray-200">
+                <button id="cancel-edit" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    取消
+                </button>
+                <button id="save-edit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    保存修改
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 返回列表
+        document.getElementById('back-btn').addEventListener('click', function() {
+            console.log('返回内容列表');
+            // 这里可以跳转到内容列表页面
+        });
+
+        // 操作按钮事件
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('button');
+            if (!target) return;
+
+            const text = target.textContent.trim();
+            
+            if (text.includes('设为精选')) {
+                console.log('设为精选');
+                alert('已设为精选内容！');
+            } else if (text.includes('推荐到首页')) {
+                console.log('推荐到首页');
+                alert('已推荐到首页！');
+            } else if (text.includes('编辑内容')) {
+                document.getElementById('edit-modal').classList.add('show');
+            } else if (text.includes('隐藏内容')) {
+                if (confirm('确定要隐藏这个内容吗？')) {
+                    console.log('隐藏内容');
+                    alert('内容已隐藏！');
+                }
+            } else if (text.includes('删除内容')) {
+                if (confirm('确定要删除这个内容吗？此操作不可恢复！')) {
+                    console.log('删除内容');
+                    alert('内容已删除！');
+                }
+            }
+        });
+
+        // 编辑模态框
+        document.getElementById('close-edit-modal').addEventListener('click', function() {
+            document.getElementById('edit-modal').classList.remove('show');
+        });
+
+        document.getElementById('cancel-edit').addEventListener('click', function() {
+            document.getElementById('edit-modal').classList.remove('show');
+        });
+
+        document.getElementById('save-edit').addEventListener('click', function() {
+            console.log('保存编辑');
+            alert('内容已保存！');
+            document.getElementById('edit-modal').classList.remove('show');
+        });
+
+        // 评论操作
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.fa-check')) {
+                console.log('通过评论');
+                alert('评论已通过！');
+            } else if (e.target.closest('.fa-times')) {
+                if (confirm('确定要拒绝这条评论吗？')) {
+                    console.log('拒绝评论');
+                    alert('评论已拒绝！');
+                }
+            } else if (e.target.closest('.fa-reply')) {
+                console.log('回复评论');
+                // 这里可以打开回复框
+            }
+        });
+
+        // 批量删除评论
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('button')?.textContent.includes('批量删除')) {
+                const checkedBoxes = document.querySelectorAll('.comment-item input[type="checkbox"]:checked');
+                if (checkedBoxes.length === 0) {
+                    alert('请先选择要删除的评论！');
+                    return;
+                }
+                
+                if (confirm(`确定要删除选中的 ${checkedBoxes.length} 条评论吗？`)) {
+                    console.log('批量删除评论');
+                    alert('评论已删除！');
+                }
+            }
+        });
+
+        // 查看用户详情
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('button')?.textContent.includes('查看用户详情')) {
+                console.log('查看用户详情');
+                // 这里可以跳转到用户详情页面
+            }
+        });
+
+        // 标签点击
+        document.querySelectorAll('.tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                const tagText = this.textContent.trim();
+                console.log('点击标签:', tagText);
+                // 这里可以跳转到标签相关内容页面
+            });
+        });
+
+        // 相关内容点击
+        document.addEventListener('click', function(e) {
+            const relatedItem = e.target.closest('.space-y-3 > div');
+            if (relatedItem && relatedItem.classList.contains('cursor-pointer')) {
+                const title = relatedItem.querySelector('.text-sm.font-medium').textContent;
+                console.log('查看相关内容:', title);
+                // 这里可以跳转到相关内容页面
+            }
+        });
+
+        // 加载更多评论
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('button')?.textContent.includes('加载更多评论')) {
+                console.log('加载更多评论');
+                // 这里可以加载更多评论数据
+            }
+        });
+    </script>
+</body>
+</html>

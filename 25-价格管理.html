@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>价格管理 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .price-trend {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .price-card {
+            transition: all 0.3s ease;
+        }
+        .price-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transition-all duration-300 z-50">
+        <div class="p-6 border-b">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div id="logo-text">
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-tachometer-alt w-5"></i>
+                        <span class="nav-text">仪表盘</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-green-50 text-green-600 rounded-lg">
+                        <i class="fas fa-box w-5"></i>
+                        <span class="nav-text">商品管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-shopping-cart w-5"></i>
+                        <span class="nav-text">订单管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-users w-5"></i>
+                        <span class="nav-text">用户管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-seedling w-5"></i>
+                        <span class="nav-text">香草图鉴</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-comments w-5"></i>
+                        <span class="nav-text">香草阳台</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <a href="#" class="hover:text-green-600">商品管理</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-green-600">价格管理</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 页面标题和操作 -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">价格管理</h1>
+                    <p class="text-gray-600 mt-1">管理商品价格策略，支持批量调价和价格监控</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button id="price-history" class="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-history mr-2"></i>价格历史
+                    </button>
+                    <button id="batch-price" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-edit mr-2"></i>批量调价
+                    </button>
+                    <button id="price-strategy" class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>价格策略
+                    </button>
+                </div>
+            </div>
+
+            <!-- 价格统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="price-card bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">商品总数</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">1,234</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-box text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600">+5.2%</span>
+                        <span class="text-gray-500 ml-1">较上月</span>
+                    </div>
+                </div>
+
+                <div class="price-card bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">平均价格</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">¥89.5</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-yen-sign text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-red-600">-2.1%</span>
+                        <span class="text-gray-500 ml-1">较上月</span>
+                    </div>
+                </div>
+
+                <div class="price-card bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">价格异常</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">23</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-red-600">需处理</span>
+                    </div>
+                </div>
+
+                <div class="price-card bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">促销商品</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">156</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tags text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-purple-600">12.6%</span>
+                        <span class="text-gray-500 ml-1">占比</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 价格列表 -->
+                <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border">
+                    <div class="p-6 border-b">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-semibold text-gray-900">商品价格列表</h2>
+                            <div class="flex items-center space-x-3">
+                                <select class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    <option>全部分类</option>
+                                    <option>香草植物</option>
+                                    <option>种植用品</option>
+                                    <option>香草食品</option>
+                                </select>
+                                <select class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    <option>价格排序</option>
+                                    <option>价格从低到高</option>
+                                    <option>价格从高到低</option>
+                                    <option>最近更新</option>
+                                </select>
+                                <div class="relative">
+                                    <input type="text" placeholder="搜索商品..." class="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    <i class="fas fa-search absolute left-2.5 top-2.5 text-gray-400 text-sm"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商品信息</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前价格</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">成本价</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">毛利率</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">销量</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=40&h=40&fit=crop" alt="商品" class="w-10 h-10 rounded-lg object-cover">
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900">薄荷盆栽</div>
+                                                <div class="text-sm text-gray-500">SKU: MT001</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">¥29.90</div>
+                                        <div class="text-xs text-gray-500">原价: ¥35.00</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥15.50</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-medium text-green-600">48.2%</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">156</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">促销中</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-green-600 hover:text-green-900 mr-3">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3">
+                                            <i class="fas fa-chart-line"></i>
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-900">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=40&h=40&fit=crop" alt="商品" class="w-10 h-10 rounded-lg object-cover">
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900">迷迭香种子</div>
+                                                <div class="text-sm text-gray-500">SKU: RS002</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">¥12.80</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥6.20</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-medium text-green-600">51.6%</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">89</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">正常</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-green-600 hover:text-green-900 mr-3">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3">
+                                            <i class="fas fa-chart-line"></i>
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-900">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://images.unsplash.com/photo-1574482620881-b5eb0eeae4b8?w=40&h=40&fit=crop" alt="商品" class="w-10 h-10 rounded-lg object-cover">
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900">罗勒精油</div>
+                                                <div class="text-sm text-gray-500">SKU: BO003</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-red-600">¥89.00</div>
+                                        <div class="text-xs text-red-500">价格异常</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">¥45.00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-medium text-yellow-600">49.4%</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">23</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">待审核</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-green-600 hover:text-green-900 mr-3">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3">
+                                            <i class="fas fa-chart-line"></i>
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-900">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="px-6 py-4 border-t flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            显示 1-10 条，共 234 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                                上一页
+                            </button>
+                            <button class="px-3 py-1 text-sm text-white bg-green-600 border border-green-600 rounded">
+                                1
+                            </button>
+                            <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                                2
+                            </button>
+                            <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                                3
+                            </button>
+                            <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 价格趋势和快速操作 -->
+                <div class="space-y-6">
+                    <!-- 价格趋势 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <h2 class="text-lg font-semibold text-gray-900">价格趋势</h2>
+                            <p class="text-sm text-gray-500 mt-1">最近30天平均价格变化</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="price-trend rounded-lg p-4 text-white mb-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm opacity-90">平均价格</span>
+                                    <span class="text-lg font-bold">¥89.5</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-arrow-down mr-1"></i>
+                                    <span>-2.1% 较上月</span>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">最高价格</span>
+                                    <span class="font-medium">¥299.00</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">最低价格</span>
+                                    <span class="font-medium">¥9.90</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-600">价格区间</span>
+                                    <span class="font-medium">¥20-150</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 快速操作 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <h2 class="text-lg font-semibold text-gray-900">快速操作</h2>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <button class="w-full px-4 py-3 text-left text-sm text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-percentage text-blue-600 mr-3"></i>
+                                批量打折
+                            </button>
+                            <button class="w-full px-4 py-3 text-left text-sm text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-arrow-up text-green-600 mr-3"></i>
+                                批量涨价
+                            </button>
+                            <button class="w-full px-4 py-3 text-left text-sm text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-sync text-purple-600 mr-3"></i>
+                                同步成本价
+                            </button>
+                            <button class="w-full px-4 py-3 text-left text-sm text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-download text-orange-600 mr-3"></i>
+                                导出价格表
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 价格预警 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-6 border-b">
+                            <h2 class="text-lg font-semibold text-gray-900">价格预警</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+                                        <span class="text-sm text-red-800">价格异常</span>
+                                    </div>
+                                    <span class="text-sm font-medium text-red-600">23</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-chart-line text-yellow-600 mr-2"></i>
+                                        <span class="text-sm text-yellow-800">毛利过低</span>
+                                    </div>
+                                    <span class="text-sm font-medium text-yellow-600">8</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock text-blue-600 mr-2"></i>
+                                        <span class="text-sm text-blue-800">促销到期</span>
+                                    </div>
+                                    <span class="text-sm font-medium text-blue-600">12</span>
+                                </div>
+                            </div>
+                            
+                            <button class="w-full mt-4 px-4 py-2 text-sm text-green-600 border border-green-300 rounded-lg hover:bg-green-50 transition-colors">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 批量调价模态框 -->
+    <div id="batch-price-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div class="p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">批量调价</h3>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">调价方式</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option>按百分比调价</option>
+                            <option>按固定金额调价</option>
+                            <option>设置固定价格</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">调价幅度</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" placeholder="10" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <span class="text-sm text-gray-500">%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">适用范围</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option>全部商品</option>
+                            <option>选中商品</option>
+                            <option>指定分类</option>
+                            <option>指定品牌</option>
+                        </select>
+                        <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option>香草植物</option>
+                            <option>种植用品</option>
+                            <option>香草食品</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">价格限制</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">最低价格</label>
+                            <input type="number" placeholder="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">最高价格</label>
+                            <input type="number" placeholder="999.99" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">生效时间</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="datetime-local" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        <input type="datetime-local" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">留空结束时间表示永久生效</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">预览效果</h4>
+                    <div class="text-sm text-gray-600">
+                        <p>将影响 <span class="font-medium text-green-600">156</span> 个商品</p>
+                        <p>平均价格将从 <span class="font-medium">¥89.5</span> 调整为 <span class="font-medium text-green-600">¥98.5</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t flex justify-end space-x-3">
+                <button id="cancel-batch-price" class="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    取消
+                </button>
+                <button id="confirm-batch-price" class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                    确认调价
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const logoText = document.getElementById('logo-text');
+            const navTexts = document.querySelectorAll('.nav-text');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+            
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                logoText.style.display = 'none';
+                navTexts.forEach(text => text.style.display = 'none');
+            } else {
+                logoText.style.display = 'block';
+                navTexts.forEach(text => text.style.display = 'inline');
+            }
+        });
+
+        // 批量调价模态框
+        const batchPriceModal = document.getElementById('batch-price-modal');
+        const batchPriceBtn = document.getElementById('batch-price');
+        const cancelBatchPriceBtn = document.getElementById('cancel-batch-price');
+        const confirmBatchPriceBtn = document.getElementById('confirm-batch-price');
+
+        batchPriceBtn.addEventListener('click', function() {
+            batchPriceModal.classList.remove('hidden');
+            batchPriceModal.classList.add('flex');
+        });
+
+        cancelBatchPriceBtn.addEventListener('click', function() {
+            batchPriceModal.classList.add('hidden');
+            batchPriceModal.classList.remove('flex');
+        });
+
+        confirmBatchPriceBtn.addEventListener('click', function() {
+            alert('批量调价已提交，正在处理中...');
+            batchPriceModal.classList.add('hidden');
+            batchPriceModal.classList.remove('flex');
+        });
+
+        // 点击模态框背景关闭
+        batchPriceModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+                this.classList.remove('flex');
+            }
+        });
+
+        // 价格历史
+        document.getElementById('price-history').addEventListener('click', function() {
+            alert('价格历史功能');
+        });
+
+        // 价格策略
+        document.getElementById('price-strategy').addEventListener('click', function() {
+            alert('价格策略功能');
+        });
+
+        // 全选功能
+        const selectAllCheckbox = document.querySelector('thead input[type="checkbox"]');
+        const itemCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+
+        selectAllCheckbox.addEventListener('change', function() {
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // 编辑价格
+        document.querySelectorAll('.fa-edit').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('编辑价格功能');
+            });
+        });
+
+        // 查看价格趋势
+        document.querySelectorAll('.fa-chart-line').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('查看价格趋势功能');
+            });
+        });
+
+        // 复制价格
+        document.querySelectorAll('.fa-copy').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('价格已复制到剪贴板');
+            });
+        });
+
+        // 快速操作
+        document.querySelectorAll('.bg-gray-50').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                alert(`执行操作: ${action}`);
+            });
+        });
+    </script>
+</body>
+</html>

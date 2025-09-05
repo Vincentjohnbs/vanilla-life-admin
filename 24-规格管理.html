@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>规格管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#f3f4f6'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-500">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-primary hover:text-white rounded-lg transition-colors">
+                        <i class="fas fa-home mr-3"></i>
+                        首页仪表板
+                    </a>
+                    <div class="space-y-1">
+                        <div class="flex items-center px-4 py-2 text-primary bg-green-50 rounded-lg">
+                            <i class="fas fa-box mr-3"></i>
+                            商品管理
+                        </div>
+                        <div class="ml-6 space-y-1">
+                            <a href="02-商品列表页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">商品列表</a>
+                            <a href="21-商品编辑页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">商品编辑</a>
+                            <a href="22-商品分类管理.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">分类管理</a>
+                            <a href="23-库存管理页.html" class="block px-4 py-1 text-sm text-gray-600 hover:text-primary">库存管理</a>
+                            <a href="24-规格管理.html" class="block px-4 py-1 text-sm text-primary font-medium bg-green-100 rounded">规格管理</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden mr-4 text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-semibold text-gray-800">规格管理</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">规格组总数</p>
+                            <p class="text-2xl font-bold text-gray-900">24</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-layer-group text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-green-500 text-sm font-medium">+3</span>
+                        <span class="text-gray-500 text-sm ml-2">本月新增</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">规格值总数</p>
+                            <p class="text-2xl font-bold text-gray-900">156</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tags text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-green-500 text-sm font-medium">+12</span>
+                        <span class="text-gray-500 text-sm ml-2">本月新增</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">使用中规格</p>
+                            <p class="text-2xl font-bold text-gray-900">89</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-purple-500 text-sm font-medium">57%</span>
+                        <span class="text-gray-500 text-sm ml-2">使用率</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">未使用规格</p>
+                            <p class="text-2xl font-bold text-orange-600">67</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation-circle text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center">
+                        <span class="text-orange-500 text-sm font-medium">可清理</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作栏 -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="搜索规格名称..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent w-full sm:w-64">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">全部状态</option>
+                            <option value="active">使用中</option>
+                            <option value="inactive">未使用</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="addSpecGroup()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>新增规格组
+                        </button>
+                        <button onclick="batchDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            <i class="fas fa-trash mr-2"></i>批量删除
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 规格组列表 -->
+            <div class="space-y-6">
+                <!-- 规格组1：颜色 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900">颜色</h3>
+                                    <p class="text-sm text-gray-500">用于区分商品的颜色规格</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">使用中</span>
+                                <button onclick="editSpecGroup('color')" class="text-primary hover:text-green-600">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteSpecGroup('color')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
+                                红色
+                                <button onclick="deleteSpecValue('red')" class="ml-2 text-red-600 hover:text-red-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                                蓝色
+                                <button onclick="deleteSpecValue('blue')" class="ml-2 text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                                绿色
+                                <button onclick="deleteSpecValue('green')" class="ml-2 text-green-600 hover:text-green-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
+                                黄色
+                                <button onclick="deleteSpecValue('yellow')" class="ml-2 text-yellow-600 hover:text-yellow-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+                                紫色
+                                <button onclick="deleteSpecValue('purple')" class="ml-2 text-purple-600 hover:text-purple-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                        </div>
+                        <button onclick="addSpecValue('color')" class="inline-flex items-center px-3 py-1 border-2 border-dashed border-gray-300 rounded-full text-sm text-gray-500 hover:border-primary hover:text-primary transition-colors">
+                            <i class="fas fa-plus mr-2"></i>添加规格值
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 规格组2：尺寸 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900">尺寸</h3>
+                                    <p class="text-sm text-gray-500">用于区分商品的尺寸规格</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">使用中</span>
+                                <button onclick="editSpecGroup('size')" class="text-primary hover:text-green-600">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteSpecGroup('size')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                小号(S)
+                                <button onclick="deleteSpecValue('s')" class="ml-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                中号(M)
+                                <button onclick="deleteSpecValue('m')" class="ml-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                大号(L)
+                                <button onclick="deleteSpecValue('l')" class="ml-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                特大号(XL)
+                                <button onclick="deleteSpecValue('xl')" class="ml-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                        </div>
+                        <button onclick="addSpecValue('size')" class="inline-flex items-center px-3 py-1 border-2 border-dashed border-gray-300 rounded-full text-sm text-gray-500 hover:border-primary hover:text-primary transition-colors">
+                            <i class="fas fa-plus mr-2"></i>添加规格值
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 规格组3：材质 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900">材质</h3>
+                                    <p class="text-sm text-gray-500">用于区分商品的材质规格</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">未使用</span>
+                                <button onclick="editSpecGroup('material')" class="text-primary hover:text-green-600">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteSpecGroup('material')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                塑料
+                                <button onclick="deleteSpecValue('plastic')" class="ml-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                陶瓷
+                                <button onclick="deleteSpecValue('ceramic')" class="ml-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                金属
+                                <button onclick="deleteSpecValue('metal')" class="ml-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                        </div>
+                        <button onclick="addSpecValue('material')" class="inline-flex items-center px-3 py-1 border-2 border-dashed border-gray-300 rounded-full text-sm text-gray-500 hover:border-primary hover:text-primary transition-colors">
+                            <i class="fas fa-plus mr-2"></i>添加规格值
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 规格组4：容量 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900">容量</h3>
+                                    <p class="text-sm text-gray-500">用于区分商品的容量规格</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">使用中</span>
+                                <button onclick="editSpecGroup('capacity')" class="text-primary hover:text-green-600">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteSpecGroup('capacity')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                100ml
+                                <button onclick="deleteSpecValue('100ml')" class="ml-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                250ml
+                                <button onclick="deleteSpecValue('250ml')" class="ml-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                500ml
+                                <button onclick="deleteSpecValue('500ml')" class="ml-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800">
+                                1L
+                                <button onclick="deleteSpecValue('1l')" class="ml-2 text-gray-600 hover:text-gray-800">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </span>
+                        </div>
+                        <button onclick="addSpecValue('capacity')" class="inline-flex items-center px-3 py-1 border-2 border-dashed border-gray-300 rounded-full text-sm text-gray-500 hover:border-primary hover:text-primary transition-colors">
+                            <i class="fas fa-plus mr-2"></i>添加规格值
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 新增/编辑规格组模态框 -->
+    <div id="specGroupModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900" id="modalTitle">新增规格组</h3>
+            </div>
+            <div class="px-6 py-4">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">规格组名称</label>
+                        <input type="text" id="specGroupName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入规格组名称">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">规格组描述</label>
+                        <textarea id="specGroupDesc" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入规格组描述"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">排序</label>
+                        <input type="number" id="specGroupSort" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="数字越小排序越靠前">
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-2">
+                <button onclick="closeSpecGroupModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">取消</button>
+                <button onclick="saveSpecGroup()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增规格值模态框 -->
+    <div id="specValueModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">添加规格值</h3>
+            </div>
+            <div class="px-6 py-4">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">规格值名称</label>
+                        <input type="text" id="specValueName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入规格值名称">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">规格值代码</label>
+                        <input type="text" id="specValueCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="请输入规格值代码（可选）">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">排序</label>
+                        <input type="number" id="specValueSort" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="数字越小排序越靠前">
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-2">
+                <button onclick="closeSpecValueModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">取消</button>
+                <button onclick="saveSpecValue()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSpecGroup = null;
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function() {
+            console.log('搜索:', this.value);
+        });
+
+        // 状态筛选
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            console.log('状态筛选:', this.value);
+        });
+
+        // 新增规格组
+        function addSpecGroup() {
+            document.getElementById('modalTitle').textContent = '新增规格组';
+            document.getElementById('specGroupName').value = '';
+            document.getElementById('specGroupDesc').value = '';
+            document.getElementById('specGroupSort').value = '';
+            currentSpecGroup = null;
+            document.getElementById('specGroupModal').classList.remove('hidden');
+            document.getElementById('specGroupModal').classList.add('flex');
+        }
+
+        // 编辑规格组
+        function editSpecGroup(groupId) {
+            document.getElementById('modalTitle').textContent = '编辑规格组';
+            // 这里应该根据groupId加载对应的数据
+            document.getElementById('specGroupName').value = '颜色';
+            document.getElementById('specGroupDesc').value = '用于区分商品的颜色规格';
+            document.getElementById('specGroupSort').value = '1';
+            currentSpecGroup = groupId;
+            document.getElementById('specGroupModal').classList.remove('hidden');
+            document.getElementById('specGroupModal').classList.add('flex');
+        }
+
+        // 关闭规格组模态框
+        function closeSpecGroupModal() {
+            document.getElementById('specGroupModal').classList.add('hidden');
+            document.getElementById('specGroupModal').classList.remove('flex');
+        }
+
+        // 保存规格组
+        function saveSpecGroup() {
+            const name = document.getElementById('specGroupName').value;
+            const desc = document.getElementById('specGroupDesc').value;
+            const sort = document.getElementById('specGroupSort').value;
+            
+            if (!name.trim()) {
+                alert('请输入规格组名称');
+                return;
+            }
+            
+            if (currentSpecGroup) {
+                alert(`规格组 "${name}" 更新成功`);
+            } else {
+                alert(`规格组 "${name}" 创建成功`);
+            }
+            
+            closeSpecGroupModal();
+        }
+
+        // 删除规格组
+        function deleteSpecGroup(groupId) {
+            if (confirm('确定要删除这个规格组吗？删除后相关的规格值也会被删除。')) {
+                alert(`规格组已删除`);
+            }
+        }
+
+        // 添加规格值
+        function addSpecValue(groupId) {
+            currentSpecGroup = groupId;
+            document.getElementById('specValueName').value = '';
+            document.getElementById('specValueCode').value = '';
+            document.getElementById('specValueSort').value = '';
+            document.getElementById('specValueModal').classList.remove('hidden');
+            document.getElementById('specValueModal').classList.add('flex');
+        }
+
+        // 关闭规格值模态框
+        function closeSpecValueModal() {
+            document.getElementById('specValueModal').classList.add('hidden');
+            document.getElementById('specValueModal').classList.remove('flex');
+        }
+
+        // 保存规格值
+        function saveSpecValue() {
+            const name = document.getElementById('specValueName').value;
+            const code = document.getElementById('specValueCode').value;
+            const sort = document.getElementById('specValueSort').value;
+            
+            if (!name.trim()) {
+                alert('请输入规格值名称');
+                return;
+            }
+            
+            alert(`规格值 "${name}" 添加成功`);
+            closeSpecValueModal();
+        }
+
+        // 删除规格值
+        function deleteSpecValue(valueId) {
+            if (confirm('确定要删除这个规格值吗？')) {
+                alert(`规格值已删除`);
+            }
+        }
+
+        // 批量删除
+        function batchDelete() {
+            const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            if (checkedBoxes.length === 0) {
+                alert('请选择要删除的规格组');
+                return;
+            }
+            
+            if (confirm(`确定要删除选中的 ${checkedBoxes.length} 个规格组吗？`)) {
+                alert('批量删除成功');
+            }
+        }
+    </script>
+</body>
+</html>

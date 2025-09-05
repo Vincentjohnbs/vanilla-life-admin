@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户通知 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .sidebar-item.active { background-color: #10b981; color: white; }
+        .tab-item { transition: all 0.3s ease; }
+        .tab-item.active { border-bottom-color: #10b981; color: #10b981; }
+        .notification-card { transition: all 0.3s ease; }
+        .notification-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .gradient-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .template-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .template-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .status-sent { background-color: #dcfce7; color: #166534; }
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-failed { background-color: #fee2e2; color: #991b1b; }
+        .status-draft { background-color: #f3f4f6; color: #374151; }
+        .channel-sms { background-color: #dbeafe; color: #1e40af; }
+        .channel-email { background-color: #dcfce7; color: #166534; }
+        .channel-push { background-color: #fef3c7; color: #92400e; }
+        .channel-wechat { background-color: #f0fdf4; color: #15803d; }
+        .editor-toolbar {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .editor-content {
+            min-height: 200px;
+            background: white;
+        }
+        .recipient-tag {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50">
+        <div class="flex items-center justify-center h-16 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>仪表盘
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-box mr-3"></i>商品管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>订单管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>用户管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-bullhorn mr-3"></i>营销活动
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-calendar-plus mr-3"></i>活动报名
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-truck mr-3"></i>供应商管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>香草图鉴
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>香草阳台
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-images mr-3"></i>Banner管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-cog mr-3"></i>系统设置
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 flex-1">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <a href="#" class="text-gray-500 hover:text-gray-700">活动报名</a>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                        <span class="text-gray-900 font-medium">用户通知</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="create-notification-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-plus mr-2"></i>创建通知
+                    </button>
+                    <button id="batch-send-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        <i class="fas fa-paper-plane mr-2"></i>批量发送
+                    </button>
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面头部 -->
+        <div class="p-6">
+            <div class="gradient-header text-white p-6 rounded-xl mb-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">用户通知</h1>
+                        <p class="text-purple-100">管理活动报名相关的用户通知，包括短信、邮件、推送等多渠道消息</p>
+                    </div>
+                    <div class="flex items-center space-x-6">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">2,456</div>
+                            <div class="text-sm text-purple-100">今日发送</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">98.5%</div>
+                            <div class="text-sm text-purple-100">送达率</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">156</div>
+                            <div class="text-sm text-purple-100">待发送</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="notification-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">总通知数</p>
+                            <p class="text-2xl font-bold text-gray-900">12,456</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8.2% 较昨日
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-bell text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">发送成功</p>
+                            <p class="text-2xl font-bold text-gray-900">11,234</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-check mr-1"></i>90.2% 成功率
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">待发送</p>
+                            <p class="text-2xl font-bold text-gray-900">156</p>
+                            <p class="text-sm text-orange-600 mt-1">
+                                <i class="fas fa-clock mr-1"></i>排队中
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hourglass-half text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notification-card bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">发送失败</p>
+                            <p class="text-2xl font-bold text-gray-900">67</p>
+                            <p class="text-sm text-red-600 mt-1">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>需处理
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6">
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm active" data-tab="notifications">
+                            通知列表
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="templates">
+                            消息模板
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="channels">
+                            发送渠道
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="automation">
+                            自动化规则
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="statistics">
+                            发送统计
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- 通知列表标签页 -->
+                <div id="notifications-tab" class="tab-content p-6">
+                    <!-- 筛选和操作栏 -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <input type="text" placeholder="搜索通知内容..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-64">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                            <select class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option>全部状态</option>
+                                <option>已发送</option>
+                                <option>待发送</option>
+                                <option>发送失败</option>
+                                <option>草稿</option>
+                            </select>
+                            <select class="px-3 py-2 border border-gray-300 rounded-lg">
+                                <option>全部渠道</option>
+                                <option>短信</option>
+                                <option>邮件</option>
+                                <option>推送</option>
+                                <option>微信</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-filter mr-2"></i>筛选
+                            </button>
+                            <button class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-sync-alt mr-2"></i>刷新
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 通知列表 -->
+                    <div class="space-y-4" id="notifications-list">
+                        <!-- 通知项将通过JavaScript动态生成 -->
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="flex items-center justify-between mt-6">
+                        <div class="text-sm text-gray-700">
+                            显示 1-10 条，共 156 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-2 text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                上一页
+                            </button>
+                            <button class="px-3 py-2 bg-blue-600 text-white rounded-lg">1</button>
+                            <button class="px-3 py-2 text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                            <button class="px-3 py-2 text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                            <button class="px-3 py-2 text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息模板标签页 -->
+                <div id="templates-tab" class="tab-content p-6 hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold">消息模板管理</h3>
+                        <button id="create-template-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-plus mr-2"></i>创建模板
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="templates-grid">
+                        <!-- 模板卡片将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 发送渠道标签页 -->
+                <div id="channels-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- 短信渠道 -->
+                        <div class="template-card p-6 rounded-lg">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-sms text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold">短信通知</h4>
+                                        <p class="text-sm text-gray-600">阿里云短信服务</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">已启用</span>
+                                    <button class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">今日发送：</span>
+                                    <span class="font-medium">1,234条</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">成功率：</span>
+                                    <span class="font-medium text-green-600">98.5%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">余额：</span>
+                                    <span class="font-medium">¥2,456.78</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 邮件渠道 -->
+                        <div class="template-card p-6 rounded-lg">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-envelope text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold">邮件通知</h4>
+                                        <p class="text-sm text-gray-600">腾讯企业邮箱</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">已启用</span>
+                                    <button class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">今日发送：</span>
+                                    <span class="font-medium">856条</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">成功率：</span>
+                                    <span class="font-medium text-green-600">99.2%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">状态：</span>
+                                    <span class="font-medium text-green-600">正常</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 推送渠道 -->
+                        <div class="template-card p-6 rounded-lg">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-mobile-alt text-orange-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold">推送通知</h4>
+                                        <p class="text-sm text-gray-600">极光推送</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">已启用</span>
+                                    <button class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">今日发送：</span>
+                                    <span class="font-medium">2,345条</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">到达率：</span>
+                                    <span class="font-medium text-green-600">87.3%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">点击率：</span>
+                                    <span class="font-medium">12.5%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 微信渠道 -->
+                        <div class="template-card p-6 rounded-lg">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-weixin text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold">微信通知</h4>
+                                        <p class="text-sm text-gray-600">微信服务号</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">待配置</span>
+                                    <button class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">关注用户：</span>
+                                    <span class="font-medium">3,456人</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">模板数量：</span>
+                                    <span class="font-medium">5个</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">状态：</span>
+                                    <span class="font-medium text-yellow-600">待审核</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 自动化规则标签页 -->
+                <div id="automation-tab" class="tab-content p-6 hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold">自动化通知规则</h3>
+                        <button id="create-rule-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-plus mr-2"></i>创建规则
+                        </button>
+                    </div>
+
+                    <div class="space-y-4" id="automation-rules">
+                        <!-- 自动化规则将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 发送统计标签页 -->
+                <div id="statistics-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 发送趋势图 -->
+                        <div class="template-card p-6 rounded-lg">
+                            <h4 class="font-semibold mb-4">发送趋势</h4>
+                            <canvas id="sendTrendChart" width="400" height="200"></canvas>
+                        </div>
+
+                        <!-- 渠道分布图 -->
+                        <div class="template-card p-6 rounded-lg">
+                            <h4 class="font-semibold mb-4">渠道分布</h4>
+                            <canvas id="channelDistributionChart" width="400" height="200"></canvas>
+                        </div>
+
+                        <!-- 成功率统计 -->
+                        <div class="template-card p-6 rounded-lg">
+                            <h4 class="font-semibold mb-4">成功率统计</h4>
+                            <canvas id="successRateChart" width="400" height="200"></canvas>
+                        </div>
+
+                        <!-- 用户响应率 -->
+                        <div class="template-card p-6 rounded-lg">
+                            <h4 class="font-semibold mb-4">用户响应率</h4>
+                            <canvas id="responseRateChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建通知模态框 -->
+    <div id="create-notification-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold">创建通知</h3>
+                    <button id="close-notification-modal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <form class="space-y-6">
+                        <!-- 基本信息 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">通知标题</label>
+                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="请输入通知标题">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">发送渠道</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    <option>短信</option>
+                                    <option>邮件</option>
+                                    <option>推送</option>
+                                    <option>微信</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 接收人群 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">接收人群</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="recipients" value="all" class="mr-2">
+                                    <span>全部用户</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="recipients" value="activity" class="mr-2">
+                                    <span>特定活动报名用户</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="recipients" value="custom" class="mr-2">
+                                    <span>自定义用户群体</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 消息内容 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">消息内容</label>
+                            <div class="border border-gray-300 rounded-lg">
+                                <div class="editor-toolbar p-3 flex items-center space-x-2">
+                                    <button type="button" class="p-2 text-gray-600 hover:bg-gray-100 rounded">
+                                        <i class="fas fa-bold"></i>
+                                    </button>
+                                    <button type="button" class="p-2 text-gray-600 hover:bg-gray-100 rounded">
+                                        <i class="fas fa-italic"></i>
+                                    </button>
+                                    <button type="button" class="p-2 text-gray-600 hover:bg-gray-100 rounded">
+                                        <i class="fas fa-link"></i>
+                                    </button>
+                                    <button type="button" class="p-2 text-gray-600 hover:bg-gray-100 rounded">
+                                        <i class="fas fa-image"></i>
+                                    </button>
+                                </div>
+                                <div class="editor-content p-3" contenteditable="true">
+                                    请输入消息内容...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 发送设置 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">发送时间</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    <option>立即发送</option>
+                                    <option>定时发送</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">优先级</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    <option>普通</option>
+                                    <option>重要</option>
+                                    <option>紧急</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="flex items-center justify-end space-x-4 p-6 border-t border-gray-200">
+                    <button id="save-draft-btn" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        保存草稿
+                    </button>
+                    <button id="preview-notification-btn" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                        预览
+                    </button>
+                    <button id="send-notification-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        发送通知
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'notifications';
+
+        // 标签页切换
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                currentTab = this.getAttribute('data-tab');
+                document.getElementById(currentTab + '-tab').classList.remove('hidden');
+                
+                // 初始化对应标签页的内容
+                initTabContent(currentTab);
+            });
+        });
+
+        // 初始化标签页内容
+        function initTabContent(tab) {
+            switch(tab) {
+                case 'notifications':
+                    renderNotificationsList();
+                    break;
+                case 'templates':
+                    renderTemplatesGrid();
+                    break;
+                case 'automation':
+                    renderAutomationRules();
+                    break;
+                case 'statistics':
+                    initStatisticsCharts();
+                    break;
+            }
+        }
+
+        // 渲染通知列表
+        function renderNotificationsList() {
+            const notifications = [
+                {
+                    id: 1,
+                    title: '活动报名成功通知',
+                    content: '您已成功报名"香草种植工作坊"活动，请按时参加。',
+                    channel: 'SMS',
+                    status: 'sent',
+                    recipients: 156,
+                    sendTime: '2024-01-15 14:30',
+                    successRate: '98.5%'
+                },
+                {
+                    id: 2,
+                    title: '活动提醒通知',
+                    content: '您报名的活动将在明天开始，请提前准备。',
+                    channel: 'EMAIL',
+                    status: 'pending',
+                    recipients: 89,
+                    sendTime: '2024-01-16 09:00',
+                    successRate: '-'
+                },
+                {
+                    id: 3,
+                    title: '活动取消通知',
+                    content: '由于天气原因，原定活动已取消，我们将另行通知。',
+                    channel: 'PUSH',
+                    status: 'failed',
+                    recipients: 234,
+                    sendTime: '2024-01-14 16:45',
+                    successRate: '45.2%'
+                }
+            ];
+
+            const container = document.getElementById('notifications-list');
+            container.innerHTML = '';
+
+            notifications.forEach(notification => {
+                const item = document.createElement('div');
+                item.className = 'bg-gray-50 p-4 rounded-lg border border-gray-200';
+                item.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <h4 class="font-medium text-gray-900">${notification.title}</h4>
+                                <span class="channel-${notification.channel.toLowerCase()} px-2 py-1 text-xs rounded-full">${notification.channel}</span>
+                                <span class="status-${notification.status} px-2 py-1 text-xs rounded-full">
+                                    ${getStatusText(notification.status)}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">${notification.content}</p>
+                            <div class="flex items-center space-x-6 text-sm text-gray-500">
+                                <span><i class="fas fa-users mr-1"></i>${notification.recipients}人</span>
+                                <span><i class="fas fa-clock mr-1"></i>${notification.sendTime}</span>
+                                <span><i class="fas fa-chart-line mr-1"></i>成功率: ${notification.successRate}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 text-gray-400 hover:text-blue-600" title="查看详情">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="p-2 text-gray-400 hover:text-green-600" title="重新发送">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button class="p-2 text-gray-400 hover:text-red-600" title="删除">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 渲染模板网格
+        function renderTemplatesGrid() {
+            const templates = [
+                {
+                    name: '报名成功通知',
+                    type: '短信模板',
+                    content: '您已成功报名{活动名称}，活动时间：{活动时间}，地点：{活动地点}',
+                    usage: 1234,
+                    status: 'active'
+                },
+                {
+                    name: '活动提醒',
+                    type: '邮件模板',
+                    content: '亲爱的用户，您报名的{活动名称}即将开始...',
+                    usage: 856,
+                    status: 'active'
+                },
+                {
+                    name: '活动取消通知',
+                    type: '推送模板',
+                    content: '很抱歉，{活动名称}因故取消，我们将为您安排其他活动',
+                    usage: 234,
+                    status: 'inactive'
+                }
+            ];
+
+            const container = document.getElementById('templates-grid');
+            container.innerHTML = '';
+
+            templates.forEach(template => {
+                const card = document.createElement('div');
+                card.className = 'template-card p-6 rounded-lg';
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-900">${template.name}</h4>
+                            <p class="text-sm text-gray-600">${template.type}</p>
+                        </div>
+                        <span class="px-2 py-1 ${template.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} text-xs rounded-full">
+                            ${template.status === 'active' ? '启用' : '禁用'}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4 line-clamp-3">${template.content}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">使用次数: ${template.usage}</span>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 text-gray-400 hover:text-blue-600" title="编辑">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="p-2 text-gray-400 hover:text-green-600" title="复制">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="p-2 text-gray-400 hover:text-red-600" title="删除">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 渲染自动化规则
+        function renderAutomationRules() {
+            const rules = [
+                {
+                    name: '报名成功自动通知',
+                    trigger: '用户报名成功',
+                    action: '发送短信确认',
+                    status: 'active',
+                    executions: 1234
+                },
+                {
+                    name: '活动前24小时提醒',
+                    trigger: '活动开始前24小时',
+                    action: '发送邮件提醒',
+                    status: 'active',
+                    executions: 856
+                },
+                {
+                    name: '审核结果通知',
+                    trigger: '审核状态变更',
+                    action: '发送推送通知',
+                    status: 'inactive',
+                    executions: 234
+                }
+            ];
+
+            const container = document.getElementById('automation-rules');
+            container.innerHTML = '';
+
+            rules.forEach(rule => {
+                const item = document.createElement('div');
+                item.className = 'template-card p-4 rounded-lg';
+                item.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <h4 class="font-medium text-gray-900">${rule.name}</h4>
+                                <span class="px-2 py-1 ${rule.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} text-xs rounded-full">
+                                    ${rule.status === 'active' ? '启用' : '禁用'}
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                <div><span class="font-medium">触发条件：</span>${rule.trigger}</div>
+                                <div><span class="font-medium">执行动作：</span>${rule.action}</div>
+                                <div><span class="font-medium">执行次数：</span>${rule.executions}次</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 text-gray-400 hover:text-blue-600" title="编辑">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="p-2 text-gray-400 hover:text-${rule.status === 'active' ? 'red' : 'green'}-600" title="${rule.status === 'active' ? '禁用' : '启用'}">
+                                <i class="fas fa-${rule.status === 'active' ? 'pause' : 'play'}"></i>
+                            </button>
+                            <button class="p-2 text-gray-400 hover:text-red-600" title="删除">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 初始化统计图表
+        function initStatisticsCharts() {
+            // 这里可以添加Chart.js图表初始化代码
+            console.log('初始化统计图表');
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'sent': '已发送',
+                'pending': '待发送',
+                'failed': '发送失败',
+                'draft': '草稿'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 模态框控制
+        document.getElementById('create-notification-btn').addEventListener('click', function() {
+            document.getElementById('create-notification-modal').classList.remove('hidden');
+        });
+
+        document.getElementById('close-notification-modal').addEventListener('click', function() {
+            document.getElementById('create-notification-modal').classList.add('hidden');
+        });
+
+        // 按钮事件
+        document.getElementById('save-draft-btn').addEventListener('click', function() {
+            console.log('保存草稿');
+            alert('草稿已保存');
+        });
+
+        document.getElementById('preview-notification-btn').addEventListener('click', function() {
+            console.log('预览通知');
+            alert('预览功能开发中...');
+        });
+
+        document.getElementById('send-notification-btn').addEventListener('click', function() {
+            console.log('发送通知');
+            alert('通知发送成功！');
+            document.getElementById('create-notification-modal').classList.add('hidden');
+        });
+
+        // 初始化默认内容
+        renderNotificationsList();
+    </script>
+</body>
+</html>

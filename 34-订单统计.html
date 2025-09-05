@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单统计 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .metric-card {
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .trend-up {
+            color: #10b981;
+        }
+        .trend-down {
+            color: #ef4444;
+        }
+        .date-picker {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        }
+        .filter-active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .ranking-item {
+            transition: all 0.3s ease;
+        }
+        .ranking-item:hover {
+            background: #f9fafb;
+            transform: translateX(4px);
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            height: 6px;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transition-all duration-300 z-50">
+        <div class="p-6 border-b">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div id="logo-text">
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-tachometer-alt w-5"></i>
+                        <span class="nav-text">仪表盘</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-box w-5"></i>
+                        <span class="nav-text">商品管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-green-50 text-green-600 rounded-lg">
+                        <i class="fas fa-shopping-cart w-5"></i>
+                        <span class="nav-text">订单管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-users w-5"></i>
+                        <span class="nav-text">用户管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-seedling w-5"></i>
+                        <span class="nav-text">香草图鉴</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-comments w-5"></i>
+                        <span class="nav-text">香草阳台</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <a href="#" class="hover:text-green-600">订单管理</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-green-600">订单统计</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 页面标题和时间筛选 -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">订单统计</h1>
+                    <p class="text-gray-600 mt-1">查看订单数据分析和统计报表</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="date-picker px-4 py-2 rounded-lg border">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-calendar-alt text-gray-500"></i>
+                            <select id="dateRange" class="bg-transparent text-sm focus:outline-none">
+                                <option value="today">今天</option>
+                                <option value="yesterday">昨天</option>
+                                <option value="week" selected>最近7天</option>
+                                <option value="month">最近30天</option>
+                                <option value="quarter">最近3个月</option>
+                                <option value="year">最近1年</option>
+                                <option value="custom">自定义</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="refreshData()" class="px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                    </button>
+                    <button onclick="exportReport()" class="px-4 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出报表
+                    </button>
+                </div>
+            </div>
+
+            <!-- 核心指标卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="stats-card text-white p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm opacity-90">总订单数</p>
+                            <p class="text-3xl font-bold mt-2">2,847</p>
+                            <div class="flex items-center mt-2">
+                                <i class="fas fa-arrow-up text-xs mr-1"></i>
+                                <span class="text-xs opacity-75">较上周 +12.5%</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-shopping-cart text-3xl opacity-75"></i>
+                    </div>
+                </div>
+                
+                <div class="metric-card bg-white border border-gray-200 p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">总销售额</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">¥156,890</p>
+                            <div class="flex items-center mt-2">
+                                <i class="fas fa-arrow-up text-xs mr-1 trend-up"></i>
+                                <span class="text-xs text-green-600">较上周 +8.3%</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-yen-sign text-3xl text-green-500"></i>
+                    </div>
+                </div>
+                
+                <div class="metric-card bg-white border border-gray-200 p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">平均客单价</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">¥55.12</p>
+                            <div class="flex items-center mt-2">
+                                <i class="fas fa-arrow-down text-xs mr-1 trend-down"></i>
+                                <span class="text-xs text-red-600">较上周 -2.1%</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-calculator text-3xl text-blue-500"></i>
+                    </div>
+                </div>
+                
+                <div class="metric-card bg-white border border-gray-200 p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">订单完成率</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">94.8%</p>
+                            <div class="flex items-center mt-2">
+                                <i class="fas fa-arrow-up text-xs mr-1 trend-up"></i>
+                                <span class="text-xs text-green-600">较上周 +1.2%</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-check-circle text-3xl text-purple-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 图表区域 -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- 订单趋势图 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-4 border-b">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">订单趋势</h3>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="switchChart('orders')" class="filter-active px-3 py-1 text-xs rounded-full transition-colors">
+                                        订单数量
+                                    </button>
+                                    <button onclick="switchChart('sales')" class="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors">
+                                        销售额
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="chart-container">
+                                <canvas id="trendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 订单状态分布 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-4 border-b">
+                            <h3 class="text-lg font-semibold text-gray-900">订单状态分布</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="chart-container">
+                                    <canvas id="statusChart"></canvas>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                            <span class="text-sm text-gray-700">已完成</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm font-medium text-gray-900">2,698</p>
+                                            <p class="text-xs text-gray-500">94.8%</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                            <span class="text-sm text-gray-700">进行中</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm font-medium text-gray-900">89</p>
+                                            <p class="text-xs text-gray-500">3.1%</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                            <span class="text-sm text-gray-700">已取消</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm font-medium text-gray-900">60</p>
+                                            <p class="text-xs text-gray-500">2.1%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧统计 -->
+                <div class="space-y-6">
+                    <!-- 热销商品排行 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-4 border-b">
+                            <h3 class="text-lg font-semibold text-gray-900">热销商品排行</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="space-y-4">
+                                <div class="ranking-item flex items-center space-x-3 p-3 rounded-lg">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                        1
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=40&h=40&fit=crop" alt="商品" class="w-10 h-10 rounded-lg object-cover">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">薄荷盆栽套装</p>
+                                        <p class="text-xs text-gray-500">销量: 456</p>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                            <div class="progress-bar" style="width: 95%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ranking-item flex items-center space-x-3 p-3 rounded-lg">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                        2
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=40&h=40&fit=crop" alt="商品" class="w-10 h-10 rounded-lg object-cover">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">迷迭香种植套装</p>
+                                        <p class="text-xs text-gray-500">销量: 389</p>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                            <div class="progress-bar" style="width: 81%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ranking-item flex items-center space-x-3 p-3 rounded-lg">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                        3
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=40&h=40&fit=crop" alt="商品" class="w-10 h-10 rounded-lg object-cover">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">薰衣草种子套装</p>
+                                        <p class="text-xs text-gray-500">销量: 267</p>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                            <div class="progress-bar" style="width: 56%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ranking-item flex items-center space-x-3 p-3 rounded-lg">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-sm font-bold">
+                                        4
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=40&h=40&fit=crop" alt="商品" class="w-10 h-10 rounded-lg object-cover">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">香草种植工具套装</p>
+                                        <p class="text-xs text-gray-500">销量: 198</p>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                            <div class="progress-bar" style="width: 41%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ranking-item flex items-center space-x-3 p-3 rounded-lg">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-sm font-bold">
+                                        5
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=40&h=40&fit=crop" alt="商品" class="w-10 h-10 rounded-lg object-cover">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">罗勒种植套装</p>
+                                        <p class="text-xs text-gray-500">销量: 156</p>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                            <div class="progress-bar" style="width: 32%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 地区销售统计 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-4 border-b">
+                            <h3 class="text-lg font-semibold text-gray-900">地区销售统计</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                        <span class="text-sm text-gray-700">北京</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">¥28,456</p>
+                                        <p class="text-xs text-gray-500">18.1%</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                        <span class="text-sm text-gray-700">上海</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">¥25,123</p>
+                                        <p class="text-xs text-gray-500">16.0%</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                        <span class="text-sm text-gray-700">广州</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">¥22,789</p>
+                                        <p class="text-xs text-gray-500">14.5%</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+                                        <span class="text-sm text-gray-700">深圳</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">¥19,567</p>
+                                        <p class="text-xs text-gray-500">12.5%</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                                        <span class="text-sm text-gray-700">其他</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-gray-900">¥60,955</p>
+                                        <p class="text-xs text-gray-500">38.9%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 快速操作 -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="p-4 border-b">
+                            <h3 class="text-lg font-semibold text-gray-900">快速操作</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="space-y-3">
+                                <button onclick="viewDetailReport()" class="w-full p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-chart-line text-blue-500"></i>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">详细报表</p>
+                                            <p class="text-xs text-gray-500">查看完整统计报表</p>
+                                        </div>
+                                    </div>
+                                </button>
+                                
+                                <button onclick="compareData()" class="w-full p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-balance-scale text-green-500"></i>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">数据对比</p>
+                                            <p class="text-xs text-gray-500">对比不同时期数据</p>
+                                        </div>
+                                    </div>
+                                </button>
+                                
+                                <button onclick="setAlert()" class="w-full p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-bell text-orange-500"></i>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">数据预警</p>
+                                            <p class="text-xs text-gray-500">设置数据异常提醒</p>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const logoText = document.getElementById('logo-text');
+            const navTexts = document.querySelectorAll('.nav-text');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+            
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                logoText.style.display = 'none';
+                navTexts.forEach(text => text.style.display = 'none');
+            } else {
+                logoText.style.display = 'block';
+                navTexts.forEach(text => text.style.display = 'inline');
+            }
+        });
+
+        // 初始化图表
+        let trendChart, statusChart;
+
+        // 订单趋势图
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        trendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['1月15日', '1月16日', '1月17日', '1月18日', '1月19日', '1月20日', '1月21日'],
+                datasets: [{
+                    label: '订单数量',
+                    data: [320, 285, 410, 375, 445, 390, 425],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f3f4f6'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // 订单状态分布图
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        statusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['已完成', '进行中', '已取消'],
+                datasets: [{
+                    data: [2698, 89, 60],
+                    backgroundColor: ['#10b981', '#3b82f6', '#ef4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // 切换图表
+        function switchChart(type) {
+            const buttons = document.querySelectorAll('[onclick^="switchChart"]');
+            buttons.forEach(btn => {
+                btn.classList.remove('filter-active');
+                btn.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+            });
+            
+            event.target.classList.add('filter-active');
+            event.target.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+            
+            if (type === 'sales') {
+                trendChart.data.datasets[0].label = '销售额';
+                trendChart.data.datasets[0].data = [15600, 13800, 19200, 17500, 21200, 18900, 20500];
+            } else {
+                trendChart.data.datasets[0].label = '订单数量';
+                trendChart.data.datasets[0].data = [320, 285, 410, 375, 445, 390, 425];
+            }
+            
+            trendChart.update();
+            console.log('切换图表类型:', type);
+        }
+
+        // 时间范围变更
+        document.getElementById('dateRange').addEventListener('change', function() {
+            const range = this.value;
+            console.log('时间范围变更:', range);
+            
+            if (range === 'custom') {
+                // 这里可以打开日期选择器
+                alert('请选择自定义时间范围');
+            }
+            
+            // 更新图表数据
+            updateChartData(range);
+        });
+
+        // 更新图表数据
+        function updateChartData(range) {
+            // 模拟不同时间范围的数据
+            let labels, data;
+            
+            switch(range) {
+                case 'today':
+                    labels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'];
+                    data = [12, 8, 25, 45, 38, 52, 28];
+                    break;
+                case 'week':
+                    labels = ['1月15日', '1月16日', '1月17日', '1月18日', '1月19日', '1月20日', '1月21日'];
+                    data = [320, 285, 410, 375, 445, 390, 425];
+                    break;
+                case 'month':
+                    labels = ['第1周', '第2周', '第3周', '第4周'];
+                    data = [2850, 3200, 2950, 3400];
+                    break;
+                default:
+                    labels = ['1月15日', '1月16日', '1月17日', '1月18日', '1月19日', '1月20日', '1月21日'];
+                    data = [320, 285, 410, 375, 445, 390, 425];
+            }
+            
+            trendChart.data.labels = labels;
+            trendChart.data.datasets[0].data = data;
+            trendChart.update();
+        }
+
+        // 刷新数据
+        function refreshData() {
+            const btn = event.target.closest('button');
+            const icon = btn.querySelector('i');
+            icon.classList.add('fa-spin');
+            
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                alert('数据已刷新');
+                // 这里可以重新加载数据
+            }, 2000);
+            
+            console.log('刷新数据');
+        }
+
+        // 导出报表
+        function exportReport() {
+            alert('正在生成统计报表...');
+            console.log('导出统计报表');
+        }
+
+        // 查看详细报表
+        function viewDetailReport() {
+            alert('打开详细报表页面');
+            console.log('查看详细报表');
+        }
+
+        // 数据对比
+        function compareData() {
+            alert('打开数据对比功能');
+            console.log('数据对比');
+        }
+
+        // 设置预警
+        function setAlert() {
+            alert('打开数据预警设置');
+            console.log('设置数据预警');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('订单统计页面加载完成');
+        });
+    </script>
+</body>
+</html>

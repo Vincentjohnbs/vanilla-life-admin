@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑名单管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .blacklist-item {
+            transition: all 0.3s ease;
+        }
+        .blacklist-item:hover {
+            background-color: #fef2f2;
+        }
+        .status-badge {
+            transition: all 0.3s ease;
+        }
+        .reason-tag {
+            transition: all 0.3s ease;
+        }
+        .reason-tag:hover {
+            transform: scale(1.05);
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0.5rem;
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: #ef4444;
+            border-radius: 50%;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 1rem;
+            width: 1px;
+            height: calc(100% - 1rem);
+            background-color: #e5e7eb;
+        }
+        .timeline-item:last-child::after {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">用户管理</h3>
+                <ul class="space-y-1">
+                    <li><a href="61-用户详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-user mr-3"></i>用户详情</a></li>
+                    <li><a href="62-会员管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-crown mr-3"></i>会员管理</a></li>
+                    <li><a href="63-用户标签管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-tags mr-3"></i>用户标签</a></li>
+                    <li><a href="64-积分管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-coins mr-3"></i>积分管理</a></li>
+                    <li><a href="65-权限配置.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-shield-alt mr-3"></i>权限配置</a></li>
+                    <li><a href="66-用户分群.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-users mr-3"></i>用户分群</a></li>
+                    <li><a href="67-行为分析.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-chart-line mr-3"></i>行为分析</a></li>
+                    <li><a href="68-消息推送.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-bell mr-3"></i>消息推送</a></li>
+                    <li><a href="69-黑名单管理.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-ban mr-3"></i>黑名单管理</a></li>
+                    <li><a href="70-用户导出.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-download mr-3"></i>用户导出</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-800">黑名单管理</h2>
+                        <p class="text-sm text-gray-600">管理违规用户，维护平台秩序和安全</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="addBlacklist" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>添加黑名单
+                    </button>
+                    <button id="batchImport" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-upload mr-2"></i>批量导入
+                    </button>
+                    <button id="exportBlacklist" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出数据
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 黑名单统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">黑名单总数</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">1,234</p>
+                            <p class="text-sm text-red-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+12 本周
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-ban text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">永久封禁</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">456</p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                占比 37%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-lock text-gray-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">临时封禁</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">678</p>
+                            <p class="text-sm text-orange-600 mt-1">
+                                <i class="fas fa-clock mr-1"></i>平均7天
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hourglass-half text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">本月新增</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">89</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-down mr-1"></i>-15.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-plus text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 黑名单列表 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">黑名单列表</h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <input type="text" id="searchBlacklist" placeholder="搜索用户..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                            <select id="reasonFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <option value="">全部原因</option>
+                                <option value="spam">垃圾信息</option>
+                                <option value="fraud">欺诈行为</option>
+                                <option value="abuse">恶意行为</option>
+                                <option value="violation">违规内容</option>
+                                <option value="harassment">骚扰他人</option>
+                                <option value="other">其他</option>
+                            </select>
+                            <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <option value="">全部状态</option>
+                                <option value="active">生效中</option>
+                                <option value="expired">已过期</option>
+                                <option value="lifted">已解除</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户信息</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">封禁原因</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">封禁类型</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">封禁时间</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">到期时间</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="blacklistTable" class="bg-white divide-y divide-gray-200">
+                            <!-- 黑名单列表将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <select id="batchAction" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <option value="">批量操作</option>
+                                <option value="lift">解除封禁</option>
+                                <option value="extend">延长封禁</option>
+                                <option value="permanent">转为永久</option>
+                                <option value="delete">删除记录</option>
+                            </select>
+                            <button id="executeBatch" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">执行</button>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-700">共 1,234 条记录</span>
+                            <div class="flex items-center space-x-1">
+                                <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-50">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="px-3 py-2 text-white bg-red-500 border border-red-500">1</button>
+                                <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 hover:bg-gray-50">2</button>
+                                <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 hover:bg-gray-50">3</button>
+                                <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-50">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 添加黑名单模态框 -->
+    <div id="addBlacklistModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">添加黑名单</h3>
+                    <button id="closeAddModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form id="blacklistForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">用户ID/手机号/邮箱</label>
+                            <input type="text" id="userIdentifier" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="请输入用户标识" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">封禁类型</label>
+                            <select id="banType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                                <option value="">请选择封禁类型</option>
+                                <option value="temporary">临时封禁</option>
+                                <option value="permanent">永久封禁</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="durationContainer" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">封禁时长</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="number" id="banDuration" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="时长" min="1">
+                            <select id="durationUnit" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                                <option value="hours">小时</option>
+                                <option value="days">天</option>
+                                <option value="weeks">周</option>
+                                <option value="months">月</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">封禁原因</label>
+                        <select id="banReason" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" required>
+                            <option value="">请选择封禁原因</option>
+                            <option value="spam">发布垃圾信息</option>
+                            <option value="fraud">欺诈行为</option>
+                            <option value="abuse">恶意行为</option>
+                            <option value="violation">发布违规内容</option>
+                            <option value="harassment">骚扰他人</option>
+                            <option value="fake">虚假信息</option>
+                            <option value="copyright">侵犯版权</option>
+                            <option value="other">其他原因</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">详细说明</label>
+                        <textarea id="banDescription" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="请详细描述封禁原因和相关证据" required></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">证据附件（可选）</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-2"></i>
+                            <p class="text-gray-600">点击上传或拖拽文件到此处</p>
+                            <p class="text-sm text-gray-500 mt-1">支持图片、文档等格式，最大10MB</p>
+                            <input type="file" id="evidenceFiles" multiple class="hidden" accept="image/*,.pdf,.doc,.docx,.txt">
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="notifyUser" class="rounded border-gray-300 text-red-600 focus:ring-red-500" checked>
+                            <span class="ml-2 text-sm text-gray-700">通知用户封禁原因</span>
+                        </label>
+                        
+                        <label class="flex items-center">
+                            <input type="checkbox" id="blockAllDevices" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                            <span class="ml-2 text-sm text-gray-700">封禁所有设备</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancelAdd" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">取消</button>
+                <button id="confirmAdd" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">确认封禁</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户详情模态框 -->
+    <div id="userDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">用户详情</h3>
+                    <button id="closeDetailModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 用户基本信息 -->
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">基本信息</h4>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <img id="userAvatar" src="https://via.placeholder.com/80" alt="用户头像" class="w-20 h-20 rounded-full">
+                            <div>
+                                <h5 id="userName" class="text-xl font-semibold text-gray-900">用户昵称</h5>
+                                <p id="userPhone" class="text-gray-600">手机号码</p>
+                                <p id="userEmail" class="text-gray-600">邮箱地址</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">用户ID</label>
+                                <p id="userId" class="text-gray-900">12345</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">注册时间</label>
+                                <p id="registerTime" class="text-gray-900">2024-01-01</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">最后登录</label>
+                                <p id="lastLogin" class="text-gray-900">2024-01-15</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">账户状态</label>
+                                <p id="accountStatus" class="text-red-600 font-medium">已封禁</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 封禁历史 -->
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">封禁历史</h4>
+                        <div id="banHistory" class="space-y-4 max-h-80 overflow-y-auto">
+                            <!-- 封禁历史将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="liftBan" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">解除封禁</button>
+                <button id="extendBan" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">延长封禁</button>
+                <button id="permanentBan" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">转为永久</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        const blacklistData = [
+            {
+                id: 1,
+                userId: 'U001234',
+                avatar: 'https://via.placeholder.com/40',
+                nickname: '违规用户001',
+                phone: '138****5678',
+                email: 'user001@example.com',
+                reason: 'spam',
+                reasonText: '发布垃圾信息',
+                type: 'temporary',
+                banTime: '2024-01-10 14:30',
+                expireTime: '2024-01-17 14:30',
+                status: 'active',
+                description: '多次发布垃圾广告信息，影响用户体验',
+                operator: '管理员A',
+                history: [
+                    { date: '2024-01-10', reason: '发布垃圾信息', type: '临时封禁', duration: '7天', operator: '管理员A' },
+                    { date: '2023-12-15', reason: '恶意评论', type: '警告', duration: '-', operator: '管理员B' }
+                ]
+            },
+            {
+                id: 2,
+                userId: 'U002345',
+                avatar: 'https://via.placeholder.com/40',
+                nickname: '欺诈用户002',
+                phone: '139****9876',
+                email: 'user002@example.com',
+                reason: 'fraud',
+                reasonText: '欺诈行为',
+                type: 'permanent',
+                banTime: '2024-01-08 09:15',
+                expireTime: '永久',
+                status: 'active',
+                description: '涉嫌虚假交易，欺骗其他用户',
+                operator: '管理员B',
+                history: [
+                    { date: '2024-01-08', reason: '欺诈行为', type: '永久封禁', duration: '永久', operator: '管理员B' },
+                    { date: '2023-12-20', reason: '虚假信息', type: '临时封禁', duration: '3天', operator: '管理员A' }
+                ]
+            },
+            {
+                id: 3,
+                userId: 'U003456',
+                avatar: 'https://via.placeholder.com/40',
+                nickname: '恶意用户003',
+                phone: '137****1234',
+                email: 'user003@example.com',
+                reason: 'abuse',
+                reasonText: '恶意行为',
+                type: 'temporary',
+                banTime: '2024-01-12 16:45',
+                expireTime: '2024-01-19 16:45',
+                status: 'active',
+                description: '恶意刷单，破坏平台秩序',
+                operator: '管理员C',
+                history: [
+                    { date: '2024-01-12', reason: '恶意行为', type: '临时封禁', duration: '7天', operator: '管理员C' }
+                ]
+            },
+            {
+                id: 4,
+                userId: 'U004567',
+                avatar: 'https://via.placeholder.com/40',
+                nickname: '违规用户004',
+                phone: '136****5678',
+                email: 'user004@example.com',
+                reason: 'violation',
+                reasonText: '违规内容',
+                type: 'temporary',
+                banTime: '2024-01-05 11:20',
+                expireTime: '2024-01-12 11:20',
+                status: 'expired',
+                description: '发布违规内容，包含不当信息',
+                operator: '管理员A',
+                history: [
+                    { date: '2024-01-05', reason: '违规内容', type: '临时封禁', duration: '7天', operator: '管理员A' }
+                ]
+            },
+            {
+                id: 5,
+                userId: 'U005678',
+                avatar: 'https://via.placeholder.com/40',
+                nickname: '骚扰用户005',
+                phone: '135****9999',
+                email: 'user005@example.com',
+                reason: 'harassment',
+                reasonText: '骚扰他人',
+                type: 'permanent',
+                banTime: '2024-01-14 13:10',
+                expireTime: '永久',
+                status: 'active',
+                description: '多次骚扰其他用户，情节严重',
+                operator: '管理员B',
+                history: [
+                    { date: '2024-01-14', reason: '骚扰他人', type: '永久封禁', duration: '永久', operator: '管理员B' },
+                    { date: '2024-01-01', reason: '骚扰他人', type: '临时封禁', duration: '3天', operator: '管理员A' },
+                    { date: '2023-12-25', reason: '不当言论', type: '警告', duration: '-', operator: '管理员C' }
+                ]
+            }
+        ];
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 渲染黑名单列表
+        function renderBlacklistTable() {
+            const tbody = document.getElementById('blacklistTable');
+            tbody.innerHTML = '';
+            
+            blacklistData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'blacklist-item hover:bg-red-50';
+                
+                let statusBadge, statusColor;
+                switch(item.status) {
+                    case 'active':
+                        statusBadge = '生效中';
+                        statusColor = 'bg-red-100 text-red-800';
+                        break;
+                    case 'expired':
+                        statusBadge = '已过期';
+                        statusColor = 'bg-gray-100 text-gray-800';
+                        break;
+                    case 'lifted':
+                        statusBadge = '已解除';
+                        statusColor = 'bg-green-100 text-green-800';
+                        break;
+                }
+                
+                let typeBadge, typeColor;
+                switch(item.type) {
+                    case 'temporary':
+                        typeBadge = '临时封禁';
+                        typeColor = 'bg-orange-100 text-orange-800';
+                        break;
+                    case 'permanent':
+                        typeBadge = '永久封禁';
+                        typeColor = 'bg-red-100 text-red-800';
+                        break;
+                }
+                
+                let reasonColor;
+                switch(item.reason) {
+                    case 'spam':
+                        reasonColor = 'bg-yellow-100 text-yellow-800';
+                        break;
+                    case 'fraud':
+                        reasonColor = 'bg-red-100 text-red-800';
+                        break;
+                    case 'abuse':
+                        reasonColor = 'bg-purple-100 text-purple-800';
+                        break;
+                    case 'violation':
+                        reasonColor = 'bg-blue-100 text-blue-800';
+                        break;
+                    case 'harassment':
+                        reasonColor = 'bg-pink-100 text-pink-800';
+                        break;
+                    default:
+                        reasonColor = 'bg-gray-100 text-gray-800';
+                }
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <img src="${item.avatar}" alt="头像" class="w-10 h-10 rounded-full mr-3">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">${item.nickname}</div>
+                                <div class="text-sm text-gray-500">${item.phone}</div>
+                                <div class="text-xs text-gray-400">${item.userId}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full reason-tag ${reasonColor}">
+                            ${item.reasonText}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${typeColor}">
+                            ${typeBadge}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${item.banTime}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${item.expireTime}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full status-badge ${statusColor}">
+                            ${statusBadge}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex items-center space-x-2">
+                            <button class="text-blue-600 hover:text-blue-900" onclick="viewUserDetail(${item.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="text-green-600 hover:text-green-900" onclick="liftBan(${item.id})" ${item.status !== 'active' ? 'disabled' : ''}>
+                                <i class="fas fa-unlock"></i>
+                            </button>
+                            <button class="text-orange-600 hover:text-orange-900" onclick="extendBan(${item.id})" ${item.status !== 'active' ? 'disabled' : ''}>
+                                <i class="fas fa-clock"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-900" onclick="deleteBlacklist(${item.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染封禁历史
+        function renderBanHistory(history) {
+            const container = document.getElementById('banHistory');
+            container.innerHTML = '';
+            
+            history.forEach((record, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'timeline-item';
+                
+                historyItem.innerHTML = `
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-900">${record.reason}</span>
+                            <span class="text-xs text-gray-500">${record.date}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500">处理类型：</span>
+                                <span class="text-gray-900">${record.type}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">时长：</span>
+                                <span class="text-gray-900">${record.duration}</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-sm">
+                            <span class="text-gray-500">操作人：</span>
+                            <span class="text-gray-900">${record.operator}</span>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(historyItem);
+            });
+        }
+
+        // 黑名单操作函数
+        function viewUserDetail(id) {
+            const user = blacklistData.find(item => item.id === id);
+            if (user) {
+                document.getElementById('userAvatar').src = user.avatar;
+                document.getElementById('userName').textContent = user.nickname;
+                document.getElementById('userPhone').textContent = user.phone;
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userId').textContent = user.userId;
+                document.getElementById('registerTime').textContent = '2023-06-15 10:30';
+                document.getElementById('lastLogin').textContent = '2024-01-15 14:20';
+                document.getElementById('accountStatus').textContent = user.status === 'active' ? '已封禁' : '正常';
+                
+                renderBanHistory(user.history);
+                
+                document.getElementById('userDetailModal').classList.remove('hidden');
+                document.getElementById('userDetailModal').classList.add('flex');
+            }
+        }
+
+        function liftBan(id) {
+            if (confirm('确定要解除该用户的封禁吗？')) {
+                alert(`解除封禁 ID: ${id}`);
+                // 这里可以添加实际的解除封禁逻辑
+            }
+        }
+
+        function extendBan(id) {
+            const duration = prompt('请输入延长的天数：');
+            if (duration && !isNaN(duration) && duration > 0) {
+                alert(`延长封禁 ${duration} 天，ID: ${id}`);
+                // 这里可以添加实际的延长封禁逻辑
+            }
+        }
+
+        function deleteBlacklist(id) {
+            if (confirm('确定要删除这条黑名单记录吗？')) {
+                alert(`删除黑名单记录 ID: ${id}`);
+                // 这里可以添加实际的删除逻辑
+            }
+        }
+
+        // 事件绑定
+        document.getElementById('addBlacklist').addEventListener('click', function() {
+            document.getElementById('addBlacklistModal').classList.remove('hidden');
+            document.getElementById('addBlacklistModal').classList.add('flex');
+        });
+
+        document.getElementById('closeAddModal').addEventListener('click', function() {
+            document.getElementById('addBlacklistModal').classList.add('hidden');
+            document.getElementById('addBlacklistModal').classList.remove('flex');
+        });
+
+        document.getElementById('closeDetailModal').addEventListener('click', function() {
+            document.getElementById('userDetailModal').classList.add('hidden');
+            document.getElementById('userDetailModal').classList.remove('flex');
+        });
+
+        document.getElementById('banType').addEventListener('change', function() {
+            const durationContainer = document.getElementById('durationContainer');
+            if (this.value === 'temporary') {
+                durationContainer.classList.remove('hidden');
+            } else {
+                durationContainer.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('confirmAdd').addEventListener('click', function() {
+            const form = document.getElementById('blacklistForm');
+            if (form.checkValidity()) {
+                alert('黑名单添加成功！');
+                document.getElementById('addBlacklistModal').classList.add('hidden');
+                document.getElementById('addBlacklistModal').classList.remove('flex');
+                // 这里可以添加实际的添加逻辑
+            } else {
+                form.reportValidity();
+            }
+        });
+
+        document.getElementById('cancelAdd').addEventListener('click', function() {
+            document.getElementById('addBlacklistModal').classList.add('hidden');
+            document.getElementById('addBlacklistModal').classList.remove('flex');
+        });
+
+        document.getElementById('liftBan').addEventListener('click', function() {
+            if (confirm('确定要解除该用户的封禁吗？')) {
+                alert('封禁已解除');
+                document.getElementById('userDetailModal').classList.add('hidden');
+                document.getElementById('userDetailModal').classList.remove('flex');
+            }
+        });
+
+        document.getElementById('extendBan').addEventListener('click', function() {
+            const duration = prompt('请输入延长的天数：');
+            if (duration && !isNaN(duration) && duration > 0) {
+                alert(`封禁已延长 ${duration} 天`);
+                document.getElementById('userDetailModal').classList.add('hidden');
+                document.getElementById('userDetailModal').classList.remove('flex');
+            }
+        });
+
+        document.getElementById('permanentBan').addEventListener('click', function() {
+            if (confirm('确定要将该用户转为永久封禁吗？此操作不可撤销！')) {
+                alert('已转为永久封禁');
+                document.getElementById('userDetailModal').classList.add('hidden');
+                document.getElementById('userDetailModal').classList.remove('flex');
+            }
+        });
+
+        document.getElementById('batchImport').addEventListener('click', function() {
+            alert('批量导入功能');
+        });
+
+        document.getElementById('exportBlacklist').addEventListener('click', function() {
+            alert('导出黑名单数据');
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderBlacklistTable();
+            console.log('黑名单管理页面初始化完成');
+        });
+    </script>
+</body>
+</html>

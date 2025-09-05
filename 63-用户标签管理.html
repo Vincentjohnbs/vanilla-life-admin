@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户标签管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .tag-item {
+            transition: all 0.3s ease;
+        }
+        .tag-item:hover {
+            transform: scale(1.02);
+        }
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+        }
+        .tag-preview {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .drag-over {
+            border: 2px dashed #10b981;
+            background-color: #f0fdf4;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">用户管理</h3>
+                <ul class="space-y-1">
+                    <li><a href="61-用户详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-user mr-3"></i>用户详情</a></li>
+                    <li><a href="62-会员管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-crown mr-3"></i>会员管理</a></li>
+                    <li><a href="63-用户标签管理.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-tags mr-3"></i>用户标签</a></li>
+                    <li><a href="64-积分管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-coins mr-3"></i>积分管理</a></li>
+                    <li><a href="65-权限配置.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-shield-alt mr-3"></i>权限配置</a></li>
+                    <li><a href="66-用户分群.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-users mr-3"></i>用户分群</a></li>
+                    <li><a href="67-行为分析.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-chart-line mr-3"></i>行为分析</a></li>
+                    <li><a href="68-消息推送.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-bell mr-3"></i>消息推送</a></li>
+                    <li><a href="69-黑名单管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-ban mr-3"></i>黑名单管理</a></li>
+                    <li><a href="70-用户导出.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-download mr-3"></i>用户导出</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-800">用户标签管理</h2>
+                        <p class="text-sm text-gray-600">创建和管理用户标签，实现精准用户分类</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="refreshData" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                    </button>
+                    <button id="exportTags" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出标签
+                    </button>
+                    <button id="createTag" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>创建标签
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 标签统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">标签总数</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">156</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+12 本月
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tags text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">活跃标签</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">89</p>
+                            <p class="text-sm text-purple-600 mt-1">
+                                <i class="fas fa-chart-line mr-1"></i>57.1%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">标签用户</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">8,456</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-users mr-1"></i>已标记
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">自动标签</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">23</p>
+                            <p class="text-sm text-blue-600 mt-1">
+                                <i class="fas fa-robot mr-1"></i>智能
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-robot text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签分类和筛选 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">标签分类</h3>
+                        <div class="flex items-center space-x-3">
+                            <div class="relative">
+                                <input type="text" id="searchTags" placeholder="搜索标签..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                            <select id="categoryFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="">全部分类</option>
+                                <option value="behavior">行为标签</option>
+                                <option value="preference">偏好标签</option>
+                                <option value="demographic">人群标签</option>
+                                <option value="business">业务标签</option>
+                                <option value="custom">自定义标签</option>
+                            </select>
+                            <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="">全部状态</option>
+                                <option value="active">启用</option>
+                                <option value="inactive">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- 标签分类导航 -->
+                    <div class="flex flex-wrap gap-2">
+                        <button class="category-tab px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-lg" data-category="all">全部标签</button>
+                        <button class="category-tab px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200" data-category="behavior">行为标签</button>
+                        <button class="category-tab px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200" data-category="preference">偏好标签</button>
+                        <button class="category-tab px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200" data-category="demographic">人群标签</button>
+                        <button class="category-tab px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200" data-category="business">业务标签</button>
+                        <button class="category-tab px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200" data-category="custom">自定义标签</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签列表 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">标签列表</h3>
+                        <div class="flex items-center space-x-3">
+                            <button id="batchEdit" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-edit mr-2"></i>批量编辑
+                            </button>
+                            <button id="batchDelete" class="px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                                <i class="fas fa-trash mr-2"></i>批量删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div id="tagsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <!-- 标签项将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示 <span class="font-medium">1</span> 到 <span class="font-medium">20</span> 条，共 <span class="font-medium">156</span> 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">上一页</button>
+                            <button class="px-3 py-1 text-sm text-white bg-green-500 border border-green-500 rounded">1</button>
+                            <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50">3</button>
+                            <span class="px-3 py-1 text-sm text-gray-500">...</span>
+                            <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50">8</button>
+                            <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">下一页</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 创建/编辑标签模态框 -->
+    <div id="tagModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 id="modalTitle" class="text-lg font-semibold text-gray-900">创建标签</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form id="tagForm" class="space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">标签名称</label>
+                            <input type="text" id="tagName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="请输入标签名称" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">标签分类</label>
+                            <select id="tagCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                <option value="">请选择分类</option>
+                                <option value="behavior">行为标签</option>
+                                <option value="preference">偏好标签</option>
+                                <option value="demographic">人群标签</option>
+                                <option value="business">业务标签</option>
+                                <option value="custom">自定义标签</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">标签颜色</label>
+                            <div class="flex items-center space-x-3">
+                                <input type="color" id="tagColor" class="color-picker" value="#10b981">
+                                <div id="colorPreview" class="tag-preview" style="background-color: #10b981; color: white;">预览标签</div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">标签图标</label>
+                            <select id="tagIcon" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="tag">标签</option>
+                                <option value="user">用户</option>
+                                <option value="heart">喜欢</option>
+                                <option value="star">星星</option>
+                                <option value="crown">皇冠</option>
+                                <option value="fire">火焰</option>
+                                <option value="leaf">叶子</option>
+                                <option value="gem">钻石</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">标签描述</label>
+                        <textarea id="tagDescription" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" rows="3" placeholder="请输入标签描述"></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">标签类型</label>
+                            <select id="tagType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="manual">手动标签</option>
+                                <option value="auto">自动标签</option>
+                                <option value="system">系统标签</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">优先级</label>
+                            <select id="tagPriority" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="low">低</option>
+                                <option value="medium" selected>中</option>
+                                <option value="high">高</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="autoRules" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">自动标记规则</label>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3">
+                                <select class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    <option value="purchase_amount">购买金额</option>
+                                    <option value="login_frequency">登录频率</option>
+                                    <option value="order_count">订单数量</option>
+                                    <option value="register_time">注册时间</option>
+                                </select>
+                                <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    <option value="gt">大于</option>
+                                    <option value="lt">小于</option>
+                                    <option value="eq">等于</option>
+                                    <option value="between">介于</option>
+                                </select>
+                                <input type="text" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="值">
+                                <button type="button" class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            <button type="button" id="addRule" class="px-4 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>添加规则
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="tagEnabled" class="rounded border-gray-300 text-green-600 focus:ring-green-500 mr-2" checked>
+                            <span class="text-sm text-gray-700">启用标签</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="tagVisible" class="rounded border-gray-300 text-green-600 focus:ring-green-500 mr-2" checked>
+                            <span class="text-sm text-gray-700">用户可见</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancelTag" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">取消</button>
+                <button id="saveTag" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">保存标签</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量操作模态框 -->
+    <div id="batchModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">批量操作</h3>
+                    <button id="closeBatchModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">操作类型</label>
+                        <select id="batchAction" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="">请选择操作</option>
+                            <option value="enable">启用标签</option>
+                            <option value="disable">禁用标签</option>
+                            <option value="category">修改分类</option>
+                            <option value="delete">删除标签</option>
+                        </select>
+                    </div>
+                    <div id="categoryOptions" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">目标分类</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="behavior">行为标签</option>
+                            <option value="preference">偏好标签</option>
+                            <option value="demographic">人群标签</option>
+                            <option value="business">业务标签</option>
+                            <option value="custom">自定义标签</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">操作说明</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" rows="3" placeholder="请输入操作说明（可选）"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancelBatch" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">取消</button>
+                <button id="confirmBatch" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">确认操作</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟标签数据
+        const tagData = [
+            {
+                id: 1,
+                name: '高价值客户',
+                category: 'business',
+                categoryName: '业务标签',
+                color: '#ef4444',
+                icon: 'crown',
+                description: '消费金额超过5000元的客户',
+                type: 'auto',
+                priority: 'high',
+                userCount: 1256,
+                enabled: true,
+                visible: true,
+                createTime: '2024-01-15'
+            },
+            {
+                id: 2,
+                name: '香草爱好者',
+                category: 'preference',
+                categoryName: '偏好标签',
+                color: '#10b981',
+                icon: 'leaf',
+                description: '经常购买香草相关产品的用户',
+                type: 'auto',
+                priority: 'medium',
+                userCount: 3456,
+                enabled: true,
+                visible: true,
+                createTime: '2024-01-10'
+            },
+            {
+                id: 3,
+                name: '新用户',
+                category: 'demographic',
+                categoryName: '人群标签',
+                color: '#3b82f6',
+                icon: 'user',
+                description: '注册时间少于30天的用户',
+                type: 'system',
+                priority: 'medium',
+                userCount: 856,
+                enabled: true,
+                visible: false,
+                createTime: '2024-01-20'
+            },
+            {
+                id: 4,
+                name: '活跃用户',
+                category: 'behavior',
+                categoryName: '行为标签',
+                color: '#f59e0b',
+                icon: 'fire',
+                description: '近30天登录超过15次的用户',
+                type: 'auto',
+                priority: 'high',
+                userCount: 2134,
+                enabled: true,
+                visible: true,
+                createTime: '2024-01-08'
+            },
+            {
+                id: 5,
+                name: '种植达人',
+                category: 'custom',
+                categoryName: '自定义标签',
+                color: '#8b5cf6',
+                icon: 'star',
+                description: '在社区分享种植经验的用户',
+                type: 'manual',
+                priority: 'medium',
+                userCount: 567,
+                enabled: true,
+                visible: true,
+                createTime: '2024-01-12'
+            }
+        ];
+
+        let currentCategory = 'all';
+        let selectedTags = new Set();
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 渲染标签列表
+        function renderTagList(data = tagData) {
+            const container = document.getElementById('tagsList');
+            container.innerHTML = '';
+            
+            data.forEach(tag => {
+                const iconClass = {
+                    'tag': 'fas fa-tag',
+                    'user': 'fas fa-user',
+                    'heart': 'fas fa-heart',
+                    'star': 'fas fa-star',
+                    'crown': 'fas fa-crown',
+                    'fire': 'fas fa-fire',
+                    'leaf': 'fas fa-leaf',
+                    'gem': 'fas fa-gem'
+                };
+                
+                const typeIcon = {
+                    'manual': 'fas fa-hand-paper',
+                    'auto': 'fas fa-robot',
+                    'system': 'fas fa-cog'
+                };
+                
+                const priorityColor = {
+                    'low': 'text-gray-500',
+                    'medium': 'text-yellow-500',
+                    'high': 'text-red-500'
+                };
+                
+                const tagCard = document.createElement('div');
+                tagCard.className = 'bg-gray-50 rounded-lg p-4 border border-gray-200 tag-item relative';
+                tagCard.innerHTML = `
+                    <div class="absolute top-3 right-3">
+                        <input type="checkbox" class="tag-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500" data-id="${tag.id}">
+                    </div>
+                    <div class="mb-3">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: ${tag.color}20;">
+                                <i class="${iconClass[tag.icon]} text-sm" style="color: ${tag.color};"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-900 text-sm">${tag.name}</h4>
+                                <p class="text-xs text-gray-500">${tag.categoryName}</p>
+                            </div>
+                        </div>
+                        <div class="tag-preview text-xs" style="background-color: ${tag.color}; color: white;">
+                            <i class="${iconClass[tag.icon]} mr-1"></i>${tag.name}
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-xs text-gray-600">
+                        <div class="flex items-center justify-between">
+                            <span>用户数量</span>
+                            <span class="font-medium text-gray-900">${tag.userCount.toLocaleString()}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>类型</span>
+                            <span class="flex items-center">
+                                <i class="${typeIcon[tag.type]} mr-1"></i>
+                                ${tag.type === 'manual' ? '手动' : tag.type === 'auto' ? '自动' : '系统'}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>优先级</span>
+                            <i class="fas fa-circle ${priorityColor[tag.priority]}"></i>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>状态</span>
+                            <span class="${tag.enabled ? 'text-green-600' : 'text-red-600'}">
+                                ${tag.enabled ? '启用' : '禁用'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-gray-200 flex items-center justify-between">
+                        <span class="text-xs text-gray-500">${tag.createTime}</span>
+                        <div class="flex items-center space-x-1">
+                            <button class="p-1 text-gray-400 hover:text-blue-600" onclick="viewTag(${tag.id})" title="查看详情">
+                                <i class="fas fa-eye text-xs"></i>
+                            </button>
+                            <button class="p-1 text-gray-400 hover:text-green-600" onclick="editTag(${tag.id})" title="编辑标签">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                            <button class="p-1 text-gray-400 hover:text-purple-600" onclick="assignTag(${tag.id})" title="分配用户">
+                                <i class="fas fa-users text-xs"></i>
+                            </button>
+                            <button class="p-1 text-gray-400 hover:text-red-600" onclick="deleteTag(${tag.id})" title="删除标签">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(tagCard);
+            });
+        }
+
+        // 分类切换
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const category = this.dataset.category;
+                currentCategory = category;
+                
+                // 更新按钮状态
+                document.querySelectorAll('.category-tab').forEach(t => {
+                    t.className = 'category-tab px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200';
+                });
+                this.className = 'category-tab px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-lg';
+                
+                // 筛选数据
+                const filteredData = category === 'all' ? tagData : tagData.filter(tag => tag.category === category);
+                renderTagList(filteredData);
+            });
+        });
+
+        // 搜索功能
+        document.getElementById('searchTags').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filteredData = tagData.filter(tag => 
+                tag.name.toLowerCase().includes(searchTerm) ||
+                tag.description.toLowerCase().includes(searchTerm)
+            );
+            renderTagList(filteredData);
+        });
+
+        // 分类筛选
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            const category = this.value;
+            const filteredData = category ? tagData.filter(tag => tag.category === category) : tagData;
+            renderTagList(filteredData);
+        });
+
+        // 状态筛选
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            const status = this.value;
+            let filteredData = tagData;
+            if (status === 'active') {
+                filteredData = tagData.filter(tag => tag.enabled);
+            } else if (status === 'inactive') {
+                filteredData = tagData.filter(tag => !tag.enabled);
+            }
+            renderTagList(filteredData);
+        });
+
+        // 创建标签
+        document.getElementById('createTag').addEventListener('click', function() {
+            document.getElementById('modalTitle').textContent = '创建标签';
+            document.getElementById('tagForm').reset();
+            document.getElementById('tagModal').classList.remove('hidden');
+            document.getElementById('tagModal').classList.add('flex');
+        });
+
+        // 关闭模态框
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('tagModal').classList.add('hidden');
+            document.getElementById('tagModal').classList.remove('flex');
+        });
+
+        document.getElementById('cancelTag').addEventListener('click', function() {
+            document.getElementById('tagModal').classList.add('hidden');
+            document.getElementById('tagModal').classList.remove('flex');
+        });
+
+        // 标签类型切换
+        document.getElementById('tagType').addEventListener('change', function() {
+            const autoRules = document.getElementById('autoRules');
+            if (this.value === 'auto') {
+                autoRules.classList.remove('hidden');
+            } else {
+                autoRules.classList.add('hidden');
+            }
+        });
+
+        // 颜色预览
+        document.getElementById('tagColor').addEventListener('change', function() {
+            const color = this.value;
+            const preview = document.getElementById('colorPreview');
+            preview.style.backgroundColor = color;
+            preview.style.color = 'white';
+        });
+
+        // 标签名称预览
+        document.getElementById('tagName').addEventListener('input', function() {
+            const name = this.value || '预览标签';
+            document.getElementById('colorPreview').textContent = name;
+        });
+
+        // 保存标签
+        document.getElementById('saveTag').addEventListener('click', function() {
+            const formData = new FormData(document.getElementById('tagForm'));
+            alert('标签保存成功！');
+            document.getElementById('tagModal').classList.add('hidden');
+            document.getElementById('tagModal').classList.remove('flex');
+            renderTagList();
+        });
+
+        // 批量操作
+        document.getElementById('batchAction').addEventListener('change', function() {
+            const action = this.value;
+            const categoryOptions = document.getElementById('categoryOptions');
+            
+            if (action === 'category') {
+                categoryOptions.classList.remove('hidden');
+            } else {
+                categoryOptions.classList.add('hidden');
+            }
+        });
+
+        // 标签操作函数
+        function viewTag(id) {
+            alert(`查看标签详情 ID: ${id}`);
+        }
+
+        function editTag(id) {
+            const tag = tagData.find(t => t.id === id);
+            if (tag) {
+                document.getElementById('modalTitle').textContent = '编辑标签';
+                document.getElementById('tagName').value = tag.name;
+                document.getElementById('tagCategory').value = tag.category;
+                document.getElementById('tagColor').value = tag.color;
+                document.getElementById('tagIcon').value = tag.icon;
+                document.getElementById('tagDescription').value = tag.description;
+                document.getElementById('tagType').value = tag.type;
+                document.getElementById('tagPriority').value = tag.priority;
+                document.getElementById('tagEnabled').checked = tag.enabled;
+                document.getElementById('tagVisible').checked = tag.visible;
+                
+                document.getElementById('tagModal').classList.remove('hidden');
+                document.getElementById('tagModal').classList.add('flex');
+            }
+        }
+
+        function assignTag(id) {
+            alert(`分配标签给用户 ID: ${id}`);
+        }
+
+        function deleteTag(id) {
+            if (confirm('确定要删除这个标签吗？')) {
+                alert(`删除标签 ID: ${id}`);
+                renderTagList();
+            }
+        }
+
+        // 刷新数据
+        document.getElementById('refreshData').addEventListener('click', function() {
+            renderTagList();
+            alert('数据刷新成功！');
+        });
+
+        // 导出标签
+        document.getElementById('exportTags').addEventListener('click', function() {
+            alert('标签数据导出成功！');
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTagList();
+            console.log('用户标签管理页面初始化完成');
+        });
+    </script>
+</body>
+</html>

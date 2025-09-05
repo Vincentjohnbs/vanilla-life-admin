@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香草图鉴管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .herb-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .herb-card:hover {
+            border-color: #10b981;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            margin: 2px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .difficulty-easy { background: #dcfce7; color: #166534; }
+        .difficulty-medium { background: #fef3c7; color: #92400e; }
+        .difficulty-hard { background: #fee2e2; color: #991b1b; }
+        .season-spring { background: #ecfdf5; color: #065f46; }
+        .season-summer { background: #fef7cd; color: #a16207; }
+        .season-autumn { background: #fed7aa; color: #9a3412; }
+        .season-winter { background: #e0e7ff; color: #3730a3; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- 侧边栏 -->
+        <div class="w-64 gradient-bg text-white flex-shrink-0">
+            <div class="p-6">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-leaf text-2xl"></i>
+                    <h1 class="text-xl font-bold">香草生活</h1>
+                </div>
+                <p class="text-sm opacity-75 mt-1">后台管理系统</p>
+            </div>
+            
+            <nav class="mt-8">
+                <a href="01-首页仪表板.html" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>首页仪表板</span>
+                </a>
+                <a href="02-Banner管理.html" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-images mr-3"></i>
+                    <span>Banner管理</span>
+                </a>
+                <a href="03-商品管理.html" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-box mr-3"></i>
+                    <span>商品管理</span>
+                </a>
+                <a href="04-订单管理.html" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-shopping-cart mr-3"></i>
+                    <span>订单管理</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 bg-white bg-opacity-20 border-r-4 border-white">
+                    <i class="fas fa-book mr-3"></i>
+                    <span>香草图鉴</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-users mr-3"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-chart-bar mr-3"></i>
+                    <span>数据统计</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- 顶部导航栏 -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center space-x-4">
+                        <nav class="text-sm text-gray-500">
+                            <span>首页</span>
+                            <i class="fas fa-chevron-right mx-2"></i>
+                            <span class="text-gray-900">香草图鉴管理</span>
+                        </nav>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="relative p-2 text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-bell"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </button>
+                        <div class="flex items-center space-x-3">
+                            <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                            <span class="text-sm font-medium text-gray-700">管理员</span>
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主要内容 -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <div class="mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">香草图鉴管理</h2>
+                            <p class="text-gray-600 mt-1">管理香草信息、分类标签和内容审核</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                <i class="fas fa-download"></i>
+                                <span>导出数据</span>
+                            </button>
+                            <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                                <i class="fas fa-plus"></i>
+                                <span>添加香草</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">香草总数</p>
+                                <p class="text-2xl font-bold text-gray-900">156</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-leaf text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">已发布</p>
+                                <p class="text-2xl font-bold text-gray-900">142</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-check-circle text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">待审核</p>
+                                <p class="text-2xl font-bold text-gray-900">8</p>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-full">
+                                <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">草稿</p>
+                                <p class="text-2xl font-bold text-gray-900">6</p>
+                            </div>
+                            <div class="bg-gray-100 p-3 rounded-full">
+                                <i class="fas fa-edit text-gray-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">分类数</p>
+                                <p class="text-2xl font-bold text-gray-900">12</p>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-tags text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">今日浏览</p>
+                                <p class="text-2xl font-bold text-gray-900">1,234</p>
+                            </div>
+                            <div class="bg-indigo-100 p-3 rounded-full">
+                                <i class="fas fa-eye text-indigo-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 筛选和搜索 -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                        <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" placeholder="搜索香草名称、学名..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64">
+                            </div>
+                            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">全部分类</option>
+                                <option value="culinary">烹饪香草</option>
+                                <option value="medicinal">药用香草</option>
+                                <option value="aromatic">芳香香草</option>
+                                <option value="ornamental">观赏香草</option>
+                                <option value="tea">茶用香草</option>
+                            </select>
+                            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">全部状态</option>
+                                <option value="published">已发布</option>
+                                <option value="pending">待审核</option>
+                                <option value="draft">草稿</option>
+                                <option value="rejected">已拒绝</option>
+                            </select>
+                            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">种植难度</option>
+                                <option value="easy">简单</option>
+                                <option value="medium">中等</option>
+                                <option value="hard">困难</option>
+                            </select>
+                            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">适宜季节</option>
+                                <option value="spring">春季</option>
+                                <option value="summer">夏季</option>
+                                <option value="autumn">秋季</option>
+                                <option value="winter">冬季</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-filter mr-2"></i>高级筛选
+                            </button>
+                            <button class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-th-large mr-2"></i>卡片视图
+                            </button>
+                            <button class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-list mr-2"></i>列表视图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 香草图鉴卡片网格 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                    <!-- 薄荷卡片 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden herb-card">
+                        <div class="relative">
+                            <div class="h-48 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                <i class="fas fa-leaf text-white text-6xl"></i>
+                            </div>
+                            <div class="absolute top-3 right-3">
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                    <span class="status-dot bg-green-500"></span>
+                                    已发布
+                                </span>
+                            </div>
+                            <div class="absolute bottom-3 left-3">
+                                <span class="tag difficulty-easy">简单</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">薄荷</h3>
+                                    <p class="text-sm text-gray-500 italic">Mentha</p>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <span class="text-sm text-gray-600">4.8</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3 line-clamp-2">清香怡人的多年生草本植物，具有清凉的薄荷味，广泛用于烹饪、茶饮和药用。</p>
+                            <div class="flex flex-wrap mb-3">
+                                <span class="tag season-spring">春季</span>
+                                <span class="tag season-summer">夏季</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <div class="flex items-center space-x-4">
+                                    <span><i class="fas fa-eye mr-1"></i>1,234</span>
+                                    <span><i class="fas fa-heart mr-1"></i>89</span>
+                                </div>
+                                <span>2024-01-15</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-4">
+                                <div class="flex items-center space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-900" title="编辑">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-green-600 hover:text-green-900" title="预览">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="text-purple-600 hover:text-purple-900" title="复制">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900" title="删除">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <button class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">
+                                    更多操作
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 薰衣草卡片 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden herb-card">
+                        <div class="relative">
+                            <div class="h-48 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                                <i class="fas fa-seedling text-white text-6xl"></i>
+                            </div>
+                            <div class="absolute top-3 right-3">
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+                                    <span class="status-dot bg-yellow-500"></span>
+                                    待审核
+                                </span>
+                            </div>
+                            <div class="absolute bottom-3 left-3">
+                                <span class="tag difficulty-medium">中等</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">薰衣草</h3>
+                                    <p class="text-sm text-gray-500 italic">Lavandula</p>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <span class="text-sm text-gray-600">4.9</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3 line-clamp-2">芳香浓郁的多年生灌木，紫色花穗美丽，具有镇静安神的功效。</p>
+                            <div class="flex flex-wrap mb-3">
+                                <span class="tag season-summer">夏季</span>
+                                <span class="tag season-autumn">秋季</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <div class="flex items-center space-x-4">
+                                    <span><i class="fas fa-eye mr-1"></i>987</span>
+                                    <span><i class="fas fa-heart mr-1"></i>156</span>
+                                </div>
+                                <span>2024-01-14</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-4">
+                                <div class="flex items-center space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-900" title="编辑">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-green-600 hover:text-green-900" title="审核通过">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900" title="审核拒绝">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <button class="text-purple-600 hover:text-purple-900" title="预览">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <button class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">
+                                    更多操作
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 迷迭香卡片 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden herb-card">
+                        <div class="relative">
+                            <div class="h-48 bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
+                                <i class="fas fa-spa text-white text-6xl"></i>
+                            </div>
+                            <div class="absolute top-3 right-3">
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                    <span class="status-dot bg-green-500"></span>
+                                    已发布
+                                </span>
+                            </div>
+                            <div class="absolute bottom-3 left-3">
+                                <span class="tag difficulty-easy">简单</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">迷迭香</h3>
+                                    <p class="text-sm text-gray-500 italic">Rosmarinus officinalis</p>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <span class="text-sm text-gray-600">4.7</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3 line-clamp-2">常绿灌木，叶片狭长，具有浓郁的松香味，是优秀的烹饪香草。</p>
+                            <div class="flex flex-wrap mb-3">
+                                <span class="tag season-spring">春季</span>
+                                <span class="tag season-autumn">秋季</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <div class="flex items-center space-x-4">
+                                    <span><i class="fas fa-eye mr-1"></i>756</span>
+                                    <span><i class="fas fa-heart mr-1"></i>67</span>
+                                </div>
+                                <span>2024-01-13</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-4">
+                                <div class="flex items-center space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-900" title="编辑">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-green-600 hover:text-green-900" title="预览">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="text-purple-600 hover:text-purple-900" title="复制">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900" title="删除">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <button class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">
+                                    更多操作
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 罗勒卡片 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden herb-card">
+                        <div class="relative">
+                            <div class="h-48 bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+                                <i class="fas fa-leaf text-white text-6xl"></i>
+                            </div>
+                            <div class="absolute top-3 right-3">
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                                    <span class="status-dot bg-gray-500"></span>
+                                    草稿
+                                </span>
+                            </div>
+                            <div class="absolute bottom-3 left-3">
+                                <span class="tag difficulty-easy">简单</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">罗勒</h3>
+                                    <p class="text-sm text-gray-500 italic">Ocimum basilicum</p>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-star text-gray-300"></i>
+                                    <span class="text-sm text-gray-400">--</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3 line-clamp-2">一年生草本植物，叶片翠绿，具有独特的甜香味，是意式料理的经典香草。</p>
+                            <div class="flex flex-wrap mb-3">
+                                <span class="tag season-summer">夏季</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <div class="flex items-center space-x-4">
+                                    <span><i class="fas fa-eye mr-1"></i>--</span>
+                                    <span><i class="fas fa-heart mr-1"></i>--</span>
+                                </div>
+                                <span>2024-01-12</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-4">
+                                <div class="flex items-center space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-900" title="编辑">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-green-600 hover:text-green-900" title="发布">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                    <button class="text-purple-600 hover:text-purple-900" title="预览">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900" title="删除">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <button class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">
+                                    更多操作
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分页 -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-sm text-gray-500">
+                                显示 1-12 条，共 156 条记录
+            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-gray-500">每页显示:</span>
+                                <select class="px-2 py-1 text-sm border border-gray-300 rounded">
+                                    <option>12</option>
+                                    <option>24</option>
+                                    <option>48</option>
+                                    <option>96</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" disabled>
+                                上一页
+                            </button>
+                            <button class="px-3 py-1 text-sm bg-blue-500 text-white rounded">1</button>
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">3</button>
+                            <span class="px-2 text-sm text-gray-500">...</span>
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">13</button>
+                            <button class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 香草详情模态框 -->
+    <div id="herbModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">香草详情 - 薄荷</h3>
+                    <button onclick="closeHerbModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- 基本信息 -->
+                        <div>
+                            <h4 class="text-md font-semibold text-gray-900 mb-4">基本信息</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">中文名:</span>
+                                    <span class="font-medium">薄荷</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">学名:</span>
+                                    <span class="italic">Mentha</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">科属:</span>
+                                    <span>唇形科薄荷属</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">原产地:</span>
+                                    <span>欧洲、亚洲</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">生长习性:</span>
+                                    <span>多年生草本</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">种植难度:</span>
+                                    <span class="tag difficulty-easy">简单</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 种植信息 -->
+                        <div>
+                            <h4 class="text-md font-semibold text-gray-900 mb-4">种植信息</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">适宜季节:</span>
+                                    <div>
+                                        <span class="tag season-spring">春季</span>
+                                        <span class="tag season-summer">夏季</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">光照需求:</span>
+                                    <span>半阴至全阳</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">浇水频率:</span>
+                                    <span>保持土壤湿润</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">土壤要求:</span>
+                                    <span>排水良好的肥沃土壤</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">生长温度:</span>
+                                    <span>15-25°C</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">收获时间:</span>
+                                    <span>种植后2-3个月</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 详细描述 -->
+                    <div class="mt-8">
+                        <h4 class="text-md font-semibold text-gray-900 mb-4">详细描述</h4>
+                        <div class="prose max-w-none">
+                            <p class="text-gray-700 leading-relaxed mb-4">
+                                薄荷是一种非常受欢迎的香草植物，属于唇形科薄荷属。它具有清新的香味和凉爽的口感，广泛用于烹饪、茶饮、药用和芳香疗法。薄荷的叶片呈椭圆形，边缘有锯齿，表面光滑，颜色从浅绿到深绿不等。
+                            </p>
+                            <p class="text-gray-700 leading-relaxed mb-4">
+                                薄荷是一种非常容易种植的香草，适合初学者。它喜欢湿润的环境，但也能适应各种土壤条件。薄荷的生长速度很快，需要定期修剪以保持植株的形状和促进新叶的生长。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 用途和功效 -->
+                    <div class="mt-8">
+                        <h4 class="text-md font-semibold text-gray-900 mb-4">用途和功效</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h5 class="font-medium text-gray-900 mb-2">烹饪用途</h5>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• 制作薄荷茶和饮品</li>
+                                    <li>• 调味沙拉和甜点</li>
+                                    <li>• 制作薄荷酱和调料</li>
+                                    <li>• 装饰菜肴</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 class="font-medium text-gray-900 mb-2">药用功效</h5>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• 缓解消化不良</li>
+                                    <li>• 清热解毒</li>
+                                    <li>• 提神醒脑</li>
+                                    <li>• 缓解头痛</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                    <button onclick="closeHerbModal()" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        关闭
+                    </button>
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        编辑
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟交互功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 搜索功能
+            const searchInput = document.querySelector('input[placeholder*="搜索香草"]');
+            searchInput.addEventListener('input', function() {
+                console.log('搜索:', this.value);
+            });
+
+            // 筛选功能
+            const filterSelects = document.querySelectorAll('select');
+            filterSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    console.log('筛选:', this.value);
+                });
+            });
+
+            // 卡片操作按钮
+            const actionButtons = document.querySelectorAll('.herb-card button');
+            actionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const action = this.querySelector('i').className;
+                    const card = this.closest('.herb-card');
+                    const herbName = card.querySelector('h3').textContent;
+                    
+                    if (action.includes('edit')) {
+                        console.log('编辑香草:', herbName);
+                    } else if (action.includes('eye')) {
+                        showHerbModal();
+                    } else if (action.includes('copy')) {
+                        console.log('复制香草:', herbName);
+                    } else if (action.includes('trash')) {
+                        if (confirm('确定要删除香草 "' + herbName + '" 吗？')) {
+                            console.log('删除香草:', herbName);
+                        }
+                    } else if (action.includes('check')) {
+                        if (confirm('确定审核通过 "' + herbName + '" 吗？')) {
+                            console.log('审核通过:', herbName);
+                        }
+                    } else if (action.includes('times')) {
+                        if (confirm('确定拒绝 "' + herbName + '" 吗？')) {
+                            console.log('审核拒绝:', herbName);
+                        }
+                    } else if (action.includes('paper-plane')) {
+                        if (confirm('确定发布 "' + herbName + '" 吗？')) {
+                            console.log('发布香草:', herbName);
+                        }
+                    }
+                });
+            });
+
+            // 视图切换
+            const viewButtons = document.querySelectorAll('button:has(.fa-th-large), button:has(.fa-list)');
+            viewButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const isGridView = this.querySelector('.fa-th-large');
+                    console.log('切换视图:', isGridView ? '卡片视图' : '列表视图');
+                });
+            });
+
+            // 添加香草按钮
+            const addButton = document.querySelector('button:has(.fa-plus)');
+            if (addButton) {
+                addButton.addEventListener('click', function() {
+                    console.log('添加新香草');
+                });
+            }
+
+            // 导出数据按钮
+            const exportButton = document.querySelector('button:has(.fa-download)');
+            if (exportButton) {
+                exportButton.addEventListener('click', function() {
+                    console.log('导出香草数据');
+                });
+            }
+        });
+
+        // 香草详情模态框
+        function showHerbModal() {
+            document.getElementById('herbModal').classList.remove('hidden');
+        }
+
+        function closeHerbModal() {
+            document.getElementById('herbModal').classList.add('hidden');
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('herbModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeHerbModal();
+            }
+        });
+    </script>
+</body>
+</html>

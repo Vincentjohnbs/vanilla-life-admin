@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专家审核 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .expert-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+        .expert-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #10b981;
+        }
+        .expert-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .expert-senior {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .expert-master {
+            background-color: #ddd6fe;
+            color: #5b21b6;
+        }
+        .expert-authority {
+            background-color: #fecaca;
+            color: #991b1b;
+        }
+        .review-item {
+            border-left: 4px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        .review-item:hover {
+            border-left-color: #10b981;
+            background-color: #f9fafb;
+        }
+        .rating-stars {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600 transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        <span>首页仪表板</span>
+                    </a>
+                    <a href="05-香草图鉴管理.html" class="flex items-center px-4 py-3 text-green-600 bg-green-50 rounded-lg">
+                        <i class="fas fa-book w-5 h-5 mr-3"></i>
+                        <span>香草图鉴管理</span>
+                    </a>
+                    <div class="ml-8 space-y-1">
+                        <a href="41-香草编辑页.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-edit w-4 h-4 mr-2"></i>
+                            <span>香草编辑</span>
+                        </a>
+                        <a href="42-分类标签管理.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-tags w-4 h-4 mr-2"></i>
+                            <span>分类标签管理</span>
+                        </a>
+                        <a href="43-内容审核页.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-check-circle w-4 h-4 mr-2"></i>
+                            <span>内容审核</span>
+                        </a>
+                        <a href="44-专家审核.html" class="flex items-center px-4 py-2 text-sm text-green-600 bg-green-50 rounded-lg">
+                            <i class="fas fa-user-graduate w-4 h-4 mr-2"></i>
+                            <span>专家审核</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300 ease-in-out">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">专家审核</h2>
+                        <p class="text-sm text-gray-500">专业专家对香草内容进行权威审核</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-bell text-gray-400 text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">5</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 专家统计卡片 -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">在线专家</p>
+                            <p class="text-2xl font-bold text-green-600 mt-2">12</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-user-check text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600">+2</span>
+                        <span class="text-gray-500 ml-1">较昨日</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">待审核项目</p>
+                            <p class="text-2xl font-bold text-orange-600 mt-2">18</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-orange-600">+5</span>
+                        <span class="text-gray-500 ml-1">今日新增</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">今日完成</p>
+                            <p class="text-2xl font-bold text-blue-600 mt-2">25</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-double text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-blue-600">+8</span>
+                        <span class="text-gray-500 ml-1">较昨日</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">平均评分</p>
+                            <p class="text-2xl font-bold text-purple-600 mt-2">4.8</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-star text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-purple-600">+0.2</span>
+                        <span class="text-gray-500 ml-1">较上周</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 专家列表和审核区域 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 专家列表 -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-800">专家团队</h3>
+                                <button class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                    <i class="fas fa-plus mr-1"></i>邀请专家
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 space-y-4">
+                            <!-- 专家1 -->
+                            <div class="expert-card p-4 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <img src="https://via.placeholder.com/48" alt="专家头像" class="w-12 h-12 rounded-full">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <h4 class="font-semibold text-gray-800">李教授</h4>
+                                            <span class="expert-badge expert-authority">权威专家</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">植物学博士，30年研究经验</p>
+                                        <div class="flex items-center mt-2">
+                                            <div class="rating-stars mr-2">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-500">5.0 (128评价)</span>
+                                        </div>
+                                        <div class="flex items-center justify-between mt-2">
+                                            <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">在线</span>
+                                            <span class="text-xs text-gray-500">今日完成: 8项</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 专家2 -->
+                            <div class="expert-card p-4 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <img src="https://via.placeholder.com/48" alt="专家头像" class="w-12 h-12 rounded-full">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <h4 class="font-semibold text-gray-800">王研究员</h4>
+                                            <span class="expert-badge expert-master">资深专家</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">香草种植专家，15年实践经验</p>
+                                        <div class="flex items-center mt-2">
+                                            <div class="rating-stars mr-2">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-500">4.8 (95评价)</span>
+                                        </div>
+                                        <div class="flex items-center justify-between mt-2">
+                                            <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">在线</span>
+                                            <span class="text-xs text-gray-500">今日完成: 6项</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 专家3 -->
+                            <div class="expert-card p-4 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <img src="https://via.placeholder.com/48" alt="专家头像" class="w-12 h-12 rounded-full">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <h4 class="font-semibold text-gray-800">张园艺师</h4>
+                                            <span class="expert-badge expert-senior">高级专家</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">园艺师，专注香草应用研究</p>
+                                        <div class="flex items-center mt-2">
+                                            <div class="rating-stars mr-2">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-500">4.9 (76评价)</span>
+                                        </div>
+                                        <div class="flex items-center justify-between mt-2">
+                                            <span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">离线</span>
+                                            <span class="text-xs text-gray-500">今日完成: 4项</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 审核内容区域 -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-800">专家审核列表</h3>
+                                <div class="flex items-center space-x-2">
+                                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="">全部专家</option>
+                                        <option value="li">李教授</option>
+                                        <option value="wang">王研究员</option>
+                                        <option value="zhang">张园艺师</option>
+                                    </select>
+                                    <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="">全部状态</option>
+                                        <option value="pending">待审核</option>
+                                        <option value="reviewing">审核中</option>
+                                        <option value="completed">已完成</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 space-y-4">
+                            <!-- 审核项目1 -->
+                            <div class="review-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <h4 class="font-semibold text-gray-800">薰衣草种植指南专业审核</h4>
+                                            <span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">审核中</span>
+                                            <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">高优先级</span>
+                                        </div>
+                                        <p class="text-gray-600 mb-3">需要专家对薰衣草的种植方法、病虫害防治、收获时机等专业内容进行审核...</p>
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span><i class="fas fa-user mr-1"></i>分配给: 李教授</span>
+                                                <span><i class="fas fa-clock mr-1"></i>2024-01-15 14:30</span>
+                                                <span><i class="fas fa-calendar mr-1"></i>预计完成: 今日</span>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                                    <i class="fas fa-eye mr-1"></i>查看详情
+                                                </button>
+                                                <button class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                                    <i class="fas fa-comment mr-1"></i>沟通
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 审核项目2 -->
+                            <div class="review-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <h4 class="font-semibold text-gray-800">迷迭香药用价值评估</h4>
+                                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">待分配</span>
+                                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">中优先级</span>
+                                        </div>
+                                        <p class="text-gray-600 mb-3">需要专业医学专家对迷迭香的药用价值、使用方法、注意事项进行专业评估...</p>
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span><i class="fas fa-user mr-1"></i>未分配</span>
+                                                <span><i class="fas fa-clock mr-1"></i>2024-01-15 13:45</span>
+                                                <span><i class="fas fa-calendar mr-1"></i>预计完成: 明日</span>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <button class="px-3 py-1 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors">
+                                                    <i class="fas fa-user-plus mr-1"></i>分配专家
+                                                </button>
+                                                <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                                    <i class="fas fa-eye mr-1"></i>查看详情
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 审核项目3 -->
+                            <div class="review-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <h4 class="font-semibold text-gray-800">薄荷品种分类专业审核</h4>
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">已完成</span>
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">低优先级</span>
+                                        </div>
+                                        <p class="text-gray-600 mb-3">王研究员已完成薄荷品种分类的专业审核，确认了15个主要品种的分类信息...</p>
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span><i class="fas fa-user mr-1"></i>审核人: 王研究员</span>
+                                                <span><i class="fas fa-check mr-1"></i>完成时间: 2024-01-15 12:20</span>
+                                                <div class="rating-stars">
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                    <i class="fas fa-star"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                                    <i class="fas fa-eye mr-1"></i>查看报告
+                                                </button>
+                                                <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                                                    <i class="fas fa-download mr-1"></i>下载
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 审核项目4 -->
+                            <div class="review-item p-4 rounded-lg">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            <h4 class="font-semibold text-gray-800">罗勒栽培技术指导</h4>
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">待开始</span>
+                                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">中优先级</span>
+                                        </div>
+                                        <p class="text-gray-600 mb-3">张园艺师将负责罗勒栽培技术的专业指导，包括土壤要求、水肥管理等内容...</p>
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                                <span><i class="fas fa-user mr-1"></i>分配给: 张园艺师</span>
+                                                <span><i class="fas fa-clock mr-1"></i>2024-01-15 11:30</span>
+                                                <span><i class="fas fa-calendar mr-1"></i>预计完成: 后天</span>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <button class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                                    <i class="fas fa-play mr-1"></i>开始审核
+                                                </button>
+                                                <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                                    <i class="fas fa-eye mr-1"></i>查看详情
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 分页 -->
+                        <div class="px-6 py-4 border-t border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-500">
+                                    显示 1-4 条，共 18 条记录
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                                        上一页
+                                    </button>
+                                    <button class="px-3 py-1 bg-green-600 text-white rounded-lg">1</button>
+                                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">2</button>
+                                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">3</button>
+                                    <button class="px-3 py-1 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                                        下一页
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分配专家模态框 -->
+    <div id="assign-expert-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-semibold text-gray-800">分配专家</h3>
+                        <button id="close-assign-modal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-gray-800 mb-2">选择专家</h4>
+                        <div class="space-y-3">
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="expert" value="li" class="text-green-600 focus:ring-green-500">
+                                <img src="https://via.placeholder.com/40" alt="李教授" class="w-10 h-10 rounded-full ml-3">
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium text-gray-800">李教授</span>
+                                        <span class="expert-badge expert-authority">权威专家</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">植物学博士，30年研究经验</p>
+                                    <div class="flex items-center mt-1">
+                                        <div class="rating-stars mr-2">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <span class="text-xs text-gray-500">当前负载: 3项</span>
+                                    </div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="expert" value="wang" class="text-green-600 focus:ring-green-500">
+                                <img src="https://via.placeholder.com/40" alt="王研究员" class="w-10 h-10 rounded-full ml-3">
+                                <div class="ml-3 flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium text-gray-800">王研究员</span>
+                                        <span class="expert-badge expert-master">资深专家</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">香草种植专家，15年实践经验</p>
+                                    <div class="flex items-center mt-1">
+                                        <div class="rating-stars mr-2">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="far fa-star"></i>
+                                        </div>
+                                        <span class="text-xs text-gray-500">当前负载: 2项</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">预计完成时间</label>
+                        <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">备注说明</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" rows="3" placeholder="请输入特殊要求或说明..."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button id="cancel-assign" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            取消
+                        </button>
+                        <button id="confirm-assign" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            确认分配
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+        });
+
+        // 分配专家模态框
+        const assignModal = document.getElementById('assign-expert-modal');
+        const closeAssignModal = document.getElementById('close-assign-modal');
+        const cancelAssign = document.getElementById('cancel-assign');
+        const confirmAssign = document.getElementById('confirm-assign');
+
+        // 打开分配专家模态框
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('分配专家')) {
+                button.addEventListener('click', function() {
+                    assignModal.classList.remove('hidden');
+                });
+            }
+        });
+
+        // 关闭分配专家模态框
+        closeAssignModal.addEventListener('click', function() {
+            assignModal.classList.add('hidden');
+        });
+
+        cancelAssign.addEventListener('click', function() {
+            assignModal.classList.add('hidden');
+        });
+
+        // 确认分配
+        confirmAssign.addEventListener('click', function() {
+            const selectedExpert = document.querySelector('input[name="expert"]:checked');
+            const deadline = document.querySelector('input[type="date"]').value;
+            const note = document.querySelector('textarea').value;
+            
+            if (!selectedExpert) {
+                alert('请选择专家');
+                return;
+            }
+            
+            if (!deadline) {
+                alert('请选择预计完成时间');
+                return;
+            }
+            
+            // 这里可以添加分配专家的逻辑
+            console.log('分配专家:', selectedExpert.value);
+            console.log('完成时间:', deadline);
+            console.log('备注:', note);
+            
+            alert('专家分配成功！');
+            assignModal.classList.add('hidden');
+        });
+
+        // 筛选功能
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', function() {
+                // 这里可以添加筛选逻辑
+                console.log('筛选条件:', this.value);
+            });
+        });
+
+        // 开始审核
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('开始审核')) {
+                button.addEventListener('click', function() {
+                    if (confirm('确定要开始这项审核吗？')) {
+                        // 这里可以添加开始审核的逻辑
+                        alert('审核已开始！');
+                    }
+                });
+            }
+        });
+
+        // 沟通功能
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('沟通')) {
+                button.addEventListener('click', function() {
+                    // 这里可以添加沟通功能的逻辑
+                    alert('正在打开沟通窗口...');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

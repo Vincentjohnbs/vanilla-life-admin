@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banner列表页 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-transition { transition: all 0.3s ease; }
+        .hover-scale { transition: transform 0.2s ease; }
+        .hover-scale:hover { transform: scale(1.02); }
+        .banner-card { transition: all 0.3s ease; }
+        .banner-card:hover { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .status-dot { width: 8px; height: 8px; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg sidebar-transition z-30">
+        <!-- Logo区域 -->
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="mt-6">
+            <div class="px-4">
+                <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
+                    <span>首页仪表板</span>
+                </a>
+                <a href="02-Banner管理.html" class="flex items-center px-4 py-3 bg-green-50 text-green-600 rounded-lg mb-1">
+                    <i class="fas fa-images w-5 h-5 mr-3"></i>
+                    <span>Banner管理</span>
+                </a>
+                <a href="03-商品管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-box w-5 h-5 mr-3"></i>
+                    <span>商品管理</span>
+                </a>
+                <a href="04-订单管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-shopping-cart w-5 h-5 mr-3"></i>
+                    <span>订单管理</span>
+                </a>
+                <a href="05-香草图鉴管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-book w-5 h-5 mr-3"></i>
+                    <span>香草图鉴</span>
+                </a>
+                <a href="06-香草阳台内容管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-comments w-5 h-5 mr-3"></i>
+                    <span>香草阳台</span>
+                </a>
+                <a href="07-用户管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-users w-5 h-5 mr-3"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="08-供应商管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-truck w-5 h-5 mr-3"></i>
+                    <span>供应商管理</span>
+                </a>
+                <a href="09-营销活动管理.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-bullhorn w-5 h-5 mr-3"></i>
+                    <span>营销活动</span>
+                </a>
+                <a href="10-数据统计分析.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg mb-1 transition-colors">
+                    <i class="fas fa-chart-bar w-5 h-5 mr-3"></i>
+                    <span>数据统计</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <nav class="flex items-center space-x-2 text-sm text-gray-500">
+                        <a href="01-首页仪表板.html" class="hover:text-green-600">首页</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <a href="02-Banner管理.html" class="hover:text-green-600">Banner管理</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-gray-800 font-medium">Banner列表</span>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700 relative">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="管理员" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 页面标题和操作 -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">Banner列表管理</h1>
+                    <p class="text-gray-600">管理小程序首页轮播图和推广Banner</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出数据
+                    </button>
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-upload mr-2"></i>批量导入
+                    </button>
+                    <button id="createBannerBtn" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>新建Banner
+                    </button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Banner总数</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">24</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-images text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600 font-medium">+2</span>
+                        <span class="text-gray-500 ml-1">较上周</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">启用中</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">18</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600 font-medium">75%</span>
+                        <span class="text-gray-500 ml-1">启用率</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">今日点击</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">1,234</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mouse-pointer text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600 font-medium">+15.3%</span>
+                        <span class="text-gray-500 ml-1">较昨日</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">转化率</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">8.5%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600 font-medium">+2.1%</span>
+                        <span class="text-gray-500 ml-1">较上周</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和搜索 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">搜索Banner</label>
+                        <div class="relative">
+                            <input type="text" placeholder="输入Banner标题或ID" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Banner状态</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">全部状态</option>
+                            <option value="active">启用中</option>
+                            <option value="inactive">已停用</option>
+                            <option value="scheduled">定时发布</option>
+                            <option value="expired">已过期</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Banner位置</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">全部位置</option>
+                            <option value="home_top">首页顶部</option>
+                            <option value="home_middle">首页中部</option>
+                            <option value="category">分类页</option>
+                            <option value="product">商品页</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">创建时间</label>
+                        <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-4">
+                    <div class="flex items-center space-x-2">
+                        <button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                            <i class="fas fa-search mr-2"></i>搜索
+                        </button>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-redo mr-2"></i>重置
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-500">批量操作:</span>
+                        <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 transition-colors">
+                            <i class="fas fa-eye mr-1"></i>启用
+                        </button>
+                        <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-eye-slash mr-1"></i>停用
+                        </button>
+                        <button class="px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200 transition-colors">
+                            <i class="fas fa-trash mr-1"></i>删除
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banner列表 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-800">Banner列表</h2>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">共 24 条记录</span>
+                            <div class="flex items-center space-x-1">
+                                <button class="p-2 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                                <button class="p-2 text-green-600">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Banner卡片网格 -->
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <!-- Banner卡片1 -->
+                        <div class="banner-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=200&fit=crop" alt="Banner" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3">
+                                    <span class="px-2 py-1 bg-green-500 text-white text-xs rounded-full flex items-center">
+                                        <div class="status-dot bg-white rounded-full mr-1"></div>
+                                        启用中
+                                    </span>
+                                </div>
+                                <div class="absolute top-3 right-3">
+                                    <span class="px-2 py-1 bg-blue-500 text-white text-xs rounded">首页顶部</span>
+                                </div>
+                                <div class="absolute bottom-3 right-3">
+                                    <span class="px-2 py-1 bg-black bg-opacity-50 text-white text-xs rounded">排序: 1</span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h3 class="font-semibold text-gray-800 text-sm">春季香草种植活动</h3>
+                                    <div class="flex items-center space-x-1">
+                                        <button class="text-gray-400 hover:text-blue-600 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-red-600 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 text-xs mb-3 line-clamp-2">春季是种植香草的最佳时节，参与活动享受专业指导和优质种苗</p>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-mouse-pointer mr-1"></i>
+                                        <span>点击: 1,234</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-chart-line mr-1"></i>
+                                        <span>转化: 8.5%</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        <span>2024-01-15</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>至 2024-03-15</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>预览
+                                        </button>
+                                        <button class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200 transition-colors">
+                                            <i class="fas fa-chart-bar mr-1"></i>统计
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Banner卡片2 -->
+                        <div class="banner-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=200&fit=crop" alt="Banner" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3">
+                                    <span class="px-2 py-1 bg-orange-500 text-white text-xs rounded-full flex items-center">
+                                        <div class="status-dot bg-white rounded-full mr-1"></div>
+                                        定时发布
+                                    </span>
+                                </div>
+                                <div class="absolute top-3 right-3">
+                                    <span class="px-2 py-1 bg-purple-500 text-white text-xs rounded">首页中部</span>
+                                </div>
+                                <div class="absolute bottom-3 right-3">
+                                    <span class="px-2 py-1 bg-black bg-opacity-50 text-white text-xs rounded">排序: 2</span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h3 class="font-semibold text-gray-800 text-sm">薰衣草精油新品上市</h3>
+                                    <div class="flex items-center space-x-1">
+                                        <button class="text-gray-400 hover:text-blue-600 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-red-600 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 text-xs mb-3 line-clamp-2">法国进口薰衣草精油，纯天然提取，舒缓身心，限时优惠</p>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-mouse-pointer mr-1"></i>
+                                        <span>点击: 0</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-chart-line mr-1"></i>
+                                        <span>转化: 0%</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        <span>2024-02-01</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>至 2024-02-29</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>预览
+                                        </button>
+                                        <button class="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200 transition-colors">
+                                            <i class="fas fa-play mr-1"></i>立即发布
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Banner卡片3 -->
+                        <div class="banner-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1574263867128-a3d5c1b1deaa?w=400&h=200&fit=crop" alt="Banner" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3">
+                                    <span class="px-2 py-1 bg-gray-500 text-white text-xs rounded-full flex items-center">
+                                        <div class="status-dot bg-white rounded-full mr-1"></div>
+                                        已停用
+                                    </span>
+                                </div>
+                                <div class="absolute top-3 right-3">
+                                    <span class="px-2 py-1 bg-green-500 text-white text-xs rounded">分类页</span>
+                                </div>
+                                <div class="absolute bottom-3 right-3">
+                                    <span class="px-2 py-1 bg-black bg-opacity-50 text-white text-xs rounded">排序: 3</span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h3 class="font-semibold text-gray-800 text-sm">香草茶品鉴会</h3>
+                                    <div class="flex items-center space-x-1">
+                                        <button class="text-gray-400 hover:text-blue-600 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-red-600 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 text-xs mb-3 line-clamp-2">专业茶艺师带您品鉴各种香草茶，了解香草的神奇功效</p>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-mouse-pointer mr-1"></i>
+                                        <span>点击: 856</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-chart-line mr-1"></i>
+                                        <span>转化: 12.3%</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        <span>2024-01-01</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>至 2024-01-31</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>预览
+                                        </button>
+                                        <button class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200 transition-colors">
+                                            <i class="fas fa-chart-bar mr-1"></i>统计
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 更多Banner卡片... -->
+                        <div class="banner-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=400&h=200&fit=crop" alt="Banner" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3">
+                                    <span class="px-2 py-1 bg-red-500 text-white text-xs rounded-full flex items-center">
+                                        <div class="status-dot bg-white rounded-full mr-1"></div>
+                                        已过期
+                                    </span>
+                                </div>
+                                <div class="absolute top-3 right-3">
+                                    <span class="px-2 py-1 bg-indigo-500 text-white text-xs rounded">商品页</span>
+                                </div>
+                                <div class="absolute bottom-3 right-3">
+                                    <span class="px-2 py-1 bg-black bg-opacity-50 text-white text-xs rounded">排序: 4</span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h3 class="font-semibold text-gray-800 text-sm">迷迭香护肤系列</h3>
+                                    <div class="flex items-center space-x-1">
+                                        <button class="text-gray-400 hover:text-blue-600 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-red-600 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 text-xs mb-3 line-clamp-2">天然迷迭香提取物，深层滋养肌肤，重现青春光彩</p>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-mouse-pointer mr-1"></i>
+                                        <span>点击: 2,156</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-chart-line mr-1"></i>
+                                        <span>转化: 15.2%</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        <span>2023-12-01</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>至 2023-12-31</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>预览
+                                        </button>
+                                        <button class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200 transition-colors">
+                                            <i class="fas fa-chart-bar mr-1"></i>统计
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="banner-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1512428813834-c702c7702b78?w=400&h=200&fit=crop" alt="Banner" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3">
+                                    <span class="px-2 py-1 bg-green-500 text-white text-xs rounded-full flex items-center">
+                                        <div class="status-dot bg-white rounded-full mr-1"></div>
+                                        启用中
+                                    </span>
+                                </div>
+                                <div class="absolute top-3 right-3">
+                                    <span class="px-2 py-1 bg-blue-500 text-white text-xs rounded">首页顶部</span>
+                                </div>
+                                <div class="absolute bottom-3 right-3">
+                                    <span class="px-2 py-1 bg-black bg-opacity-50 text-white text-xs rounded">排序: 5</span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h3 class="font-semibold text-gray-800 text-sm">香草料理课程</h3>
+                                    <div class="flex items-center space-x-1">
+                                        <button class="text-gray-400 hover:text-blue-600 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-red-600 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 text-xs mb-3 line-clamp-2">学习如何将新鲜香草融入日常料理，提升味觉体验</p>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-mouse-pointer mr-1"></i>
+                                        <span>点击: 987</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-chart-line mr-1"></i>
+                                        <span>转化: 9.8%</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        <span>2024-01-20</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>至 2024-04-20</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>预览
+                                        </button>
+                                        <button class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200 transition-colors">
+                                            <i class="fas fa-chart-bar mr-1"></i>统计
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="banner-card bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=200&fit=crop" alt="Banner" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3">
+                                    <span class="px-2 py-1 bg-green-500 text-white text-xs rounded-full flex items-center">
+                                        <div class="status-dot bg-white rounded-full mr-1"></div>
+                                        启用中
+                                    </span>
+                                </div>
+                                <div class="absolute top-3 right-3">
+                                    <span class="px-2 py-1 bg-purple-500 text-white text-xs rounded">首页中部</span>
+                                </div>
+                                <div class="absolute bottom-3 right-3">
+                                    <span class="px-2 py-1 bg-black bg-opacity-50 text-white text-xs rounded">排序: 6</span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h3 class="font-semibold text-gray-800 text-sm">会员专享优惠</h3>
+                                    <div class="flex items-center space-x-1">
+                                        <button class="text-gray-400 hover:text-blue-600 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-red-600 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 text-xs mb-3 line-clamp-2">成为会员享受全场8折优惠，更有专属礼品和服务</p>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-gray-500 mb-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-mouse-pointer mr-1"></i>
+                                        <span>点击: 1,567</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-chart-line mr-1"></i>
+                                        <span>转化: 22.1%</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        <span>2024-01-10</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span>长期有效</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>预览
+                                        </button>
+                                        <button class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200 transition-colors">
+                                            <i class="fas fa-chart-bar mr-1"></i>统计
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center space-x-1">
+                                        <input type="checkbox" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分页 -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            显示 1-6 条，共 24 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="px-3 py-2 bg-green-500 text-white rounded-lg">1</button>
+                            <button class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                            <button class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                            <button class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">4</button>
+                            <button class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 新建Banner模态框 -->
+    <div id="createBannerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-800">新建Banner</h3>
+                    <button id="closeBannerModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Banner标题</label>
+                            <input type="text" placeholder="请输入Banner标题" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Banner位置</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="home_top">首页顶部</option>
+                                <option value="home_middle">首页中部</option>
+                                <option value="category">分类页</option>
+                                <option value="product">商品页</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Banner描述</label>
+                        <textarea placeholder="请输入Banner描述" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Banner图片</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-600">点击上传或拖拽图片到此处</p>
+                            <p class="text-sm text-gray-500 mt-1">支持 JPG、PNG 格式，建议尺寸 750x375px</p>
+                            <input type="file" class="hidden" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">开始时间</label>
+                            <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">结束时间</label>
+                            <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">跳转类型</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="none">无跳转</option>
+                                <option value="product">商品详情</option>
+                                <option value="category">商品分类</option>
+                                <option value="activity">活动页面</option>
+                                <option value="article">图文页面</option>
+                                <option value="external">外部链接</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">排序权重</label>
+                            <input type="number" placeholder="数字越大排序越靠前" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-end space-x-3">
+                <button id="cancelBannerBtn" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    取消
+                </button>
+                <button class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                    保存草稿
+                </button>
+                <button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                    立即发布
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 新建Banner模态框
+        document.getElementById('createBannerBtn').addEventListener('click', function() {
+            document.getElementById('createBannerModal').classList.remove('hidden');
+            document.getElementById('createBannerModal').classList.add('flex');
+        });
+
+        document.getElementById('closeBannerModal').addEventListener('click', function() {
+            document.getElementById('createBannerModal').classList.add('hidden');
+            document.getElementById('createBannerModal').classList.remove('flex');
+        });
+
+        document.getElementById('cancelBannerBtn').addEventListener('click', function() {
+            document.getElementById('createBannerModal').classList.add('hidden');
+            document.getElementById('createBannerModal').classList.remove('flex');
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('createBannerModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+                this.classList.remove('flex');
+            }
+        });
+
+        // Banner卡片悬停效果
+        document.querySelectorAll('.banner-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // 全选功能
+        const selectAllCheckbox = document.createElement('input');
+        selectAllCheckbox.type = 'checkbox';
+        selectAllCheckbox.className = 'w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500';
+        selectAllCheckbox.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.banner-card input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // 搜索功能模拟
+        document.querySelector('input[placeholder="输入Banner标题或ID"]').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const bannerCards = document.querySelectorAll('.banner-card');
+            
+            bannerCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                if (title.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // 状态筛选功能
+        document.querySelector('select').addEventListener('change', function() {
+            const selectedStatus = this.value;
+            const bannerCards = document.querySelectorAll('.banner-card');
+            
+            bannerCards.forEach(card => {
+                const statusElement = card.querySelector('.absolute.top-3.left-3 span');
+                const statusText = statusElement.textContent.trim();
+                
+                if (selectedStatus === '' || 
+                    (selectedStatus === 'active' && statusText === '启用中') ||
+                    (selectedStatus === 'inactive' && statusText === '已停用') ||
+                    (selectedStatus === 'scheduled' && statusText === '定时发布') ||
+                    (selectedStatus === 'expired' && statusText === '已过期')) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

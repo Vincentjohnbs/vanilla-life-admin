@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合作协议 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .metric-card.blue {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .metric-card.green {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .metric-card.orange {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-draft { background-color: #6b7280; }
+        .status-pending { background-color: #f59e0b; }
+        .status-active { background-color: #10b981; }
+        .status-expired { background-color: #ef4444; }
+        .status-terminated { background-color: #8b5cf6; }
+        .filter-tag {
+            transition: all 0.2s ease;
+        }
+        .filter-tag.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .contract-timeline {
+            position: relative;
+        }
+        .contract-timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e7eb;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 50px;
+            margin-bottom: 20px;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: 14px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3b82f6;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #e5e7eb;
+        }
+        .contract-preview {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">供应商管理</h3>
+                <ul class="space-y-1">
+                    <li><a href="71-供应商详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-building mr-3"></i>供应商详情</a></li>
+                    <li><a href="72-商品供应管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-boxes mr-3"></i>商品供应管理</a></li>
+                    <li><a href="73-结算管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-calculator mr-3"></i>结算管理</a></li>
+                    <li><a href="74-合作协议.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-handshake mr-3"></i>合作协议</a></li>
+                    <li><a href="75-资质管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-certificate mr-3"></i>资质管理</a></li>
+                    <li><a href="76-评级管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-star mr-3"></i>评级管理</a></li>
+                    <li><a href="77-采购订单.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-shopping-cart mr-3"></i>采购订单</a></li>
+                    <li><a href="78-对账管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-balance-scale mr-3"></i>对账管理</a></li>
+                    <li><a href="79-付款记录.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-credit-card mr-3"></i>付款记录</a></li>
+                    <li><a href="80-供应商统计.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-chart-bar mr-3"></i>供应商统计</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-800">合作协议</h2>
+                        <p class="text-sm text-gray-600">管理供应商合作协议和合同条款</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="createContract" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>新建协议
+                    </button>
+                    <button id="templateManage" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-file-contract mr-2"></i>模板管理
+                    </button>
+                    <button id="exportContracts" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-file-export mr-2"></i>导出协议
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="metric-card rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">协议总数</p>
+                            <p class="text-2xl font-bold mt-1">156</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8 本月新增
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-file-contract text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card blue rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">生效协议</p>
+                            <p class="text-2xl font-bold mt-1">128</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-check mr-1"></i>82.1% 生效率
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card green rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">即将到期</p>
+                            <p class="text-2xl font-bold mt-1">15</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-clock mr-1"></i>30天内到期
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-times text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card orange rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white/80 text-sm">待审核</p>
+                            <p class="text-2xl font-bold mt-1">13</p>
+                            <p class="text-white/80 text-sm mt-1">
+                                <i class="fas fa-hourglass-half mr-1"></i>等待审核
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hourglass-half text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和搜索 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="搜索协议名称、供应商..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        
+                        <select id="supplierFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">全部供应商</option>
+                            <option value="绿野香草农场">绿野香草农场</option>
+                            <option value="天然香草园">天然香草园</option>
+                            <option value="有机香草基地">有机香草基地</option>
+                        </select>
+                        
+                        <select id="typeFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">全部类型</option>
+                            <option value="采购协议">采购协议</option>
+                            <option value="框架协议">框架协议</option>
+                            <option value="独家协议">独家协议</option>
+                            <option value="战略合作">战略合作</option>
+                        </select>
+                        
+                        <input type="date" id="startDate" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <span class="text-gray-500">至</span>
+                        <input type="date" id="endDate" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">状态筛选：</span>
+                        <button class="filter-tag active px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="all">全部</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="draft">草稿</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="pending">待审核</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="active">生效中</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="expired">已到期</button>
+                        <button class="filter-tag px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700" data-status="terminated">已终止</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 协议列表 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">协议列表</h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <label for="selectAll" class="text-sm text-gray-600">全选</label>
+                            </div>
+                            <span class="text-sm text-gray-600">共 <span id="totalCount">156</span> 个协议</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">协议名称</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">供应商</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">协议类型</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">签署日期</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">有效期</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contractsTable" class="bg-white divide-y divide-gray-200">
+                            <!-- 协议数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            显示第 <span class="font-medium">1</span> 到 <span class="font-medium">20</span> 条，共 <span class="font-medium">156</span> 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50" disabled>
+                                上一页
+                            </button>
+                            <button class="px-3 py-2 text-sm text-white bg-blue-500 border border-blue-500 rounded-lg">1</button>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                            <span class="px-3 py-2 text-sm text-gray-500">...</span>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">8</button>
+                            <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 新建协议模态框 -->
+    <div id="createContractModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">新建合作协议</h3>
+            </div>
+            <div class="p-6">
+                <form class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">协议名称 *</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入协议名称">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">供应商 *</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">请选择供应商</option>
+                                <option value="绿野香草农场">绿野香草农场</option>
+                                <option value="天然香草园">天然香草园</option>
+                                <option value="有机香草基地">有机香草基地</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">协议类型 *</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="采购协议">采购协议</option>
+                                <option value="框架协议">框架协议</option>
+                                <option value="独家协议">独家协议</option>
+                                <option value="战略合作">战略合作</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">协议模板</label>
+                            <select id="templateSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">选择模板（可选）</option>
+                                <option value="standard">标准采购协议模板</option>
+                                <option value="exclusive">独家供应协议模板</option>
+                                <option value="strategic">战略合作协议模板</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">签署日期 *</label>
+                            <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">有效期至 *</label>
+                            <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">协议内容 *</label>
+                        <div class="border border-gray-300 rounded-lg">
+                            <div class="bg-gray-50 px-4 py-2 border-b border-gray-300 flex items-center space-x-2">
+                                <button type="button" class="p-1 text-gray-600 hover:text-gray-800"><i class="fas fa-bold"></i></button>
+                                <button type="button" class="p-1 text-gray-600 hover:text-gray-800"><i class="fas fa-italic"></i></button>
+                                <button type="button" class="p-1 text-gray-600 hover:text-gray-800"><i class="fas fa-underline"></i></button>
+                                <div class="w-px h-4 bg-gray-300"></div>
+                                <button type="button" class="p-1 text-gray-600 hover:text-gray-800"><i class="fas fa-list-ul"></i></button>
+                                <button type="button" class="p-1 text-gray-600 hover:text-gray-800"><i class="fas fa-list-ol"></i></button>
+                                <div class="w-px h-4 bg-gray-300"></div>
+                                <button type="button" class="p-1 text-gray-600 hover:text-gray-800"><i class="fas fa-link"></i></button>
+                                <button type="button" class="p-1 text-gray-600 hover:text-gray-800"><i class="fas fa-image"></i></button>
+                            </div>
+                            <textarea id="contractContent" rows="12" class="w-full px-4 py-3 border-0 focus:ring-0 resize-none" placeholder="请输入协议内容或选择模板自动填充..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">附件上传</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-sm text-gray-600">点击上传或拖拽文件到此处</p>
+                            <p class="text-xs text-gray-500 mt-1">支持 PDF、DOC、DOCX 格式，最大 10MB</p>
+                            <input type="file" class="hidden" accept=".pdf,.doc,.docx" multiple>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-4">
+                <button id="cancelCreate" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    取消
+                </button>
+                <button id="saveDraft" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                    保存草稿
+                </button>
+                <button id="submitReview" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    提交审核
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 协议详情模态框 -->
+    <div id="contractDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-6xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">协议详情</h3>
+            </div>
+            <div class="p-6">
+                <div id="contractDetailContent">
+                    <!-- 协议详情内容将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-4">
+                <button id="closeDetail" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    关闭
+                </button>
+                <button id="downloadContract" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-download mr-2"></i>下载协议
+                </button>
+                <button id="printContract" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-print mr-2"></i>打印协议
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模板管理模态框 -->
+    <div id="templateModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">协议模板管理</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-medium text-gray-900">标准采购协议</h4>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm">编辑</button>
+                                <button class="text-red-600 hover:text-red-800 text-sm">删除</button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3">适用于一般商品采购的标准协议模板</p>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span>使用次数: 45</span>
+                            <span>更新时间: 2024-01-15</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-medium text-gray-900">独家供应协议</h4>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm">编辑</button>
+                                <button class="text-red-600 hover:text-red-800 text-sm">删除</button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3">独家供应商合作协议模板</p>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                            <span>使用次数: 12</span>
+                            <span>更新时间: 2024-01-10</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center text-center hover:border-blue-400 transition-colors cursor-pointer">
+                        <i class="fas fa-plus text-2xl text-gray-400 mb-2"></i>
+                        <p class="text-sm text-gray-600">创建新模板</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end">
+                <button id="closeTemplate" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟协议数据
+        const contractsData = [
+            {
+                id: 1,
+                name: '绿野香草农场采购协议2024',
+                supplier: '绿野香草农场',
+                type: '采购协议',
+                signDate: '2024-01-15',
+                validUntil: '2024-12-31',
+                status: 'active',
+                content: '本协议为香草生活平台与绿野香草农场的年度采购协议...',
+                attachments: ['协议正本.pdf', '补充条款.docx']
+            },
+            {
+                id: 2,
+                name: '天然香草园框架合作协议',
+                supplier: '天然香草园',
+                type: '框架协议',
+                signDate: '2024-02-01',
+                validUntil: '2025-01-31',
+                status: 'active',
+                content: '本框架协议规定了双方长期合作的基本条款...',
+                attachments: ['框架协议.pdf']
+            },
+            {
+                id: 3,
+                name: '有机香草基地独家供应协议',
+                supplier: '有机香草基地',
+                type: '独家协议',
+                signDate: '2024-01-20',
+                validUntil: '2024-06-30',
+                status: 'expired',
+                content: '本协议确立了有机香草基地作为独家供应商的地位...',
+                attachments: ['独家协议.pdf', '质量标准.docx']
+            },
+            {
+                id: 4,
+                name: '新供应商合作协议草稿',
+                supplier: '山谷香草园',
+                type: '采购协议',
+                signDate: null,
+                validUntil: null,
+                status: 'draft',
+                content: '协议内容正在编辑中...',
+                attachments: []
+            },
+            {
+                id: 5,
+                name: '战略合作伙伴协议',
+                supplier: '绿野香草农场',
+                type: '战略合作',
+                signDate: '2024-02-15',
+                validUntil: '2026-02-14',
+                status: 'pending',
+                content: '本协议建立双方战略合作伙伴关系...',
+                attachments: ['战略协议.pdf']
+            }
+        ];
+
+        let filteredData = [...contractsData];
+        let currentPage = 1;
+        const itemsPerPage = 20;
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 状态筛选标签
+        function initStatusFilters() {
+            const filterTags = document.querySelectorAll('.filter-tag');
+            filterTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    // 移除所有active类
+                    filterTags.forEach(t => t.classList.remove('active'));
+                    // 添加active类到当前标签
+                    this.classList.add('active');
+                    
+                    const status = this.getAttribute('data-status');
+                    filterContracts(status);
+                });
+            });
+        }
+
+        // 筛选协议
+        function filterContracts(status = 'all') {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const supplierFilter = document.getElementById('supplierFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            filteredData = contractsData.filter(contract => {
+                const matchesSearch = contract.name.toLowerCase().includes(searchTerm) || 
+                                    contract.supplier.toLowerCase().includes(searchTerm);
+                const matchesSupplier = !supplierFilter || contract.supplier === supplierFilter;
+                const matchesType = !typeFilter || contract.type === typeFilter;
+                const matchesStatus = status === 'all' || contract.status === status;
+                
+                // 简单的日期筛选逻辑
+                let matchesDate = true;
+                if (startDate || endDate) {
+                    const signDate = contract.signDate ? new Date(contract.signDate) : null;
+                    if (signDate) {
+                        if (startDate) matchesDate = matchesDate && signDate >= new Date(startDate);
+                        if (endDate) matchesDate = matchesDate && signDate <= new Date(endDate);
+                    }
+                }
+
+                return matchesSearch && matchesSupplier && matchesType && matchesStatus && matchesDate;
+            });
+
+            renderContractsTable();
+            updateTotalCount();
+        }
+
+        // 渲染协议表格
+        function renderContractsTable() {
+            const tbody = document.getElementById('contractsTable');
+            tbody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            pageData.forEach(contract => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                let statusBadge, statusClass;
+                switch(contract.status) {
+                    case 'draft':
+                        statusBadge = '草稿';
+                        statusClass = 'bg-gray-100 text-gray-800';
+                        break;
+                    case 'pending':
+                        statusBadge = '待审核';
+                        statusClass = 'bg-yellow-100 text-yellow-800';
+                        break;
+                    case 'active':
+                        statusBadge = '生效中';
+                        statusClass = 'bg-green-100 text-green-800';
+                        break;
+                    case 'expired':
+                        statusBadge = '已到期';
+                        statusClass = 'bg-red-100 text-red-800';
+                        break;
+                    case 'terminated':
+                        statusBadge = '已终止';
+                        statusClass = 'bg-purple-100 text-purple-800';
+                        break;
+                }
+
+                const validPeriod = contract.signDate && contract.validUntil ? 
+                    `${contract.signDate} 至 ${contract.validUntil}` : '未设置';
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 contract-checkbox" data-id="${contract.id}">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${contract.name}</div>
+                        <div class="text-xs text-gray-500">${contract.attachments.length} 个附件</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${contract.supplier}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                            ${contract.type}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${contract.signDate || '--'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${validPeriod}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">
+                            <span class="status-dot status-${contract.status}"></span>${statusBadge}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button class="text-blue-600 hover:text-blue-900 mr-3" onclick="viewContract(${contract.id})">查看</button>
+                        ${contract.status === 'draft' ? '<button class="text-green-600 hover:text-green-900 mr-3" onclick="editContract(' + contract.id + ')">编辑</button>' : ''}
+                        ${contract.status === 'active' ? '<button class="text-orange-600 hover:text-orange-900 mr-3" onclick="renewContract(' + contract.id + ')">续签</button>' : ''}
+                        <button class="text-red-600 hover:text-red-900" onclick="deleteContract(${contract.id})">删除</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // 更新总数显示
+        function updateTotalCount() {
+            document.getElementById('totalCount').textContent = filteredData.length;
+        }
+
+        // 查看协议详情
+        function viewContract(id) {
+            const contract = contractsData.find(c => c.id === id);
+            if (!contract) return;
+
+            const content = document.getElementById('contractDetailContent');
+            content.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">协议内容</h4>
+                        <div class="contract-preview">
+                            <h5 class="font-medium text-gray-900 mb-2">${contract.name}</h5>
+                            <p class="text-sm text-gray-700 leading-relaxed">${contract.content}</p>
+                        </div>
+                        
+                        ${contract.attachments.length > 0 ? `
+                        <div class="mt-6">
+                            <h5 class="font-medium text-gray-900 mb-3">相关附件</h5>
+                            <div class="space-y-2">
+                                ${contract.attachments.map(file => `
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-file-pdf text-red-500 mr-3"></i>
+                                            <span class="text-sm text-gray-900">${file}</span>
+                                        </div>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                            <i class="fas fa-download mr-1"></i>下载
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">协议信息</h4>
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">协议名称：</span>
+                                        <span class="font-medium text-gray-900">${contract.name}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">供应商：</span>
+                                        <span class="font-medium text-gray-900">${contract.supplier}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">协议类型：</span>
+                                        <span class="font-medium text-gray-900">${contract.type}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">签署日期：</span>
+                                        <span class="font-medium text-gray-900">${contract.signDate || '--'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">有效期至：</span>
+                                        <span class="font-medium text-gray-900">${contract.validUntil || '--'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h5 class="text-sm font-medium text-gray-900 mb-3">协议时间线</h5>
+                                <div class="contract-timeline">
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="text-sm">
+                                            <div class="font-medium text-gray-900">协议创建</div>
+                                            <div class="text-gray-500">2024-01-10 10:30</div>
+                                        </div>
+                                    </div>
+                                    ${contract.status !== 'draft' ? `
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="text-sm">
+                                            <div class="font-medium text-gray-900">提交审核</div>
+                                            <div class="text-gray-500">2024-01-12 14:20</div>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                    ${contract.status === 'active' || contract.status === 'expired' ? `
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="text-sm">
+                                            <div class="font-medium text-gray-900">协议生效</div>
+                                            <div class="text-gray-500">${contract.signDate} 09:00</div>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('contractDetailModal').classList.remove('hidden');
+            document.getElementById('contractDetailModal').classList.add('flex');
+        }
+
+        // 编辑协议
+        function editContract(id) {
+            alert(`编辑协议 ID: ${id}`);
+        }
+
+        // 续签协议
+        function renewContract(id) {
+            if (confirm('确定要续签这个协议吗？')) {
+                alert(`续签协议 ID: ${id}`);
+            }
+        }
+
+        // 删除协议
+        function deleteContract(id) {
+            if (confirm('确定要删除这个协议吗？')) {
+                alert(`删除协议 ID: ${id}`);
+            }
+        }
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function() {
+            filterContracts(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        // 筛选器变化
+        document.getElementById('supplierFilter').addEventListener('change', function() {
+            filterContracts(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        document.getElementById('typeFilter').addEventListener('change', function() {
+            filterContracts(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        document.getElementById('startDate').addEventListener('change', function() {
+            filterContracts(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        document.getElementById('endDate').addEventListener('change', function() {
+            filterContracts(document.querySelector('.filter-tag.active').getAttribute('data-status'));
+        });
+
+        // 全选功能
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.contract-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // 新建协议模态框
+        document.getElementById('createContract').addEventListener('click', function() {
+            document.getElementById('createContractModal').classList.remove('hidden');
+            document.getElementById('createContractModal').classList.add('flex');
+        });
+
+        document.getElementById('cancelCreate').addEventListener('click', function() {
+            document.getElementById('createContractModal').classList.add('hidden');
+            document.getElementById('createContractModal').classList.remove('flex');
+        });
+
+        document.getElementById('saveDraft').addEventListener('click', function() {
+            alert('协议草稿已保存');
+            document.getElementById('createContractModal').classList.add('hidden');
+            document.getElementById('createContractModal').classList.remove('flex');
+        });
+
+        document.getElementById('submitReview').addEventListener('click', function() {
+            alert('协议已提交审核');
+            document.getElementById('createContractModal').classList.add('hidden');
+            document.getElementById('createContractModal').classList.remove('flex');
+        });
+
+        // 模板选择
+        document.getElementById('templateSelect').addEventListener('change', function() {
+            const template = this.value;
+            const contentArea = document.getElementById('contractContent');
+            
+            if (template === 'standard') {
+                contentArea.value = '标准采购协议\n\n甲方：香草生活平台\n乙方：[供应商名称]\n\n根据《中华人民共和国合同法》等相关法律法规，甲乙双方本着平等、自愿、公平、诚实信用的原则，就商品采购事宜达成如下协议：\n\n第一条 合作内容\n乙方向甲方供应符合质量标准的香草类商品...';
+            } else if (template === 'exclusive') {
+                contentArea.value = '独家供应协议\n\n甲方：香草生活平台\n乙方：[供应商名称]\n\n为建立长期稳定的独家供应关系，甲乙双方达成如下协议：\n\n第一条 独家供应\n乙方承诺在协议有效期内，仅向甲方供应指定商品类别...';
+            } else if (template === 'strategic') {
+                contentArea.value = '战略合作协议\n\n甲方：香草生活平台\n乙方：[供应商名称]\n\n为建立战略合作伙伴关系，实现互利共赢，甲乙双方达成如下协议：\n\n第一条 合作目标\n双方致力于建立长期、稳定、互利的战略合作关系...';
+            }
+        });
+
+        // 关闭协议详情模态框
+        document.getElementById('closeDetail').addEventListener('click', function() {
+            document.getElementById('contractDetailModal').classList.add('hidden');
+            document.getElementById('contractDetailModal').classList.remove('flex');
+        });
+
+        document.getElementById('downloadContract').addEventListener('click', function() {
+            alert('下载协议功能');
+        });
+
+        document.getElementById('printContract').addEventListener('click', function() {
+            alert('打印协议功能');
+        });
+
+        // 模板管理
+        document.getElementById('templateManage').addEventListener('click', function() {
+            document.getElementById('templateModal').classList.remove('hidden');
+            document.getElementById('templateModal').classList.add('flex');
+        });
+
+        document.getElementById('closeTemplate').addEventListener('click', function() {
+            document.getElementById('templateModal').classList.add('hidden');
+            document.getElementById('templateModal').classList.remove('flex');
+        });
+
+        // 导出协议
+        document.getElementById('exportContracts').addEventListener('click', function() {
+            alert('导出协议功能');
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initStatusFilters();
+            renderContractsTable();
+            updateTotalCount();
+            console.log('合作协议页面初始化完成');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>种植指南编辑 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .guide-step {
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+        .guide-step:hover {
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+        .guide-step.active {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .step-number {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .step-active .step-number {
+            background-color: #10b981;
+            color: white;
+        }
+        .step-inactive .step-number {
+            background-color: #e5e7eb;
+            color: #6b7280;
+        }
+        .editor-toolbar {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .season-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .season-spring {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .season-summer {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .season-autumn {
+            background-color: #fed7aa;
+            color: #9a3412;
+        }
+        .season-winter {
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+        .difficulty-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .difficulty-easy {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .difficulty-medium {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .difficulty-hard {
+            background-color: #fecaca;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600 transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        <span>首页仪表板</span>
+                    </a>
+                    <a href="05-香草图鉴管理.html" class="flex items-center px-4 py-3 text-green-600 bg-green-50 rounded-lg">
+                        <i class="fas fa-book w-5 h-5 mr-3"></i>
+                        <span>香草图鉴管理</span>
+                    </a>
+                    <div class="ml-8 space-y-1">
+                        <a href="41-香草编辑页.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-edit w-4 h-4 mr-2"></i>
+                            <span>香草编辑</span>
+                        </a>
+                        <a href="42-分类标签管理.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-tags w-4 h-4 mr-2"></i>
+                            <span>分类标签管理</span>
+                        </a>
+                        <a href="45-香草搜索.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-search w-4 h-4 mr-2"></i>
+                            <span>香草搜索</span>
+                        </a>
+                        <a href="46-种植指南编辑.html" class="flex items-center px-4 py-2 text-sm text-green-600 bg-green-50 rounded-lg">
+                            <i class="fas fa-seedling w-4 h-4 mr-2"></i>
+                            <span>种植指南编辑</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300 ease-in-out">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">种植指南编辑</h2>
+                        <p class="text-sm text-gray-500">创建和编辑香草种植指南</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="preview-btn" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                        <i class="fas fa-eye mr-2"></i>预览
+                    </button>
+                    <button id="save-draft-btn" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-save mr-2"></i>保存草稿
+                    </button>
+                    <button id="publish-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>发布指南
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- 左侧编辑区域 -->
+                <div class="lg:col-span-3">
+                    <!-- 基本信息 -->
+                    <div class="bg-white rounded-xl shadow-sm mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">基本信息</h3>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">指南标题</label>
+                                    <input type="text" id="guide-title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="输入种植指南标题" value="薰衣草完整种植指南">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">关联香草</label>
+                                    <select id="herb-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="lavender">薰衣草</option>
+                                        <option value="rosemary">迷迭香</option>
+                                        <option value="mint">薄荷</option>
+                                        <option value="basil">罗勒</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">种植难度</label>
+                                    <select id="difficulty-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="easy">简单</option>
+                                        <option value="medium" selected>中等</option>
+                                        <option value="hard">困难</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">适宜季节</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2" checked>
+                                            <span class="season-badge season-spring">春季</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2" checked>
+                                            <span class="season-badge season-summer">夏季</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2">
+                                            <span class="season-badge season-autumn">秋季</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2">
+                                            <span class="season-badge season-winter">冬季</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">指南简介</label>
+                                <textarea id="guide-summary" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="输入种植指南的简要介绍">薰衣草是一种美丽且实用的香草植物，以其独特的香味和紫色花朵而闻名。本指南将详细介绍薰衣草的种植方法、养护技巧和收获时机，帮助您成功种植出健康的薰衣草。</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 种植步骤编辑 -->
+                    <div class="bg-white rounded-xl shadow-sm mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-800">种植步骤</h3>
+                                <button id="add-step-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>添加步骤
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div id="steps-container" class="space-y-4">
+                                <!-- 步骤1 -->
+                                <div class="guide-step p-4 rounded-lg active" data-step="1">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="step-number step-active">1</div>
+                                        <div class="flex-1">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">步骤标题</label>
+                                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" value="准备种植材料">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">预计时间</label>
+                                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" value="30分钟">
+                                                </div>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">步骤描述</label>
+                                                <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">准备薰衣草种子或幼苗、排水良好的花盆、优质培养土、小铲子等工具。选择直径20-30cm的花盆，确保底部有排水孔。</textarea>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">所需材料</label>
+                                                <div class="flex flex-wrap gap-2">
+                                                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">薰衣草种子</span>
+                                                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">花盆</span>
+                                                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">培养土</span>
+                                                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">小铲子</span>
+                                                    <button class="px-3 py-1 border border-dashed border-gray-300 text-gray-500 rounded-full text-sm hover:border-green-500 hover:text-green-600">
+                                                        <i class="fas fa-plus mr-1"></i>添加材料
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center space-x-2">
+                                                    <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                                                        <i class="fas fa-image mr-1"></i>添加图片
+                                                    </button>
+                                                    <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                                                        <i class="fas fa-video mr-1"></i>添加视频
+                                                    </button>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    <button class="text-gray-400 hover:text-gray-600">
+                                                        <i class="fas fa-arrow-up"></i>
+                                                    </button>
+                                                    <button class="text-gray-400 hover:text-gray-600">
+                                                        <i class="fas fa-arrow-down"></i>
+                                                    </button>
+                                                    <button class="text-red-400 hover:text-red-600">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 步骤2 -->
+                                <div class="guide-step p-4 rounded-lg" data-step="2">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="step-number step-inactive">2</div>
+                                        <div class="flex-1">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">步骤标题</label>
+                                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" value="播种或移植">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">预计时间</label>
+                                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" value="20分钟">
+                                                </div>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">步骤描述</label>
+                                                <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">在花盆中填入培养土，留出2-3cm的空间。如果使用种子，在土表撒播并轻轻覆土；如果使用幼苗，挖小坑将幼苗移植进去。</textarea>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">注意事项</label>
+                                                <div class="space-y-2">
+                                                    <div class="flex items-center space-x-2">
+                                                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                                                        <span class="text-sm text-gray-600">种子覆土不宜过厚，约0.5cm即可</span>
+                                                    </div>
+                                                    <div class="flex items-center space-x-2">
+                                                        <i class="fas fa-info-circle text-blue-500"></i>
+                                                        <span class="text-sm text-gray-600">移植时要小心保护根系</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center space-x-2">
+                                                    <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                                                        <i class="fas fa-image mr-1"></i>添加图片
+                                                    </button>
+                                                    <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                                                        <i class="fas fa-video mr-1"></i>添加视频
+                                                    </button>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    <button class="text-gray-400 hover:text-gray-600">
+                                                        <i class="fas fa-arrow-up"></i>
+                                                    </button>
+                                                    <button class="text-gray-400 hover:text-gray-600">
+                                                        <i class="fas fa-arrow-down"></i>
+                                                    </button>
+                                                    <button class="text-red-400 hover:text-red-600">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 步骤3 -->
+                                <div class="guide-step p-4 rounded-lg" data-step="3">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="step-number step-inactive">3</div>
+                                        <div class="flex-1">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">步骤标题</label>
+                                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" value="日常养护">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">预计时间</label>
+                                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" value="每日5分钟">
+                                                </div>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">步骤描述</label>
+                                                <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">将花盆放置在阳光充足的位置，每天保证6-8小时光照。适量浇水，保持土壤微湿但不积水。定期检查植株生长状况。</textarea>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center space-x-2">
+                                                    <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                                                        <i class="fas fa-image mr-1"></i>添加图片
+                                                    </button>
+                                                    <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                                                        <i class="fas fa-video mr-1"></i>添加视频
+                                                    </button>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    <button class="text-gray-400 hover:text-gray-600">
+                                                        <i class="fas fa-arrow-up"></i>
+                                                    </button>
+                                                    <button class="text-gray-400 hover:text-gray-600">
+                                                        <i class="fas fa-arrow-down"></i>
+                                                    </button>
+                                                    <button class="text-red-400 hover:text-red-600">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 常见问题 -->
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-800">常见问题</h3>
+                                <button id="add-faq-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>添加问题
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div id="faq-container" class="space-y-4">
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="mb-3">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">问题</label>
+                                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" value="薰衣草不开花怎么办？">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">答案</label>
+                                        <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">薰衣草不开花可能是由于光照不足、营养过剩或植株太年轻。确保每天有充足阳光，减少氮肥施用，耐心等待植株成熟。</textarea>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button class="text-red-400 hover:text-red-600">
+                                            <i class="fas fa-trash mr-1"></i>删除
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="mb-3">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">问题</label>
+                                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" value="薰衣草叶子发黄是什么原因？">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">答案</label>
+                                        <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">叶子发黄通常是浇水过多导致的。薰衣草喜欢干燥环境，应该等土壤表面干燥后再浇水，并确保花盆有良好的排水。</textarea>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button class="text-red-400 hover:text-red-600">
+                                            <i class="fas fa-trash mr-1"></i>删除
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧信息面板 -->
+                <div class="lg:col-span-1">
+                    <!-- 发布设置 -->
+                    <div class="bg-white rounded-xl shadow-sm mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">发布设置</h3>
+                        </div>
+                        
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="draft">草稿</option>
+                                    <option value="review">待审核</option>
+                                    <option value="published">已发布</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">可见性</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="radio" name="visibility" value="public" class="mr-2" checked>
+                                        <span class="text-sm">公开</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="visibility" value="members" class="mr-2">
+                                        <span class="text-sm">仅会员</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="visibility" value="private" class="mr-2">
+                                        <span class="text-sm">私有</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">发布时间</label>
+                                <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">作者</label>
+                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" value="香草专家">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 标签管理 -->
+                    <div class="bg-white rounded-xl shadow-sm mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">标签管理</h3>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm flex items-center">
+                                        薰衣草
+                                        <button class="ml-2 text-green-500 hover:text-green-700">
+                                            <i class="fas fa-times text-xs"></i>
+                                        </button>
+                                    </span>
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center">
+                                        种植指南
+                                        <button class="ml-2 text-blue-500 hover:text-blue-700">
+                                            <i class="fas fa-times text-xs"></i>
+                                        </button>
+                                    </span>
+                                    <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm flex items-center">
+                                        芳香植物
+                                        <button class="ml-2 text-purple-500 hover:text-purple-700">
+                                            <i class="fas fa-times text-xs"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                                <div class="flex">
+                                    <input type="text" id="tag-input" class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="添加标签">
+                                    <button id="add-tag-btn" class="px-4 py-2 bg-green-600 text-white rounded-r-lg hover:bg-green-700 transition-colors">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700 mb-2">推荐标签</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="px-3 py-1 border border-gray-300 text-gray-600 rounded-full text-sm hover:border-green-500 hover:text-green-600">
+                                        新手友好
+                                    </button>
+                                    <button class="px-3 py-1 border border-gray-300 text-gray-600 rounded-full text-sm hover:border-green-500 hover:text-green-600">
+                                        室内种植
+                                    </button>
+                                    <button class="px-3 py-1 border border-gray-300 text-gray-600 rounded-full text-sm hover:border-green-500 hover:text-green-600">
+                                        药用香草
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 统计信息 -->
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">统计信息</h3>
+                        </div>
+                        
+                        <div class="p-6 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">字数统计</span>
+                                <span class="text-sm font-medium text-gray-800">1,245</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">步骤数量</span>
+                                <span class="text-sm font-medium text-gray-800">3</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">预计阅读时间</span>
+                                <span class="text-sm font-medium text-gray-800">5分钟</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">最后修改</span>
+                                <span class="text-sm font-medium text-gray-800">刚刚</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">创建时间</span>
+                                <span class="text-sm font-medium text-gray-800">今天 14:30</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+        });
+
+        // 步骤管理
+        let stepCount = 3;
+        
+        document.getElementById('add-step-btn').addEventListener('click', function() {
+            stepCount++;
+            const stepsContainer = document.getElementById('steps-container');
+            
+            const newStep = document.createElement('div');
+            newStep.className = 'guide-step p-4 rounded-lg';
+            newStep.setAttribute('data-step', stepCount);
+            
+            newStep.innerHTML = `
+                <div class="flex items-start space-x-4">
+                    <div class="step-number step-inactive">${stepCount}</div>
+                    <div class="flex-1">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">步骤标题</label>
+                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="输入步骤标题">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">预计时间</label>
+                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="输入预计时间">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">步骤描述</label>
+                            <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="输入详细的步骤描述"></textarea>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                                    <i class="fas fa-image mr-1"></i>添加图片
+                                </button>
+                                <button class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                                    <i class="fas fa-video mr-1"></i>添加视频
+                                </button>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-arrow-down"></i>
+                                </button>
+                                <button class="text-red-400 hover:text-red-600" onclick="removeStep(this)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            stepsContainer.appendChild(newStep);
+        });
+
+        // 删除步骤
+        function removeStep(button) {
+            if (confirm('确定要删除这个步骤吗？')) {
+                const step = button.closest('.guide-step');
+                step.remove();
+                updateStepNumbers();
+            }
+        }
+
+        // 更新步骤编号
+        function updateStepNumbers() {
+            const steps = document.querySelectorAll('.guide-step');
+            steps.forEach((step, index) => {
+                const stepNumber = step.querySelector('.step-number');
+                stepNumber.textContent = index + 1;
+                step.setAttribute('data-step', index + 1);
+            });
+            stepCount = steps.length;
+        }
+
+        // 步骤点击激活
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.guide-step')) {
+                // 移除所有激活状态
+                document.querySelectorAll('.guide-step').forEach(step => {
+                    step.classList.remove('active');
+                    step.querySelector('.step-number').className = 'step-number step-inactive';
+                });
+                
+                // 激活当前步骤
+                const currentStep = e.target.closest('.guide-step');
+                currentStep.classList.add('active');
+                currentStep.querySelector('.step-number').className = 'step-number step-active';
+            }
+        });
+
+        // 常见问题管理
+        document.getElementById('add-faq-btn').addEventListener('click', function() {
+            const faqContainer = document.getElementById('faq-container');
+            
+            const newFaq = document.createElement('div');
+            newFaq.className = 'border border-gray-200 rounded-lg p-4';
+            
+            newFaq.innerHTML = `
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">问题</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="输入常见问题">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">答案</label>
+                    <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="输入问题答案"></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button class="text-red-400 hover:text-red-600" onclick="removeFaq(this)">
+                        <i class="fas fa-trash mr-1"></i>删除
+                    </button>
+                </div>
+            `;
+            
+            faqContainer.appendChild(newFaq);
+        });
+
+        // 删除常见问题
+        function removeFaq(button) {
+            if (confirm('确定要删除这个问题吗？')) {
+                const faq = button.closest('.border');
+                faq.remove();
+            }
+        }
+
+        // 标签管理
+        document.getElementById('add-tag-btn').addEventListener('click', function() {
+            const tagInput = document.getElementById('tag-input');
+            const tagValue = tagInput.value.trim();
+            
+            if (tagValue) {
+                addTag(tagValue);
+                tagInput.value = '';
+            }
+        });
+
+        document.getElementById('tag-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const tagValue = this.value.trim();
+                if (tagValue) {
+                    addTag(tagValue);
+                    this.value = '';
+                }
+            }
+        });
+
+        function addTag(tagText) {
+            const tagContainer = document.querySelector('.flex.flex-wrap.gap-2.mb-3');
+            
+            const newTag = document.createElement('span');
+            newTag.className = 'px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm flex items-center';
+            newTag.innerHTML = `
+                ${tagText}
+                <button class="ml-2 text-gray-500 hover:text-gray-700" onclick="removeTag(this)">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            `;
+            
+            tagContainer.appendChild(newTag);
+        }
+
+        function removeTag(button) {
+            const tag = button.closest('span');
+            tag.remove();
+        }
+
+        // 推荐标签点击
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('新手友好') || button.textContent.includes('室内种植') || button.textContent.includes('药用香草')) {
+                button.addEventListener('click', function() {
+                    addTag(this.textContent.trim());
+                });
+            }
+        });
+
+        // 预览功能
+        document.getElementById('preview-btn').addEventListener('click', function() {
+            // 这里可以添加预览功能的逻辑
+            alert('正在打开预览页面...');
+        });
+
+        // 保存草稿
+        document.getElementById('save-draft-btn').addEventListener('click', function() {
+            // 这里可以添加保存草稿的逻辑
+            console.log('保存草稿');
+            alert('草稿保存成功！');
+        });
+
+        // 发布指南
+        document.getElementById('publish-btn').addEventListener('click', function() {
+            if (confirm('确定要发布这个种植指南吗？')) {
+                // 这里可以添加发布的逻辑
+                console.log('发布种植指南');
+                alert('种植指南发布成功！');
+            }
+        });
+
+        // 自动保存功能
+        let autoSaveTimer;
+        
+        function autoSave() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                console.log('自动保存');
+                // 这里可以添加自动保存的逻辑
+            }, 30000); // 30秒后自动保存
+        }
+
+        // 监听输入变化
+        document.addEventListener('input', autoSave);
+        document.addEventListener('change', autoSave);
+
+        // 字数统计更新
+        function updateWordCount() {
+            const title = document.getElementById('guide-title').value;
+            const summary = document.getElementById('guide-summary').value;
+            const steps = document.querySelectorAll('textarea');
+            
+            let totalWords = title.length + summary.length;
+            steps.forEach(textarea => {
+                totalWords += textarea.value.length;
+            });
+            
+            // 更新字数显示
+            const wordCountElement = document.querySelector('.flex.justify-between.items-center span:contains("字数统计") + span');
+            if (wordCountElement) {
+                wordCountElement.textContent = totalWords.toLocaleString();
+            }
+        }
+
+        // 监听内容变化更新字数
+        document.addEventListener('input', updateWordCount);
+        
+        // 初始化
+        updateWordCount();
+    </script>
+</body>
+</html>

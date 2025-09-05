@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香草搜索 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .search-result-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+        .search-result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #10b981;
+        }
+        .search-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin: 0.125rem;
+        }
+        .tag-category {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .tag-difficulty {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .tag-season {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .tag-usage {
+            background-color: #fce7f3;
+            color: #be185d;
+        }
+        .search-filter {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+        .search-stats {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600 transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        <span>首页仪表板</span>
+                    </a>
+                    <a href="05-香草图鉴管理.html" class="flex items-center px-4 py-3 text-green-600 bg-green-50 rounded-lg">
+                        <i class="fas fa-book w-5 h-5 mr-3"></i>
+                        <span>香草图鉴管理</span>
+                    </a>
+                    <div class="ml-8 space-y-1">
+                        <a href="41-香草编辑页.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-edit w-4 h-4 mr-2"></i>
+                            <span>香草编辑</span>
+                        </a>
+                        <a href="42-分类标签管理.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-tags w-4 h-4 mr-2"></i>
+                            <span>分类标签管理</span>
+                        </a>
+                        <a href="43-内容审核页.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-check-circle w-4 h-4 mr-2"></i>
+                            <span>内容审核</span>
+                        </a>
+                        <a href="44-专家审核.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-user-graduate w-4 h-4 mr-2"></i>
+                            <span>专家审核</span>
+                        </a>
+                        <a href="45-香草搜索.html" class="flex items-center px-4 py-2 text-sm text-green-600 bg-green-50 rounded-lg">
+                            <i class="fas fa-search w-4 h-4 mr-2"></i>
+                            <span>香草搜索</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300 ease-in-out">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">香草搜索</h2>
+                        <p class="text-sm text-gray-500">智能搜索和内容发现管理</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-bell text-gray-400 text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 搜索统计卡片 -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">总搜索次数</p>
+                            <p class="text-2xl font-bold text-blue-600 mt-2">12,456</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-search text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-blue-600">+15%</span>
+                        <span class="text-gray-500 ml-1">较上月</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">热门关键词</p>
+                            <p class="text-2xl font-bold text-green-600 mt-2">156</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-fire text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600">+8</span>
+                        <span class="text-gray-500 ml-1">本周新增</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">搜索成功率</p>
+                            <p class="text-2xl font-bold text-purple-600 mt-2">87.5%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-bullseye text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-purple-600">+2.3%</span>
+                        <span class="text-gray-500 ml-1">较上周</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">平均响应时间</p>
+                            <p class="text-2xl font-bold text-orange-600 mt-2">0.8s</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-orange-600">-0.2s</span>
+                        <span class="text-gray-500 ml-1">较上月</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 搜索测试区域 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- 搜索测试面板 -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">搜索测试</h3>
+                            <p class="text-sm text-gray-500 mt-1">测试搜索功能和结果质量</p>
+                        </div>
+                        
+                        <div class="p-6">
+                            <!-- 搜索框 -->
+                            <div class="relative mb-6">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" id="search-input" class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="输入香草名称、用途、特征等关键词...">
+                                <button id="search-btn" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <div class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                        搜索
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- 搜索建议 -->
+                            <div class="mb-6">
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">热门搜索</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="search-tag tag-category">薰衣草</button>
+                                    <button class="search-tag tag-category">迷迭香</button>
+                                    <button class="search-tag tag-category">薄荷</button>
+                                    <button class="search-tag tag-usage">药用香草</button>
+                                    <button class="search-tag tag-usage">烹饪香草</button>
+                                    <button class="search-tag tag-difficulty">易种植</button>
+                                    <button class="search-tag tag-season">春季种植</button>
+                                    <button class="search-tag tag-season">夏季收获</button>
+                                </div>
+                            </div>
+
+                            <!-- 搜索结果 -->
+                            <div id="search-results" class="space-y-4">
+                                <!-- 搜索结果项 -->
+                                <div class="search-result-card p-4 rounded-lg">
+                                    <div class="flex items-start space-x-4">
+                                        <img src="https://via.placeholder.com/80" alt="薰衣草" class="w-20 h-20 rounded-lg object-cover">
+                                        <div class="flex-1">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <h4 class="text-lg font-semibold text-gray-800">薰衣草</h4>
+                                                <div class="flex items-center space-x-2">
+                                                    <span class="text-sm text-gray-500">匹配度: 95%</span>
+                                                    <div class="flex text-yellow-400">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="text-gray-600 mb-3">薰衣草是一种芳香植物，具有镇静、助眠的功效，广泛用于香薰、护肤和烹饪。适合在阳光充足、排水良好的环境中种植...</p>
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex flex-wrap gap-1">
+                                                    <span class="search-tag tag-category">芳香植物</span>
+                                                    <span class="search-tag tag-usage">药用</span>
+                                                    <span class="search-tag tag-usage">香薰</span>
+                                                    <span class="search-tag tag-difficulty">中等</span>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                                        <i class="fas fa-eye mr-1"></i>查看详情
+                                                    </button>
+                                                    <button class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                                        <i class="fas fa-edit mr-1"></i>编辑
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="search-result-card p-4 rounded-lg">
+                                    <div class="flex items-start space-x-4">
+                                        <img src="https://via.placeholder.com/80" alt="迷迭香" class="w-20 h-20 rounded-lg object-cover">
+                                        <div class="flex-1">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <h4 class="text-lg font-semibold text-gray-800">迷迭香</h4>
+                                                <div class="flex items-center space-x-2">
+                                                    <span class="text-sm text-gray-500">匹配度: 88%</span>
+                                                    <div class="flex text-yellow-400">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="far fa-star"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="text-gray-600 mb-3">迷迭香是一种常绿灌木，具有浓郁的香味，常用于烹饪调味和药用。具有抗氧化、提神醒脑的功效，适合地中海气候...</p>
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex flex-wrap gap-1">
+                                                    <span class="search-tag tag-category">常绿灌木</span>
+                                                    <span class="search-tag tag-usage">烹饪</span>
+                                                    <span class="search-tag tag-usage">药用</span>
+                                                    <span class="search-tag tag-difficulty">容易</span>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                                        <i class="fas fa-eye mr-1"></i>查看详情
+                                                    </button>
+                                                    <button class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                                        <i class="fas fa-edit mr-1"></i>编辑
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="search-result-card p-4 rounded-lg">
+                                    <div class="flex items-start space-x-4">
+                                        <img src="https://via.placeholder.com/80" alt="薄荷" class="w-20 h-20 rounded-lg object-cover">
+                                        <div class="flex-1">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <h4 class="text-lg font-semibold text-gray-800">薄荷</h4>
+                                                <div class="flex items-center space-x-2">
+                                                    <span class="text-sm text-gray-500">匹配度: 82%</span>
+                                                    <div class="flex text-yellow-400">
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="fas fa-star"></i>
+                                                        <i class="far fa-star"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="text-gray-600 mb-3">薄荷是一种多年生草本植物，具有清凉的香味和味道。广泛用于茶饮、烹饪和药用，具有清热解毒、提神醒脑的功效...</p>
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex flex-wrap gap-1">
+                                                    <span class="search-tag tag-category">草本植物</span>
+                                                    <span class="search-tag tag-usage">茶饮</span>
+                                                    <span class="search-tag tag-usage">烹饪</span>
+                                                    <span class="search-tag tag-difficulty">非常容易</span>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    <button class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+                                                        <i class="fas fa-eye mr-1"></i>查看详情
+                                                    </button>
+                                                    <button class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                                        <i class="fas fa-edit mr-1"></i>编辑
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 搜索配置面板 -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">搜索配置</h3>
+                            <p class="text-sm text-gray-500 mt-1">调整搜索算法和参数</p>
+                        </div>
+                        
+                        <div class="p-6 space-y-6">
+                            <!-- 搜索权重配置 -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">搜索权重</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600">标题匹配</span>
+                                            <span class="text-sm text-gray-500">40%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-600 h-2 rounded-full" style="width: 40%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600">内容匹配</span>
+                                            <span class="text-sm text-gray-500">30%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: 30%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600">标签匹配</span>
+                                            <span class="text-sm text-gray-500">20%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-purple-600 h-2 rounded-full" style="width: 20%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm text-gray-600">热度权重</span>
+                                            <span class="text-sm text-gray-500">10%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-orange-600 h-2 rounded-full" style="width: 10%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 搜索设置 -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">搜索设置</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">模糊搜索</span>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">同义词搜索</span>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-600">智能推荐</span>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer">
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 搜索统计 -->
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">实时统计</h4>
+                                <div class="search-stats p-4 rounded-lg">
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-600">今日搜索</span>
+                                            <span class="font-medium text-gray-800">1,234</span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-600">成功率</span>
+                                            <span class="font-medium text-green-600">87.5%</span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-600">平均响应</span>
+                                            <span class="font-medium text-blue-600">0.8s</span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-600">热门词汇</span>
+                                            <span class="font-medium text-purple-600">薰衣草</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 操作按钮 -->
+                            <div class="space-y-2">
+                                <button class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-save mr-2"></i>保存配置
+                                </button>
+                                <button class="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-undo mr-2"></i>重置默认
+                                </button>
+                                <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-chart-bar mr-2"></i>查看报告
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 热门搜索词云 -->
+            <div class="bg-white rounded-xl shadow-sm">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800">搜索词云分析</h3>
+                        <div class="flex items-center space-x-2">
+                            <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="today">今日</option>
+                                <option value="week">本周</option>
+                                <option value="month">本月</option>
+                            </select>
+                            <button class="px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                                <i class="fas fa-download mr-1"></i>导出
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- 热门搜索词 -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-4">热门搜索词 TOP 10</h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="w-6 h-6 bg-yellow-500 text-white text-xs rounded-full flex items-center justify-center font-bold">1</span>
+                                        <span class="font-medium text-gray-800">薰衣草</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-sm font-medium text-gray-800">2,456</span>
+                                        <span class="text-xs text-green-600 ml-2">+15%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="w-6 h-6 bg-gray-400 text-white text-xs rounded-full flex items-center justify-center font-bold">2</span>
+                                        <span class="font-medium text-gray-800">迷迭香</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-sm font-medium text-gray-800">1,892</span>
+                                        <span class="text-xs text-green-600 ml-2">+8%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="w-6 h-6 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center font-bold">3</span>
+                                        <span class="font-medium text-gray-800">薄荷</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-sm font-medium text-gray-800">1,634</span>
+                                        <span class="text-xs text-green-600 ml-2">+12%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="w-6 h-6 bg-gray-300 text-gray-600 text-xs rounded-full flex items-center justify-center font-bold">4</span>
+                                        <span class="font-medium text-gray-800">罗勒</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-sm font-medium text-gray-800">1,245</span>
+                                        <span class="text-xs text-red-600 ml-2">-3%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="w-6 h-6 bg-gray-300 text-gray-600 text-xs rounded-full flex items-center justify-center font-bold">5</span>
+                                        <span class="font-medium text-gray-800">百里香</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-sm font-medium text-gray-800">987</span>
+                                        <span class="text-xs text-green-600 ml-2">+5%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 搜索趋势 -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-4">搜索趋势分析</h4>
+                            <div class="space-y-4">
+                                <div class="p-4 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-800">药用香草</span>
+                                        <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">上升趋势</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                        <div class="bg-green-600 h-2 rounded-full" style="width: 75%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500">搜索量较上周增长 25%</p>
+                                </div>
+                                
+                                <div class="p-4 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-800">烹饪香草</span>
+                                        <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">稳定增长</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" style="width: 60%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500">搜索量较上周增长 8%</p>
+                                </div>
+                                
+                                <div class="p-4 border border-gray-200 rounded-lg">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-800">观赏香草</span>
+                                        <span class="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded-full">轻微下降</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                        <div class="bg-orange-600 h-2 rounded-full" style="width: 45%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500">搜索量较上周下降 5%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+        });
+
+        // 搜索功能
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const searchResults = document.getElementById('search-results');
+
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (!query) {
+                alert('请输入搜索关键词');
+                return;
+            }
+            
+            // 模拟搜索过程
+            console.log('搜索关键词:', query);
+            
+            // 这里可以添加实际的搜索逻辑
+            // 更新搜索结果显示
+            updateSearchResults(query);
+        }
+
+        searchBtn.addEventListener('click', performSearch);
+        
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // 热门搜索标签点击
+        document.querySelectorAll('.search-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                const keyword = this.textContent;
+                searchInput.value = keyword;
+                performSearch();
+            });
+        });
+
+        // 更新搜索结果
+        function updateSearchResults(query) {
+            // 这里可以根据搜索关键词动态更新结果
+            console.log('更新搜索结果:', query);
+            
+            // 模拟搜索结果更新
+            const resultCards = document.querySelectorAll('.search-result-card');
+            resultCards.forEach(card => {
+                card.style.display = 'block';
+            });
+        }
+
+        // 配置保存
+        document.querySelector('button:contains("保存配置")') && document.querySelector('button').addEventListener('click', function() {
+            if (this.textContent.includes('保存配置')) {
+                // 获取所有配置项
+                const fuzzySearch = document.querySelector('input[type="checkbox"]:checked');
+                
+                // 这里可以添加保存配置的逻辑
+                console.log('保存搜索配置');
+                alert('配置保存成功！');
+            }
+        });
+
+        // 重置配置
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('重置默认')) {
+                button.addEventListener('click', function() {
+                    if (confirm('确定要重置为默认配置吗？')) {
+                        // 重置所有配置项
+                        console.log('重置搜索配置');
+                        alert('配置已重置为默认值！');
+                    }
+                });
+            }
+        });
+
+        // 查看详情
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('查看详情')) {
+                button.addEventListener('click', function() {
+                    // 这里可以添加查看详情的逻辑
+                    alert('正在打开详情页面...');
+                });
+            }
+        });
+
+        // 编辑功能
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('编辑')) {
+                button.addEventListener('click', function() {
+                    // 这里可以添加编辑功能的逻辑
+                    alert('正在打开编辑页面...');
+                });
+            }
+        });
+
+        // 导出功能
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('导出')) {
+                button.addEventListener('click', function() {
+                    // 这里可以添加导出功能的逻辑
+                    console.log('导出搜索数据');
+                    alert('正在导出数据...');
+                });
+            }
+        });
+
+        // 时间范围选择
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', function() {
+                const timeRange = this.value;
+                console.log('时间范围变更:', timeRange);
+                
+                // 这里可以添加根据时间范围更新数据的逻辑
+                updateStatistics(timeRange);
+            });
+        });
+
+        // 更新统计数据
+        function updateStatistics(timeRange) {
+            console.log('更新统计数据:', timeRange);
+            // 这里可以根据时间范围更新统计数据
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关联商品 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .product-card {
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+        .product-card:hover {
+            border-color: #10b981;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+            transform: translateY(-2px);
+        }
+        .product-card.linked {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .herb-card {
+            transition: all 0.3s ease;
+        }
+        .herb-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .herb-card.selected {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .connection-line {
+            position: relative;
+        }
+        .connection-line::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 100px;
+            background: linear-gradient(to bottom, #10b981, #059669);
+            transform: translate(-50%, -50%);
+            border-radius: 1px;
+        }
+        .link-strength {
+            background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+        }
+        .drag-over {
+            border-color: #10b981 !important;
+            background-color: #f0fdf4 !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-green-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="01-首页仪表板.html" class="flex items-center px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600 transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        <span>首页仪表板</span>
+                    </a>
+                    <a href="05-香草图鉴管理.html" class="flex items-center px-4 py-3 text-green-600 bg-green-50 rounded-lg">
+                        <i class="fas fa-book w-5 h-5 mr-3"></i>
+                        <span>香草图鉴管理</span>
+                    </a>
+                    <div class="ml-8 space-y-1">
+                        <a href="41-香草编辑页.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-edit w-4 h-4 mr-2"></i>
+                            <span>香草编辑</span>
+                        </a>
+                        <a href="48-图片管理.html" class="flex items-center px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-50 hover:text-green-600">
+                            <i class="fas fa-images w-4 h-4 mr-2"></i>
+                            <span>图片管理</span>
+                        </a>
+                        <a href="49-关联商品.html" class="flex items-center px-4 py-2 text-sm text-green-600 bg-green-50 rounded-lg">
+                            <i class="fas fa-link w-4 h-4 mr-2"></i>
+                            <span>关联商品</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300 ease-in-out">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800">关联商品管理</h2>
+                        <p class="text-sm text-gray-500">管理香草与商品的关联关系</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="batch-link-btn" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors" disabled>
+                        <i class="fas fa-link mr-2"></i>批量关联
+                    </button>
+                    <button id="add-link-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>新建关联
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">关联总数</p>
+                            <p class="text-2xl font-bold text-gray-900">342</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-link text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-green-600 text-sm font-medium">+18</span>
+                        <span class="text-gray-500 text-sm ml-2">本月新增</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">已关联香草</p>
+                            <p class="text-2xl font-bold text-gray-900">89</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-leaf text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-600 h-2 rounded-full" style="width: 74%"></div>
+                        </div>
+                        <span class="text-gray-500 text-sm mt-1">74% 覆盖率</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">关联商品</p>
+                            <p class="text-2xl font-bold text-gray-900">156</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-box text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-blue-600 text-sm font-medium">精油类</span>
+                        <span class="text-gray-500 text-sm ml-2">最多</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">关联强度</p>
+                            <p class="text-2xl font-bold text-gray-900">8.6</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-purple-600 text-sm font-medium">平均分</span>
+                        <span class="text-gray-500 text-sm ml-2">较高</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左侧香草列表 -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">香草列表</h3>
+                                <button id="refresh-herbs" class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="search-herbs" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="搜索香草...">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 max-h-96 overflow-y-auto">
+                            <div class="space-y-3">
+                                <!-- 香草卡片 -->
+                                <div class="herb-card p-4 border border-gray-200 rounded-lg cursor-pointer" data-herb-id="1" data-herb-name="薰衣草">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-leaf text-purple-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-800">薰衣草</h4>
+                                            <p class="text-sm text-gray-500">Lavandula angustifolia</p>
+                                            <div class="flex items-center mt-1">
+                                                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">已关联 12 个商品</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="herb-card p-4 border border-gray-200 rounded-lg cursor-pointer" data-herb-id="2" data-herb-name="薄荷">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-leaf text-green-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-800">薄荷</h4>
+                                            <p class="text-sm text-gray-500">Mentha</p>
+                                            <div class="flex items-center mt-1">
+                                                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">已关联 8 个商品</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="herb-card p-4 border border-gray-200 rounded-lg cursor-pointer" data-herb-id="3" data-herb-name="罗勒">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-leaf text-blue-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-800">罗勒</h4>
+                                            <p class="text-sm text-gray-500">Ocimum basilicum</p>
+                                            <div class="flex items-center mt-1">
+                                                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">已关联 15 个商品</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="herb-card p-4 border border-gray-200 rounded-lg cursor-pointer" data-herb-id="4" data-herb-name="迷迭香">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-leaf text-indigo-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-800">迷迭香</h4>
+                                            <p class="text-sm text-gray-500">Rosmarinus officinalis</p>
+                                            <div class="flex items-center mt-1">
+                                                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">已关联 6 个商品</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="herb-card p-4 border border-gray-200 rounded-lg cursor-pointer" data-herb-id="5" data-herb-name="百里香">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-leaf text-pink-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-800">百里香</h4>
+                                            <p class="text-sm text-gray-500">Thymus vulgaris</p>
+                                            <div class="flex items-center mt-1">
+                                                <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">未关联商品</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中间关联关系展示 -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm h-full">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-800">关联关系</h3>
+                            <p class="text-sm text-gray-500 mt-1">选择香草查看关联商品</p>
+                        </div>
+                        
+                        <div id="relationship-view" class="p-6 flex flex-col items-center justify-center h-96">
+                            <div class="text-center text-gray-400">
+                                <i class="fas fa-mouse-pointer text-4xl mb-4"></i>
+                                <p class="text-lg font-medium">选择香草</p>
+                                <p class="text-sm">点击左侧香草查看关联关系</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧商品列表 -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">商品列表</h3>
+                                <div class="flex items-center space-x-2">
+                                    <select id="product-category" class="text-sm border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="all">全部分类</option>
+                                        <option value="essential-oil">精油类</option>
+                                        <option value="tea">茶饮类</option>
+                                        <option value="cosmetic">护肤品</option>
+                                        <option value="food">食品类</option>
+                                    </select>
+                                    <button id="refresh-products" class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="search-products" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="搜索商品...">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 max-h-96 overflow-y-auto">
+                            <div class="space-y-3">
+                                <!-- 商品卡片 -->
+                                <div class="product-card p-4 border border-gray-200 rounded-lg cursor-pointer" data-product-id="1" data-category="essential-oil">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-tint text-purple-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-800">薰衣草精油</h4>
+                                            <p class="text-sm text-gray-500">纯天然薰衣草精油 10ml</p>
+                                            <div class="flex items-center justify-between mt-1">
+                                                <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">精油类</span>
+                                                <span class="text-sm font-medium text-green-600">¥89</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="product-card p-4 border border-gray-200 rounded-lg cursor-pointer" data-product-id="2" data-category="tea">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-mug-hot text-green-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-800">薄荷茶</h4>
+                                            <p class="text-sm text-gray-500">有机薄荷叶茶包 20包</p>
+                                            <div class="flex items-center justify-between mt-1">
+                                                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">茶饮类</span>
+                                                <span class="text-sm font-medium text-green-600">¥45</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="product-card p-4 border border-gray-200 rounded-lg cursor-pointer" data-product-id="3" data-category="cosmetic">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-spa text-pink-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-800">薰衣草面膜</h4>
+                                            <p class="text-sm text-gray-500">舒缓保湿面膜 5片装</p>
+                                            <div class="flex items-center justify-between mt-1">
+                                                <span class="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded-full">护肤品</span>
+                                                <span class="text-sm font-medium text-green-600">¥128</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="product-card p-4 border border-gray-200 rounded-lg cursor-pointer" data-product-id="4" data-category="food">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-cookie-bite text-yellow-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-800">罗勒调料</h4>
+                                            <p class="text-sm text-gray-500">干燥罗勒叶调料 50g</p>
+                                            <div class="flex items-center justify-between mt-1">
+                                                <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">食品类</span>
+                                                <span class="text-sm font-medium text-green-600">¥25</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="product-card p-4 border border-gray-200 rounded-lg cursor-pointer" data-product-id="5" data-category="essential-oil">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-tint text-blue-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-800">迷迭香精油</h4>
+                                            <p class="text-sm text-gray-500">提神醒脑精油 15ml</p>
+                                            <div class="flex items-center justify-between mt-1">
+                                                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">精油类</span>
+                                                <span class="text-sm font-medium text-green-600">¥95</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关联详情表格 -->
+            <div class="mt-8">
+                <div class="bg-white rounded-xl shadow-sm">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">关联详情</h3>
+                                <p class="text-sm text-gray-500 mt-1">管理香草与商品的关联关系</p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="relative">
+                                    <input type="text" id="search-links" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="搜索关联...">
+                                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                </div>
+                                <select id="filter-strength" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option value="all">全部强度</option>
+                                    <option value="high">高关联</option>
+                                    <option value="medium">中关联</option>
+                                    <option value="low">低关联</option>
+                                </select>
+                                <button id="export-links" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-download mr-2"></i>导出
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <input type="checkbox" id="select-all-links" class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500">
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">香草</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商品</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">关联强度</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">关联类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="link-checkbox w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-leaf text-purple-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">薰衣草</div>
+                                                <div class="text-sm text-gray-500">Lavandula angustifolia</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-tint text-purple-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">薰衣草精油</div>
+                                                <div class="text-sm text-gray-500">¥89</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 h-2 bg-gray-200 rounded-full mr-2">
+                                                <div class="w-full h-2 bg-green-500 rounded-full"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-green-600">9.5</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">主要成分</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        2024-01-15
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center space-x-2">
+                                            <button class="text-blue-600 hover:text-blue-900" title="编辑">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900" title="删除">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="link-checkbox w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-leaf text-green-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">薄荷</div>
+                                                <div class="text-sm text-gray-500">Mentha</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-mug-hot text-green-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">薄荷茶</div>
+                                                <div class="text-sm text-gray-500">¥45</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 h-2 bg-gray-200 rounded-full mr-2">
+                                                <div class="w-4/5 h-2 bg-yellow-500 rounded-full"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-yellow-600">8.2</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">原料</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        2024-01-14
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center space-x-2">
+                                            <button class="text-blue-600 hover:text-blue-900" title="编辑">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900" title="删除">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="link-checkbox w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-leaf text-blue-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">罗勒</div>
+                                                <div class="text-sm text-gray-500">Ocimum basilicum</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-cookie-bite text-yellow-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">罗勒调料</div>
+                                                <div class="text-sm text-gray-500">¥25</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 h-2 bg-gray-200 rounded-full mr-2">
+                                                <div class="w-3/5 h-2 bg-red-500 rounded-full"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-red-600">6.8</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">调味料</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        2024-01-13
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center space-x-2">
+                                            <button class="text-blue-600 hover:text-blue-900" title="编辑">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900" title="删除">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="px-6 py-4 border-t border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-500">
+                                显示 1-10 条，共 342 条记录
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="px-3 py-2 bg-green-600 text-white rounded-lg">1</button>
+                                <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">2</button>
+                                <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">3</button>
+                                <span class="px-3 py-2 text-gray-500">...</span>
+                                <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">35</button>
+                                <button class="px-3 py-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建关联模态框 -->
+    <div id="add-link-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-800">新建关联</h3>
+                    <button id="close-add-link-modal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 选择香草 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">选择香草</label>
+                        <select id="select-herb" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">请选择香草</option>
+                            <option value="1">薰衣草</option>
+                            <option value="2">薄荷</option>
+                            <option value="3">罗勒</option>
+                            <option value="4">迷迭香</option>
+                            <option value="5">百里香</option>
+                        </select>
+                    </div>
+
+                    <!-- 选择商品 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">选择商品</label>
+                        <select id="select-product" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">请选择商品</option>
+                            <option value="1">薰衣草精油</option>
+                            <option value="2">薄荷茶</option>
+                            <option value="3">薰衣草面膜</option>
+                            <option value="4">罗勒调料</option>
+                            <option value="5">迷迭香精油</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">关联类型</label>
+                    <select id="link-type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="main-ingredient">主要成分</option>
+                        <option value="raw-material">原料</option>
+                        <option value="seasoning">调味料</option>
+                        <option value="extract">提取物</option>
+                        <option value="related">相关产品</option>
+                    </select>
+                </div>
+
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">关联强度 (1-10)</label>
+                    <div class="flex items-center space-x-4">
+                        <input type="range" id="link-strength" min="1" max="10" value="5" class="flex-1">
+                        <span id="strength-value" class="text-lg font-medium text-green-600">5.0</span>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>弱关联</span>
+                        <span>强关联</span>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">关联说明</label>
+                    <textarea id="link-description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="请输入关联说明..."></textarea>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancel-add-link" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    取消
+                </button>
+                <button id="save-link" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-save mr-2"></i>保存关联
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+        });
+
+        // 香草选择
+        let selectedHerb = null;
+        let selectedProducts = new Set();
+        
+        document.querySelectorAll('.herb-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // 移除所有选中状态
+                document.querySelectorAll('.herb-card').forEach(c => c.classList.remove('selected'));
+                // 添加当前选中状态
+                this.classList.add('selected');
+                
+                selectedHerb = {
+                    id: this.getAttribute('data-herb-id'),
+                    name: this.getAttribute('data-herb-name')
+                };
+                
+                updateRelationshipView();
+            });
+        });
+
+        // 商品选择
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                
+                if (this.classList.contains('linked')) {
+                    this.classList.remove('linked');
+                    selectedProducts.delete(productId);
+                } else {
+                    this.classList.add('linked');
+                    selectedProducts.add(productId);
+                }
+                
+                updateBatchLinkButton();
+                updateRelationshipView();
+            });
+        });
+
+        function updateBatchLinkButton() {
+            const batchLinkBtn = document.getElementById('batch-link-btn');
+            batchLinkBtn.disabled = selectedProducts.size === 0 || !selectedHerb;
+        }
+
+        function updateRelationshipView() {
+            const relationshipView = document.getElementById('relationship-view');
+            
+            if (!selectedHerb) {
+                relationshipView.innerHTML = `
+                    <div class="text-center text-gray-400">
+                        <i class="fas fa-mouse-pointer text-4xl mb-4"></i>
+                        <p class="text-lg font-medium">选择香草</p>
+                        <p class="text-sm">点击左侧香草查看关联关系</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            relationshipView.innerHTML = `
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-leaf text-green-600 text-2xl"></i>
+                    </div>
+                    <h4 class="text-lg font-medium text-gray-800 mb-2">${selectedHerb.name}</h4>
+                    <div class="connection-line mb-4"></div>
+                    <div class="space-y-2">
+                        ${Array.from(selectedProducts).map(productId => {
+                            const productCard = document.querySelector(`[data-product-id="${productId}"]`);
+                            const productName = productCard.querySelector('h4').textContent;
+                            return `
+                                <div class="flex items-center justify-center space-x-2 bg-green-50 rounded-lg p-2">
+                                    <i class="fas fa-link text-green-600"></i>
+                                    <span class="text-sm font-medium text-green-800">${productName}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    ${selectedProducts.size === 0 ? '<p class="text-sm text-gray-500 mt-4">选择右侧商品建立关联</p>' : ''}
+                </div>
+            `;
+        }
+
+        // 搜索功能
+        document.getElementById('search-herbs').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const herbCards = document.querySelectorAll('.herb-card');
+            
+            herbCards.forEach(card => {
+                const herbName = card.getAttribute('data-herb-name').toLowerCase();
+                
+                if (herbName.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        document.getElementById('search-products').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const productCards = document.querySelectorAll('.product-card');
+            
+            productCards.forEach(card => {
+                const productName = card.querySelector('h4').textContent.toLowerCase();
+                
+                if (productName.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // 商品分类筛选
+        document.getElementById('product-category').addEventListener('change', function() {
+            const category = this.value;
+            const productCards = document.querySelectorAll('.product-card');
+            
+            productCards.forEach(card => {
+                const productCategory = card.getAttribute('data-category');
+                
+                if (category === 'all' || productCategory === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // 新建关联模态框
+        const addLinkModal = document.getElementById('add-link-modal');
+        const addLinkBtn = document.getElementById('add-link-btn');
+        const closeAddLinkModal = document.getElementById('close-add-link-modal');
+        const cancelAddLink = document.getElementById('cancel-add-link');
+
+        addLinkBtn.addEventListener('click', function() {
+            addLinkModal.classList.remove('hidden');
+            addLinkModal.classList.add('flex');
+        });
+
+        closeAddLinkModal.addEventListener('click', function() {
+            addLinkModal.classList.add('hidden');
+            addLinkModal.classList.remove('flex');
+        });
+
+        cancelAddLink.addEventListener('click', function() {
+            addLinkModal.classList.add('hidden');
+            addLinkModal.classList.remove('flex');
+        });
+
+        // 关联强度滑块
+        const linkStrengthSlider = document.getElementById('link-strength');
+        const strengthValue = document.getElementById('strength-value');
+
+        linkStrengthSlider.addEventListener('input', function() {
+            strengthValue.textContent = this.value + '.0';
+        });
+
+        // 保存关联
+        document.getElementById('save-link').addEventListener('click', function() {
+            const herb = document.getElementById('select-herb').value;
+            const product = document.getElementById('select-product').value;
+            const linkType = document.getElementById('link-type').value;
+            const strength = document.getElementById('link-strength').value;
+            const description = document.getElementById('link-description').value;
+            
+            if (!herb || !product) {
+                alert('请选择香草和商品');
+                return;
+            }
+            
+            // 这里可以添加保存逻辑
+            console.log('保存关联:', { herb, product, linkType, strength, description });
+            
+            alert('关联保存成功！');
+            addLinkModal.classList.add('hidden');
+            addLinkModal.classList.remove('flex');
+        });
+
+        // 批量关联
+        document.getElementById('batch-link-btn').addEventListener('click', function() {
+            if (!selectedHerb || selectedProducts.size === 0) {
+                alert('请先选择香草和商品');
+                return;
+            }
+            
+            if (confirm(`确定要将 ${selectedHerb.name} 与选中的 ${selectedProducts.size} 个商品建立关联吗？`)) {
+                console.log('批量关联:', selectedHerb, Array.from(selectedProducts));
+                alert('批量关联成功！');
+                
+                // 清除选择
+                selectedProducts.clear();
+                document.querySelectorAll('.product-card').forEach(card => {
+                    card.classList.remove('linked');
+                });
+                updateBatchLinkButton();
+                updateRelationshipView();
+            }
+        });
+
+        // 全选关联
+        document.getElementById('select-all-links').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.link-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // 删除关联
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.fa-trash')) {
+                const row = e.target.closest('tr');
+                const herbName = row.querySelector('.text-sm.font-medium.text-gray-900').textContent;
+                const productName = row.querySelectorAll('.text-sm.font-medium.text-gray-900')[1].textContent;
+                
+                if (confirm(`确定要删除 ${herbName} 与 ${productName} 的关联吗？`)) {
+                    row.remove();
+                    console.log('删除关联:', herbName, productName);
+                }
+            }
+        });
+
+        // 导出关联数据
+        document.getElementById('export-links').addEventListener('click', function() {
+            console.log('导出关联数据');
+            alert('关联数据导出成功！');
+        });
+
+        // 刷新数据
+        document.getElementById('refresh-herbs').addEventListener('click', function() {
+            console.log('刷新香草数据');
+        });
+
+        document.getElementById('refresh-products').addEventListener('click', function() {
+            console.log('刷新商品数据');
+        });
+
+        // 关联详情搜索
+        document.getElementById('search-links').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const herbName = row.querySelector('.text-sm.font-medium.text-gray-900').textContent.toLowerCase();
+                const productName = row.querySelectorAll('.text-sm.font-medium.text-gray-900')[1].textContent.toLowerCase();
+                
+                if (herbName.includes(searchTerm) || productName.includes(searchTerm)) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // 关联强度筛选
+        document.getElementById('filter-strength').addEventListener('change', function() {
+            const filterValue = this.value;
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const strengthText = row.querySelector('.text-sm.font-medium.text-green-600, .text-sm.font-medium.text-yellow-600, .text-sm.font-medium.text-red-600').textContent;
+                const strength = parseFloat(strengthText);
+                
+                let shouldShow = true;
+                
+                if (filterValue === 'high' && strength < 8) {
+                    shouldShow = false;
+                } else if (filterValue === 'medium' && (strength < 5 || strength >= 8)) {
+                    shouldShow = false;
+                } else if (filterValue === 'low' && strength >= 5) {
+                    shouldShow = false;
+                }
+                
+                row.style.display = shouldShow ? 'table-row' : 'none';
+            });
+        });
+
+        // 编辑关联
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.fa-edit')) {
+                const row = e.target.closest('tr');
+                const herbName = row.querySelector('.text-sm.font-medium.text-gray-900').textContent;
+                const productName = row.querySelectorAll('.text-sm.font-medium.text-gray-900')[1].textContent;
+                
+                console.log('编辑关联:', herbName, productName);
+                // 这里可以打开编辑模态框
+                alert(`编辑 ${herbName} 与 ${productName} 的关联`);
+            }
+        });
+
+        // 拖拽功能（可选）
+        let draggedElement = null;
+        
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.draggable = true;
+            
+            card.addEventListener('dragstart', function(e) {
+                draggedElement = this;
+                this.style.opacity = '0.5';
+            });
+            
+            card.addEventListener('dragend', function(e) {
+                this.style.opacity = '1';
+                draggedElement = null;
+            });
+        });
+        
+        document.querySelectorAll('.herb-card').forEach(card => {
+            card.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+            
+            card.addEventListener('dragleave', function(e) {
+                this.classList.remove('drag-over');
+            });
+            
+            card.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                
+                if (draggedElement) {
+                    const herbName = this.getAttribute('data-herb-name');
+                    const productName = draggedElement.querySelector('h4').textContent;
+                    
+                    if (confirm(`确定要将 ${productName} 关联到 ${herbName} 吗？`)) {
+                        console.log('拖拽关联:', herbName, productName);
+                        alert('关联成功！');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

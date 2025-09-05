@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品审核 - 香草生活后台管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .status-pending {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+        .status-approved {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+        .status-rejected {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        }
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .review-timeline {
+            position: relative;
+        }
+        .review-timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e7eb;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 50px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #10b981;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transition-all duration-300 z-50">
+        <div class="p-6 border-b">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white text-lg"></i>
+                </div>
+                <div id="logo-text">
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <div class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-tachometer-alt w-5"></i>
+                        <span class="nav-text">仪表盘</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-green-50 text-green-600 rounded-lg">
+                        <i class="fas fa-box w-5"></i>
+                        <span class="nav-text">商品管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-shopping-cart w-5"></i>
+                        <span class="nav-text">订单管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-users w-5"></i>
+                        <span class="nav-text">用户管理</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-seedling w-5"></i>
+                        <span class="nav-text">香草图鉴</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
+                        <i class="fas fa-comments w-5"></i>
+                        <span class="nav-text">香草阳台</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <a href="#" class="hover:text-green-600">商品管理</a>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                        <span class="text-green-600">商品审核</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 页面标题 -->
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">商品审核</h1>
+                <p class="text-gray-600 mt-1">审核商家提交的商品信息，确保商品质量和合规性</p>
+            </div>
+
+            <!-- 审核统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-sm border p-6 status-pending">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-orange-700">待审核</p>
+                            <p class="text-2xl font-bold text-orange-900 mt-1">23</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-200 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-orange-700 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-orange-700">+5</span>
+                        <span class="text-orange-600 ml-1">今日新增</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border p-6 status-approved">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-green-700">已通过</p>
+                            <p class="text-2xl font-bold text-green-900 mt-1">156</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-200 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-700 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-700">+12</span>
+                        <span class="text-green-600 ml-1">今日审核</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border p-6 status-rejected">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-red-700">已拒绝</p>
+                            <p class="text-2xl font-bold text-red-900 mt-1">8</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-200 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-times-circle text-red-700 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-red-700">+2</span>
+                        <span class="text-red-600 ml-1">今日拒绝</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">平均处理时间</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">2.5h</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-stopwatch text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-blue-600">-0.3h</span>
+                        <span class="text-gray-500 ml-1">较昨日</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和搜索 -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">审核状态:</label>
+                        <select class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option>全部状态</option>
+                            <option>待审核</option>
+                            <option>已通过</option>
+                            <option>已拒绝</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">商品分类:</label>
+                        <select class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option>全部分类</option>
+                            <option>香草植物</option>
+                            <option>香草食品</option>
+                            <option>香草用品</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">提交时间:</label>
+                        <select class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option>最近7天</option>
+                            <option>最近30天</option>
+                            <option>最近3个月</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex-1 min-w-64">
+                        <div class="relative">
+                            <input type="text" placeholder="搜索商品名称、商家名称..." class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <button class="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-search mr-2"></i>搜索
+                    </button>
+                </div>
+            </div>
+
+            <!-- 商品审核列表 -->
+            <div class="space-y-4">
+                <!-- 待审核商品 -->
+                <div class="bg-white rounded-lg shadow-sm border product-card">
+                    <div class="p-6">
+                        <div class="flex items-start space-x-4">
+                            <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=120&h=120&fit=crop" alt="商品图片" class="w-20 h-20 rounded-lg object-cover">
+                            
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">薄荷盆栽套装</h3>
+                                        <p class="text-sm text-gray-500 mt-1">商家：绿色生活园艺</p>
+                                        <div class="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                                            <span>分类：香草植物</span>
+                                            <span>价格：¥29.90</span>
+                                            <span>库存：100</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-3 py-1 text-sm bg-orange-100 text-orange-800 rounded-full">待审核</span>
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            <span>2小时前</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <p class="text-sm text-gray-700 line-clamp-2">精选优质薄荷品种，适合室内种植，包含专用花盆、营养土和种植指南。薄荷叶片饱满，香味浓郁，可用于泡茶、调味等多种用途...</p>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mt-4">
+                                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                        <span>提交时间：2024-01-15 14:30</span>
+                                        <span>审核员：未分配</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>详情
+                                        </button>
+                                        <button class="px-3 py-1 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                                            <i class="fas fa-check mr-1"></i>通过
+                                        </button>
+                                        <button class="px-3 py-1 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                                            <i class="fas fa-times mr-1"></i>拒绝
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 已通过商品 -->
+                <div class="bg-white rounded-lg shadow-sm border product-card">
+                    <div class="p-6">
+                        <div class="flex items-start space-x-4">
+                            <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=120&h=120&fit=crop" alt="商品图片" class="w-20 h-20 rounded-lg object-cover">
+                            
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">迷迭香种子包</h3>
+                                        <p class="text-sm text-gray-500 mt-1">商家：香草花园</p>
+                                        <div class="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                                            <span>分类：香草植物</span>
+                                            <span>价格：¥12.80</span>
+                                            <span>库存：200</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full">已通过</span>
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-check mr-1"></i>
+                                            <span>1天前</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <p class="text-sm text-gray-700 line-clamp-2">优质迷迭香种子，发芽率高达95%，适合新手种植。包含详细种植说明和后期养护指导，让您轻松享受种植乐趣...</p>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mt-4">
+                                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                        <span>审核时间：2024-01-14 16:20</span>
+                                        <span>审核员：张三</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>详情
+                                        </button>
+                                        <button class="px-3 py-1 text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                            <i class="fas fa-history mr-1"></i>历史
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 已拒绝商品 -->
+                <div class="bg-white rounded-lg shadow-sm border product-card">
+                    <div class="p-6">
+                        <div class="flex items-start space-x-4">
+                            <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=120&h=120&fit=crop" alt="商品图片" class="w-20 h-20 rounded-lg object-cover">
+                            
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">罗勒精油</h3>
+                                        <p class="text-sm text-gray-500 mt-1">商家：天然香草坊</p>
+                                        <div class="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                                            <span>分类：香草用品</span>
+                                            <span>价格：¥89.00</span>
+                                            <span>库存：50</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-3 py-1 text-sm bg-red-100 text-red-800 rounded-full">已拒绝</span>
+                                        <div class="flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-times mr-1"></i>
+                                            <span>3天前</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <p class="text-sm text-gray-700 line-clamp-2">纯天然罗勒精油，采用蒸馏工艺提取，香味纯正持久。适用于芳香疗法、按摩护理等多种用途...</p>
+                                </div>
+                                
+                                <div class="mt-4 p-3 bg-red-50 rounded-lg">
+                                    <p class="text-sm text-red-800">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                                        拒绝原因：商品图片不清晰，缺少产品认证证书，价格明显高于市场价格
+                                    </p>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mt-4">
+                                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                        <span>审核时间：2024-01-12 10:15</span>
+                                        <span>审核员：李四</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="px-3 py-1 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                                            <i class="fas fa-eye mr-1"></i>详情
+                                        </button>
+                                        <button class="px-3 py-1 text-orange-600 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors">
+                                            <i class="fas fa-redo mr-1"></i>重审
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="mt-6 flex items-center justify-between">
+                <div class="text-sm text-gray-500">
+                    显示 1-10 条，共 187 条记录
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                        上一页
+                    </button>
+                    <button class="px-3 py-1 text-sm text-white bg-green-600 border border-green-600 rounded">
+                        1
+                    </button>
+                    <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                        2
+                    </button>
+                    <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                        3
+                    </button>
+                    <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50">
+                        下一页
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 商品详情模态框 -->
+    <div id="product-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">商品详情审核</h3>
+                    <button id="close-detail-modal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 商品信息 -->
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">商品信息</h4>
+                        
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=200&h=200&fit=crop" alt="商品主图" class="w-full h-48 rounded-lg object-cover">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=100&h=100&fit=crop" alt="商品图片" class="w-full h-20 rounded object-cover">
+                                    <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=100&h=100&fit=crop" alt="商品图片" class="w-full h-20 rounded object-cover">
+                                    <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=100&h=100&fit=crop" alt="商品图片" class="w-full h-20 rounded object-cover">
+                                    <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=100&h=100&fit=crop" alt="商品图片" class="w-full h-20 rounded object-cover">
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">商品名称</label>
+                                    <p class="mt-1 text-sm text-gray-900">薄荷盆栽套装</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">商品分类</label>
+                                    <p class="mt-1 text-sm text-gray-900">香草植物 > 盆栽植物</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">销售价格</label>
+                                        <p class="mt-1 text-sm text-gray-900">¥29.90</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">库存数量</label>
+                                        <p class="mt-1 text-sm text-gray-900">100</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">商品描述</label>
+                                    <p class="mt-1 text-sm text-gray-900">精选优质薄荷品种，适合室内种植，包含专用花盆、营养土和种植指南。薄荷叶片饱满，香味浓郁，可用于泡茶、调味等多种用途。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 审核信息 -->
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">审核信息</h4>
+                        
+                        <div class="space-y-6">
+                            <!-- 商家信息 -->
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h5 class="text-sm font-medium text-gray-900 mb-3">商家信息</h5>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">商家名称：</span>
+                                        <span class="text-gray-900">绿色生活园艺</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">信誉等级：</span>
+                                        <span class="text-yellow-600">★★★★☆</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">入驻时间：</span>
+                                        <span class="text-gray-900">2023-06-15</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 审核历史 -->
+                            <div>
+                                <h5 class="text-sm font-medium text-gray-900 mb-3">审核历史</h5>
+                                <div class="review-timeline space-y-4">
+                                    <div class="timeline-item">
+                                        <div class="text-sm">
+                                            <div class="font-medium text-gray-900">商品提交</div>
+                                            <div class="text-gray-500">2024-01-15 14:30</div>
+                                            <div class="text-gray-600 mt-1">商家提交商品信息，等待审核</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 审核操作 -->
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <h5 class="text-sm font-medium text-gray-900 mb-3">审核操作</h5>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">审核意见</label>
+                                        <textarea rows="3" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="请输入审核意见..."></textarea>
+                                    </div>
+                                    <div class="flex space-x-3">
+                                        <button class="flex-1 px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                                            <i class="fas fa-check mr-2"></i>通过审核
+                                        </button>
+                                        <button class="flex-1 px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">
+                                            <i class="fas fa-times mr-2"></i>拒绝审核
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const logoText = document.getElementById('logo-text');
+            const navTexts = document.querySelectorAll('.nav-text');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+            
+            if (sidebar.classList.contains('sidebar-collapsed')) {
+                logoText.style.display = 'none';
+                navTexts.forEach(text => text.style.display = 'none');
+            } else {
+                logoText.style.display = 'block';
+                navTexts.forEach(text => text.style.display = 'inline');
+            }
+        });
+
+        // 商品详情模态框
+        const productDetailModal = document.getElementById('product-detail-modal');
+        const closeDetailModal = document.getElementById('close-detail-modal');
+        
+        // 打开详情模态框
+        document.querySelectorAll('.fa-eye').forEach(btn => {
+            btn.addEventListener('click', function() {
+                productDetailModal.classList.remove('hidden');
+                productDetailModal.classList.add('flex');
+            });
+        });
+        
+        // 关闭详情模态框
+        closeDetailModal.addEventListener('click', function() {
+            productDetailModal.classList.add('hidden');
+            productDetailModal.classList.remove('flex');
+        });
+        
+        // 点击模态框背景关闭
+        productDetailModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+                this.classList.remove('flex');
+            }
+        });
+
+        // 审核操作
+        document.querySelectorAll('.fa-check').forEach(btn => {
+            if (btn.parentElement.textContent.includes('通过')) {
+                btn.parentElement.addEventListener('click', function() {
+                    if (confirm('确定要通过这个商品的审核吗？')) {
+                        alert('商品审核已通过');
+                    }
+                });
+            }
+        });
+
+        document.querySelectorAll('.fa-times').forEach(btn => {
+            if (btn.parentElement.textContent.includes('拒绝')) {
+                btn.parentElement.addEventListener('click', function() {
+                    const reason = prompt('请输入拒绝原因：');
+                    if (reason) {
+                        alert('商品审核已拒绝');
+                    }
+                });
+            }
+        });
+
+        // 重审操作
+        document.querySelectorAll('.fa-redo').forEach(btn => {
+            btn.parentElement.addEventListener('click', function() {
+                if (confirm('确定要重新审核这个商品吗？')) {
+                    alert('商品已重新提交审核');
+                }
+            });
+        });
+
+        // 查看历史
+        document.querySelectorAll('.fa-history').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('查看审核历史功能');
+            });
+        });
+
+        // 模态框内的审核操作
+        document.querySelector('#product-detail-modal .bg-green-600').addEventListener('click', function() {
+            const opinion = document.querySelector('#product-detail-modal textarea').value;
+            if (confirm('确定要通过这个商品的审核吗？')) {
+                alert('商品审核已通过');
+                productDetailModal.classList.add('hidden');
+                productDetailModal.classList.remove('flex');
+            }
+        });
+
+        document.querySelector('#product-detail-modal .bg-red-600').addEventListener('click', function() {
+            const opinion = document.querySelector('#product-detail-modal textarea').value;
+            if (!opinion.trim()) {
+                alert('请输入拒绝原因');
+                return;
+            }
+            if (confirm('确定要拒绝这个商品的审核吗？')) {
+                alert('商品审核已拒绝');
+                productDetailModal.classList.add('hidden');
+                productDetailModal.classList.remove('flex');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>权限配置 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .permission-tree {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .tree-node {
+            transition: all 0.3s ease;
+        }
+        .tree-node:hover {
+            background-color: #f9fafb;
+        }
+        .role-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .role-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .role-card.selected {
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-30">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+            <p class="text-sm text-gray-600 mt-1">后台管理系统</p>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-4">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">用户管理</h3>
+                <ul class="space-y-1">
+                    <li><a href="61-用户详情页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-user mr-3"></i>用户详情</a></li>
+                    <li><a href="62-会员管理页.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-crown mr-3"></i>会员管理</a></li>
+                    <li><a href="63-用户标签管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-tags mr-3"></i>用户标签</a></li>
+                    <li><a href="64-积分管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-coins mr-3"></i>积分管理</a></li>
+                    <li><a href="65-权限配置.html" class="flex items-center px-3 py-2 text-white bg-green-600 rounded-lg"><i class="fas fa-shield-alt mr-3"></i>权限配置</a></li>
+                    <li><a href="66-用户分群.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-users mr-3"></i>用户分群</a></li>
+                    <li><a href="67-行为分析.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-chart-line mr-3"></i>行为分析</a></li>
+                    <li><a href="68-消息推送.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-bell mr-3"></i>消息推送</a></li>
+                    <li><a href="69-黑名单管理.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-ban mr-3"></i>黑名单管理</a></li>
+                    <li><a href="70-用户导出.html" class="flex items-center px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"><i class="fas fa-download mr-3"></i>用户导出</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="lg:ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ml-4">
+                        <h2 class="text-xl font-semibold text-gray-800">权限配置</h2>
+                        <p class="text-sm text-gray-600">管理用户角色和权限，配置系统访问控制</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="refreshData" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                    </button>
+                    <button id="exportConfig" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出配置
+                    </button>
+                    <button id="addRole" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>新增角色
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 权限统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">系统角色</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">8</p>
+                            <p class="text-sm text-blue-600 mt-1">
+                                <i class="fas fa-user-tag mr-1"></i>已配置角色
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-user-tag text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">权限节点</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">156</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-sitemap mr-1"></i>功能权限
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-sitemap text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">授权用户</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">2,456</p>
+                            <p class="text-sm text-purple-600 mt-1">
+                                <i class="fas fa-users mr-1"></i>已分配权限
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">安全等级</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-1">高</p>
+                            <p class="text-sm text-red-600 mt-1">
+                                <i class="fas fa-shield-alt mr-1"></i>系统安全
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 角色列表 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">系统角色</h3>
+                            <button id="refreshRoles" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div id="rolesList" class="space-y-3">
+                            <!-- 角色列表将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 权限树 -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">权限配置</h3>
+                                <p id="selectedRoleName" class="text-sm text-gray-600 mt-1">请选择角色进行权限配置</p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <button id="expandAll" class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded hover:bg-gray-200">
+                                    <i class="fas fa-expand-arrows-alt mr-1"></i>展开全部
+                                </button>
+                                <button id="collapseAll" class="px-3 py-1 text-sm text-gray-600 bg-gray-100 rounded hover:bg-gray-200">
+                                    <i class="fas fa-compress-arrows-alt mr-1"></i>收起全部
+                                </button>
+                                <button id="savePermissions" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors" disabled>
+                                    <i class="fas fa-save mr-2"></i>保存权限
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div id="permissionTree" class="permission-tree">
+                            <!-- 权限树将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 角色编辑模态框 -->
+    <div id="roleModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 id="roleModalTitle" class="text-lg font-semibold text-gray-900">新增角色</h3>
+                    <button id="closeRoleModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form id="roleForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">角色名称</label>
+                        <input type="text" id="roleName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="请输入角色名称" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">角色标识</label>
+                        <input type="text" id="roleKey" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="请输入角色标识（英文）" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">角色描述</label>
+                        <textarea id="roleDescription" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" rows="3" placeholder="请输入角色描述"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">角色等级</label>
+                        <select id="roleLevel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="1">1级 - 最高权限</option>
+                            <option value="2">2级 - 高级权限</option>
+                            <option value="3">3级 - 中级权限</option>
+                            <option value="4">4级 - 基础权限</option>
+                            <option value="5">5级 - 最低权限</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="roleEnabled" class="rounded border-gray-300 text-green-600 focus:ring-green-500 mr-2" checked>
+                            <span class="text-sm text-gray-700">启用角色</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="roleDefault" class="rounded border-gray-300 text-green-600 focus:ring-green-500 mr-2">
+                            <span class="text-sm text-gray-700">默认角色</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="cancelRole" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">取消</button>
+                <button id="saveRole" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">保存角色</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟角色数据
+        const rolesData = [
+            {
+                id: 1,
+                name: '超级管理员',
+                key: 'super_admin',
+                description: '拥有系统所有权限',
+                level: 1,
+                enabled: true,
+                default: false,
+                userCount: 2,
+                permissions: ['*']
+            },
+            {
+                id: 2,
+                name: '系统管理员',
+                key: 'admin',
+                description: '系统管理和配置权限',
+                level: 2,
+                enabled: true,
+                default: false,
+                userCount: 5,
+                permissions: ['system:*', 'user:*', 'content:*']
+            },
+            {
+                id: 3,
+                name: '运营管理员',
+                key: 'operator',
+                description: '内容和用户运营管理',
+                level: 3,
+                enabled: true,
+                default: false,
+                userCount: 12,
+                permissions: ['content:*', 'user:view', 'user:edit']
+            },
+            {
+                id: 4,
+                name: '客服专员',
+                key: 'service',
+                description: '客户服务和支持',
+                level: 4,
+                enabled: true,
+                default: false,
+                userCount: 25,
+                permissions: ['user:view', 'order:view', 'message:*']
+            },
+            {
+                id: 5,
+                name: '普通用户',
+                key: 'user',
+                description: '基础用户权限',
+                level: 5,
+                enabled: true,
+                default: true,
+                userCount: 2456,
+                permissions: ['profile:*', 'order:view']
+            }
+        ];
+
+        // 模拟权限树数据
+        const permissionsData = [
+            {
+                id: 'system',
+                name: '系统管理',
+                icon: 'fas fa-cogs',
+                children: [
+                    { id: 'system:config', name: '系统配置', icon: 'fas fa-sliders-h' },
+                    { id: 'system:log', name: '系统日志', icon: 'fas fa-file-alt' },
+                    { id: 'system:backup', name: '数据备份', icon: 'fas fa-database' },
+                    { id: 'system:monitor', name: '系统监控', icon: 'fas fa-chart-line' }
+                ]
+            },
+            {
+                id: 'user',
+                name: '用户管理',
+                icon: 'fas fa-users',
+                children: [
+                    { id: 'user:view', name: '查看用户', icon: 'fas fa-eye' },
+                    { id: 'user:edit', name: '编辑用户', icon: 'fas fa-edit' },
+                    { id: 'user:delete', name: '删除用户', icon: 'fas fa-trash' },
+                    { id: 'user:export', name: '导出用户', icon: 'fas fa-download' }
+                ]
+            },
+            {
+                id: 'content',
+                name: '内容管理',
+                icon: 'fas fa-file-text',
+                children: [
+                    { id: 'content:view', name: '查看内容', icon: 'fas fa-eye' },
+                    { id: 'content:create', name: '创建内容', icon: 'fas fa-plus' },
+                    { id: 'content:edit', name: '编辑内容', icon: 'fas fa-edit' },
+                    { id: 'content:delete', name: '删除内容', icon: 'fas fa-trash' },
+                    { id: 'content:publish', name: '发布内容', icon: 'fas fa-paper-plane' },
+                    { id: 'content:audit', name: '内容审核', icon: 'fas fa-check-circle' }
+                ]
+            },
+            {
+                id: 'order',
+                name: '订单管理',
+                icon: 'fas fa-shopping-cart',
+                children: [
+                    { id: 'order:view', name: '查看订单', icon: 'fas fa-eye' },
+                    { id: 'order:edit', name: '编辑订单', icon: 'fas fa-edit' },
+                    { id: 'order:cancel', name: '取消订单', icon: 'fas fa-times' },
+                    { id: 'order:refund', name: '订单退款', icon: 'fas fa-undo' },
+                    { id: 'order:export', name: '导出订单', icon: 'fas fa-download' }
+                ]
+            },
+            {
+                id: 'product',
+                name: '商品管理',
+                icon: 'fas fa-box',
+                children: [
+                    { id: 'product:view', name: '查看商品', icon: 'fas fa-eye' },
+                    { id: 'product:create', name: '创建商品', icon: 'fas fa-plus' },
+                    { id: 'product:edit', name: '编辑商品', icon: 'fas fa-edit' },
+                    { id: 'product:delete', name: '删除商品', icon: 'fas fa-trash' },
+                    { id: 'product:price', name: '价格管理', icon: 'fas fa-dollar-sign' },
+                    { id: 'product:stock', name: '库存管理', icon: 'fas fa-warehouse' }
+                ]
+            },
+            {
+                id: 'marketing',
+                name: '营销管理',
+                icon: 'fas fa-bullhorn',
+                children: [
+                    { id: 'marketing:activity', name: '活动管理', icon: 'fas fa-calendar-alt' },
+                    { id: 'marketing:coupon', name: '优惠券管理', icon: 'fas fa-ticket-alt' },
+                    { id: 'marketing:banner', name: 'Banner管理', icon: 'fas fa-image' },
+                    { id: 'marketing:push', name: '消息推送', icon: 'fas fa-bell' }
+                ]
+            },
+            {
+                id: 'finance',
+                name: '财务管理',
+                icon: 'fas fa-coins',
+                children: [
+                    { id: 'finance:view', name: '查看财务', icon: 'fas fa-eye' },
+                    { id: 'finance:settlement', name: '结算管理', icon: 'fas fa-calculator' },
+                    { id: 'finance:report', name: '财务报表', icon: 'fas fa-chart-bar' },
+                    { id: 'finance:export', name: '导出数据', icon: 'fas fa-download' }
+                ]
+            },
+            {
+                id: 'message',
+                name: '消息管理',
+                icon: 'fas fa-envelope',
+                children: [
+                    { id: 'message:view', name: '查看消息', icon: 'fas fa-eye' },
+                    { id: 'message:send', name: '发送消息', icon: 'fas fa-paper-plane' },
+                    { id: 'message:template', name: '消息模板', icon: 'fas fa-file-alt' },
+                    { id: 'message:history', name: '消息历史', icon: 'fas fa-history' }
+                ]
+            }
+        ];
+
+        let selectedRoleId = null;
+        let selectedPermissions = new Set();
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // 渲染角色列表
+        function renderRolesList() {
+            const container = document.getElementById('rolesList');
+            container.innerHTML = '';
+            
+            rolesData.forEach(role => {
+                const roleCard = document.createElement('div');
+                roleCard.className = `role-card p-4 border border-gray-200 rounded-lg ${selectedRoleId === role.id ? 'selected' : ''}`;
+                roleCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-medium text-gray-900">${role.name}</h4>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-full">L${role.level}</span>
+                            <span class="px-2 py-1 text-xs font-medium ${role.enabled ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'} rounded-full">
+                                ${role.enabled ? '启用' : '禁用'}
+                            </span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">${role.description}</p>
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <span><i class="fas fa-users mr-1"></i>${role.userCount} 用户</span>
+                        <div class="flex items-center space-x-2">
+                            <button class="text-gray-400 hover:text-blue-600" onclick="editRole(${role.id})" title="编辑角色">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-gray-400 hover:text-red-600" onclick="deleteRole(${role.id})" title="删除角色">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                roleCard.addEventListener('click', function(e) {
+                    if (!e.target.closest('button')) {
+                        selectRole(role.id);
+                    }
+                });
+                
+                container.appendChild(roleCard);
+            });
+        }
+
+        // 选择角色
+        function selectRole(roleId) {
+            selectedRoleId = roleId;
+            const role = rolesData.find(r => r.id === roleId);
+            
+            if (role) {
+                document.getElementById('selectedRoleName').textContent = `正在配置：${role.name}`;
+                document.getElementById('savePermissions').disabled = false;
+                
+                // 更新选中状态
+                document.querySelectorAll('.role-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                event.currentTarget.classList.add('selected');
+                
+                // 加载角色权限
+                loadRolePermissions(role.permissions);
+                renderPermissionTree();
+            }
+        }
+
+        // 加载角色权限
+        function loadRolePermissions(permissions) {
+            selectedPermissions.clear();
+            
+            permissions.forEach(permission => {
+                if (permission === '*') {
+                    // 全部权限
+                    permissionsData.forEach(module => {
+                        selectedPermissions.add(module.id);
+                        if (module.children) {
+                            module.children.forEach(child => {
+                                selectedPermissions.add(child.id);
+                            });
+                        }
+                    });
+                } else if (permission.endsWith(':*')) {
+                    // 模块全部权限
+                    const moduleId = permission.replace(':*', '');
+                    selectedPermissions.add(moduleId);
+                    const module = permissionsData.find(m => m.id === moduleId);
+                    if (module && module.children) {
+                        module.children.forEach(child => {
+                            selectedPermissions.add(child.id);
+                        });
+                    }
+                } else {
+                    // 具体权限
+                    selectedPermissions.add(permission);
+                }
+            });
+        }
+
+        // 渲染权限树
+        function renderPermissionTree() {
+            const container = document.getElementById('permissionTree');
+            container.innerHTML = '';
+            
+            permissionsData.forEach(module => {
+                const moduleDiv = document.createElement('div');
+                moduleDiv.className = 'mb-4';
+                
+                const moduleHeader = document.createElement('div');
+                moduleHeader.className = 'tree-node flex items-center p-3 border border-gray-200 rounded-lg mb-2';
+                
+                const moduleChecked = selectedPermissions.has(module.id);
+                const childrenChecked = module.children ? module.children.filter(child => selectedPermissions.has(child.id)).length : 0;
+                const allChildrenChecked = module.children ? childrenChecked === module.children.length : false;
+                const someChildrenChecked = childrenChecked > 0 && childrenChecked < (module.children ? module.children.length : 0);
+                
+                moduleHeader.innerHTML = `
+                    <label class="flex items-center flex-1 cursor-pointer">
+                        <input type="checkbox" class="module-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500 mr-3" 
+                               data-module="${module.id}" ${moduleChecked || allChildrenChecked ? 'checked' : ''} 
+                               ${someChildrenChecked ? 'indeterminate' : ''}>
+                        <i class="${module.icon} mr-3 text-gray-600"></i>
+                        <span class="font-medium text-gray-900">${module.name}</span>
+                    </label>
+                    <button class="expand-btn text-gray-400 hover:text-gray-600" data-target="children-${module.id}">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                `;
+                
+                moduleDiv.appendChild(moduleHeader);
+                
+                if (module.children) {
+                    const childrenDiv = document.createElement('div');
+                    childrenDiv.id = `children-${module.id}`;
+                    childrenDiv.className = 'ml-8 space-y-2';
+                    
+                    module.children.forEach(child => {
+                        const childDiv = document.createElement('div');
+                        childDiv.className = 'tree-node flex items-center p-2 border border-gray-100 rounded';
+                        
+                        const childChecked = selectedPermissions.has(child.id);
+                        
+                        childDiv.innerHTML = `
+                            <label class="flex items-center flex-1 cursor-pointer">
+                                <input type="checkbox" class="child-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500 mr-3" 
+                                       data-permission="${child.id}" data-parent="${module.id}" ${childChecked ? 'checked' : ''}>
+                                <i class="${child.icon} mr-3 text-gray-500"></i>
+                                <span class="text-gray-700">${child.name}</span>
+                            </label>
+                        `;
+                        
+                        childrenDiv.appendChild(childDiv);
+                    });
+                    
+                    moduleDiv.appendChild(childrenDiv);
+                }
+                
+                container.appendChild(moduleDiv);
+            });
+            
+            // 绑定事件
+            bindPermissionEvents();
+        }
+
+        // 绑定权限事件
+        function bindPermissionEvents() {
+            // 模块复选框事件
+            document.querySelectorAll('.module-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const moduleId = this.dataset.module;
+                    const isChecked = this.checked;
+                    
+                    if (isChecked) {
+                        selectedPermissions.add(moduleId);
+                        // 选中所有子权限
+                        const module = permissionsData.find(m => m.id === moduleId);
+                        if (module && module.children) {
+                            module.children.forEach(child => {
+                                selectedPermissions.add(child.id);
+                            });
+                        }
+                    } else {
+                        selectedPermissions.delete(moduleId);
+                        // 取消所有子权限
+                        const module = permissionsData.find(m => m.id === moduleId);
+                        if (module && module.children) {
+                            module.children.forEach(child => {
+                                selectedPermissions.delete(child.id);
+                            });
+                        }
+                    }
+                    
+                    renderPermissionTree();
+                });
+            });
+            
+            // 子权限复选框事件
+            document.querySelectorAll('.child-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const permissionId = this.dataset.permission;
+                    const parentId = this.dataset.parent;
+                    const isChecked = this.checked;
+                    
+                    if (isChecked) {
+                        selectedPermissions.add(permissionId);
+                    } else {
+                        selectedPermissions.delete(permissionId);
+                        selectedPermissions.delete(parentId);
+                    }
+                    
+                    renderPermissionTree();
+                });
+            });
+            
+            // 展开/收起按钮事件
+            document.querySelectorAll('.expand-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetId = this.dataset.target;
+                    const target = document.getElementById(targetId);
+                    const icon = this.querySelector('i');
+                    
+                    if (target.style.display === 'none') {
+                        target.style.display = 'block';
+                        icon.className = 'fas fa-chevron-down';
+                    } else {
+                        target.style.display = 'none';
+                        icon.className = 'fas fa-chevron-right';
+                    }
+                });
+            });
+        }
+
+        // 角色操作函数
+        function editRole(id) {
+            const role = rolesData.find(r => r.id === id);
+            if (role) {
+                document.getElementById('roleModalTitle').textContent = '编辑角色';
+                document.getElementById('roleName').value = role.name;
+                document.getElementById('roleKey').value = role.key;
+                document.getElementById('roleDescription').value = role.description;
+                document.getElementById('roleLevel').value = role.level;
+                document.getElementById('roleEnabled').checked = role.enabled;
+                document.getElementById('roleDefault').checked = role.default;
+                
+                document.getElementById('roleModal').classList.remove('hidden');
+                document.getElementById('roleModal').classList.add('flex');
+            }
+        }
+
+        function deleteRole(id) {
+            if (confirm('确定要删除这个角色吗？删除后该角色下的用户将失去相应权限。')) {
+                alert(`删除角色 ID: ${id}`);
+                renderRolesList();
+            }
+        }
+
+        // 模态框控制
+        document.getElementById('addRole').addEventListener('click', function() {
+            document.getElementById('roleModalTitle').textContent = '新增角色';
+            document.getElementById('roleForm').reset();
+            document.getElementById('roleModal').classList.remove('hidden');
+            document.getElementById('roleModal').classList.add('flex');
+        });
+
+        document.getElementById('closeRoleModal').addEventListener('click', function() {
+            document.getElementById('roleModal').classList.add('hidden');
+            document.getElementById('roleModal').classList.remove('flex');
+        });
+
+        // 保存角色
+        document.getElementById('saveRole').addEventListener('click', function() {
+            alert('角色保存成功！');
+            document.getElementById('roleModal').classList.add('hidden');
+            document.getElementById('roleModal').classList.remove('flex');
+            renderRolesList();
+        });
+
+        // 保存权限
+        document.getElementById('savePermissions').addEventListener('click', function() {
+            if (selectedRoleId) {
+                const role = rolesData.find(r => r.id === selectedRoleId);
+                if (role) {
+                    // 这里应该将权限保存到后端
+                    alert(`${role.name} 的权限配置已保存！`);
+                }
+            }
+        });
+
+        // 展开/收起全部
+        document.getElementById('expandAll').addEventListener('click', function() {
+            document.querySelectorAll('[id^="children-"]').forEach(div => {
+                div.style.display = 'block';
+            });
+            document.querySelectorAll('.expand-btn i').forEach(icon => {
+                icon.className = 'fas fa-chevron-down';
+            });
+        });
+
+        document.getElementById('collapseAll').addEventListener('click', function() {
+            document.querySelectorAll('[id^="children-"]').forEach(div => {
+                div.style.display = 'none';
+            });
+            document.querySelectorAll('.expand-btn i').forEach(icon => {
+                icon.className = 'fas fa-chevron-right';
+            });
+        });
+
+        // 刷新数据
+        document.getElementById('refreshData').addEventListener('click', function() {
+            renderRolesList();
+            renderPermissionTree();
+            alert('数据刷新成功！');
+        });
+
+        // 导出配置
+        document.getElementById('exportConfig').addEventListener('click', function() {
+            alert('权限配置导出成功！');
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderRolesList();
+            renderPermissionTree();
+            console.log('权限配置页面初始化完成');
+        });
+    </script>
+</body>
+</html>

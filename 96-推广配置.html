@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推广配置 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-item:hover { background-color: #f3f4f6; }
+        .sidebar-item.active { background-color: #10b981; color: white; }
+        .tab-item { transition: all 0.3s ease; }
+        .tab-item.active { border-bottom-color: #10b981; color: #10b981; }
+        .channel-card { transition: all 0.3s ease; }
+        .channel-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .channel-status-active { background-color: #dcfce7; color: #166534; }
+        .channel-status-inactive { background-color: #fee2e2; color: #dc2626; }
+        .channel-status-pending { background-color: #fef3c7; color: #92400e; }
+        .gradient-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .qr-code-container { background: linear-gradient(45deg, #f0f9ff, #e0f2fe); }
+        .promotion-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .promotion-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+        }
+        .channel-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+        .wechat-bg { background: linear-gradient(135deg, #07c160, #00ae42); }
+        .weibo-bg { background: linear-gradient(135deg, #e6162d, #ff8500); }
+        .douyin-bg { background: linear-gradient(135deg, #000000, #333333); }
+        .xiaohongshu-bg { background: linear-gradient(135deg, #ff2442, #ff6b6b); }
+        .sms-bg { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .email-bg { background: linear-gradient(135deg, #10b981, #059669); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50">
+        <div class="flex items-center justify-center h-16 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">香草生活管理</h1>
+        </div>
+        <nav class="mt-8">
+            <div class="px-4 space-y-2">
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>仪表盘
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-box mr-3"></i>商品管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-shopping-cart mr-3"></i>订单管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-users mr-3"></i>用户管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-bullhorn mr-3"></i>营销活动
+                </a>
+                <a href="#" class="sidebar-item active flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-calendar-plus mr-3"></i>活动报名
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-truck mr-3"></i>供应商管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-leaf mr-3"></i>香草图鉴
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-seedling mr-3"></i>香草阳台
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-images mr-3"></i>Banner管理
+                </a>
+                <a href="#" class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg">
+                    <i class="fas fa-cog mr-3"></i>系统设置
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-64 flex-1">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <a href="#" class="text-gray-500 hover:text-gray-700">活动报名</a>
+                        <i class="fas fa-chevron-right text-gray-400 text-sm"></i>
+                        <span class="text-gray-900 font-medium">推广配置</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="create-campaign-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        <i class="fas fa-plus mr-2"></i>创建推广
+                    </button>
+                    <button id="template-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-layer-group mr-2"></i>推广模板
+                    </button>
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面头部 -->
+        <div class="p-6">
+            <div class="gradient-header text-white p-6 rounded-xl mb-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold mb-2">推广配置</h1>
+                        <p class="text-purple-100">配置多渠道推广策略，提升活动曝光度和参与率</p>
+                    </div>
+                    <div class="flex items-center space-x-6">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">8</div>
+                            <div class="text-sm text-purple-100">推广渠道</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">15,680</div>
+                            <div class="text-sm text-purple-100">总曝光量</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">12.5%</div>
+                            <div class="text-sm text-purple-100">转化率</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="promotion-card p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">活跃推广</p>
+                            <p class="text-2xl font-bold text-gray-900">12</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+3
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-bullhorn text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="promotion-card p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">总曝光量</p>
+                            <p class="text-2xl font-bold text-gray-900">15,680</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+18.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-eye text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="promotion-card p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">点击转化</p>
+                            <p class="text-2xl font-bold text-gray-900">1,960</p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+12.5%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mouse-pointer text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="promotion-card p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">推广成本</p>
+                            <p class="text-2xl font-bold text-gray-900">¥2,580</p>
+                            <p class="text-sm text-red-600 mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+5.3%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-coins text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6">
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm active" data-tab="channels">
+                            推广渠道
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="materials">
+                            推广素材
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="links">
+                            推广链接
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="automation">
+                            自动化推广
+                        </button>
+                        <button class="tab-item py-4 px-1 border-b-2 border-transparent font-medium text-sm" data-tab="analytics">
+                            效果分析
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- 推广渠道标签页 -->
+                <div id="channels-tab" class="tab-content p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="channels-grid">
+                        <!-- 渠道卡片将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 推广素材标签页 -->
+                <div id="materials-tab" class="tab-content p-6 hidden">
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold">推广素材库</h3>
+                            <button id="upload-material-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-upload mr-2"></i>上传素材
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div class="promotion-card p-4 rounded-lg">
+                            <div class="aspect-w-16 aspect-h-9 mb-4">
+                                <img src="https://via.placeholder.com/300x200" alt="推广海报" class="w-full h-32 object-cover rounded-lg">
+                            </div>
+                            <div class="space-y-2">
+                                <h4 class="font-medium">香草种植工作坊海报</h4>
+                                <p class="text-sm text-gray-600">尺寸: 1080x1920</p>
+                                <p class="text-sm text-gray-600">格式: PNG</p>
+                                <div class="flex items-center justify-between mt-3">
+                                    <span class="channel-status-active text-xs px-2 py-1 rounded-full">已使用</span>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-700 text-sm">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-700 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-700 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="promotion-card p-4 rounded-lg">
+                            <div class="aspect-w-16 aspect-h-9 mb-4">
+                                <img src="https://via.placeholder.com/300x200" alt="推广横幅" class="w-full h-32 object-cover rounded-lg">
+                            </div>
+                            <div class="space-y-2">
+                                <h4 class="font-medium">香草料理课程横幅</h4>
+                                <p class="text-sm text-gray-600">尺寸: 1200x400</p>
+                                <p class="text-sm text-gray-600">格式: JPG</p>
+                                <div class="flex items-center justify-between mt-3">
+                                    <span class="channel-status-inactive text-xs px-2 py-1 rounded-full">未使用</span>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-700 text-sm">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-700 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-700 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="promotion-card p-4 rounded-lg">
+                            <div class="aspect-w-16 aspect-h-9 mb-4">
+                                <video class="w-full h-32 object-cover rounded-lg" poster="https://via.placeholder.com/300x200">
+                                    <source src="#" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="space-y-2">
+                                <h4 class="font-medium">香草花园宣传视频</h4>
+                                <p class="text-sm text-gray-600">时长: 30秒</p>
+                                <p class="text-sm text-gray-600">格式: MP4</p>
+                                <div class="flex items-center justify-between mt-3">
+                                    <span class="channel-status-pending text-xs px-2 py-1 rounded-full">审核中</span>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-700 text-sm">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <button class="text-green-600 hover:text-green-700 text-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-700 text-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 推广链接标签页 -->
+                <div id="links-tab" class="tab-content p-6 hidden">
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold">推广链接管理</h3>
+                            <button id="create-link-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                                <i class="fas fa-plus mr-2"></i>创建链接
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="promotion-card p-6 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-semibold">微信朋友圈推广链接</h4>
+                                    <span class="channel-status-active text-xs px-2 py-1 rounded-full">活跃</span>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">短链接：</span>
+                                        <span class="font-mono text-blue-600">https://t.cn/A6X9Y8Z3</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">点击量：</span>
+                                        <span class="font-medium">1,234</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">转化量：</span>
+                                        <span class="font-medium">156</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">转化率：</span>
+                                        <span class="font-medium text-green-600">12.6%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                                    <button class="text-blue-600 hover:text-blue-700 text-sm">
+                                        <i class="fas fa-copy mr-1"></i>复制链接
+                                    </button>
+                                    <button class="text-green-600 hover:text-green-700 text-sm">
+                                        <i class="fas fa-qrcode mr-1"></i>生成二维码
+                                    </button>
+                                    <button class="text-orange-600 hover:text-orange-700 text-sm">
+                                        <i class="fas fa-chart-line mr-1"></i>查看统计
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="promotion-card p-6 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-semibold">小红书推广链接</h4>
+                                    <span class="channel-status-active text-xs px-2 py-1 rounded-full">活跃</span>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">短链接：</span>
+                                        <span class="font-mono text-blue-600">https://t.cn/B7Y8X9W2</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">点击量：</span>
+                                        <span class="font-medium">856</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">转化量：</span>
+                                        <span class="font-medium">98</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">转化率：</span>
+                                        <span class="font-medium text-green-600">11.4%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                                    <button class="text-blue-600 hover:text-blue-700 text-sm">
+                                        <i class="fas fa-copy mr-1"></i>复制链接
+                                    </button>
+                                    <button class="text-green-600 hover:text-green-700 text-sm">
+                                        <i class="fas fa-qrcode mr-1"></i>生成二维码
+                                    </button>
+                                    <button class="text-orange-600 hover:text-orange-700 text-sm">
+                                        <i class="fas fa-chart-line mr-1"></i>查看统计
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 二维码生成区域 -->
+                        <div class="qr-code-container p-6 rounded-lg">
+                            <h4 class="font-semibold mb-4">二维码生成器</h4>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">选择推广链接</label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4">
+                                        <option>微信朋友圈推广链接</option>
+                                        <option>小红书推广链接</option>
+                                        <option>抖音推广链接</option>
+                                    </select>
+                                    <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                        <i class="fas fa-qrcode mr-2"></i>生成二维码
+                                    </button>
+                                </div>
+                                <div class="flex items-center justify-center">
+                                    <div class="w-48 h-48 bg-white border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+                                        <div class="text-center text-gray-500">
+                                            <i class="fas fa-qrcode text-4xl mb-2"></i>
+                                            <p class="text-sm">二维码将显示在这里</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 自动化推广标签页 -->
+                <div id="automation-tab" class="tab-content p-6 hidden">
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold">自动化推广规则</h3>
+                            <button id="create-automation-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                                <i class="fas fa-plus mr-2"></i>创建规则
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="promotion-card p-6 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-semibold">新活动自动推广</h4>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="channel-status-active text-xs px-2 py-1 rounded-full">已启用</span>
+                                        <button class="text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-toggle-on text-green-500"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">触发条件：</span>
+                                        <span class="font-medium">活动发布后30分钟</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">推广渠道：</span>
+                                        <span class="font-medium">微信、微博、小红书</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">推广内容：</span>
+                                        <span class="font-medium">自动生成活动海报和文案</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">执行次数：</span>
+                                        <span class="font-medium">23次</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                                    <button class="text-blue-600 hover:text-blue-700 text-sm">
+                                        <i class="fas fa-edit mr-1"></i>编辑规则
+                                    </button>
+                                    <button class="text-orange-600 hover:text-orange-700 text-sm">
+                                        <i class="fas fa-chart-line mr-1"></i>查看效果
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="promotion-card p-6 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-semibold">报名提醒推广</h4>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="channel-status-active text-xs px-2 py-1 rounded-full">已启用</span>
+                                        <button class="text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-toggle-on text-green-500"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">触发条件：</span>
+                                        <span class="font-medium">活动开始前24小时</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">推广渠道：</span>
+                                        <span class="font-medium">短信、邮件</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">推广内容：</span>
+                                        <span class="font-medium">活动提醒和报名链接</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">执行次数：</span>
+                                        <span class="font-medium">156次</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                                    <button class="text-blue-600 hover:text-blue-700 text-sm">
+                                        <i class="fas fa-edit mr-1"></i>编辑规则
+                                    </button>
+                                    <button class="text-orange-600 hover:text-orange-700 text-sm">
+                                        <i class="fas fa-chart-line mr-1"></i>查看效果
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="promotion-card p-6 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-semibold">活动结束感谢推广</h4>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="channel-status-inactive text-xs px-2 py-1 rounded-full">已暂停</span>
+                                        <button class="text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-toggle-off text-gray-400"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">触发条件：</span>
+                                        <span class="font-medium">活动结束后2小时</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">推广渠道：</span>
+                                        <span class="font-medium">微信、邮件</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">推广内容：</span>
+                                        <span class="font-medium">感谢信和下次活动预告</span>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="text-gray-600">执行次数：</span>
+                                        <span class="font-medium">89次</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                                    <button class="text-blue-600 hover:text-blue-700 text-sm">
+                                        <i class="fas fa-edit mr-1"></i>编辑规则
+                                    </button>
+                                    <button class="text-orange-600 hover:text-orange-700 text-sm">
+                                        <i class="fas fa-chart-line mr-1"></i>查看效果
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 效果分析标签页 -->
+                <div id="analytics-tab" class="tab-content p-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="promotion-card p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4">渠道效果对比</h3>
+                            <canvas id="channel-performance-chart" width="400" height="300"></canvas>
+                        </div>
+
+                        <div class="promotion-card p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4">转化漏斗分析</h3>
+                            <canvas id="conversion-funnel-chart" width="400" height="300"></canvas>
+                        </div>
+
+                        <div class="promotion-card p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4">推广成本分析</h3>
+                            <canvas id="cost-analysis-chart" width="400" height="300"></canvas>
+                        </div>
+
+                        <div class="promotion-card p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4">时间趋势分析</h3>
+                            <canvas id="time-trend-chart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'channels';
+        let channels = [
+            {
+                id: 1,
+                name: '微信朋友圈',
+                icon: 'fab fa-weixin',
+                bgClass: 'wechat-bg',
+                status: 'active',
+                reach: '5,680',
+                clicks: '1,234',
+                conversions: '156',
+                cost: '¥580',
+                ctr: '21.7%',
+                cvr: '12.6%'
+            },
+            {
+                id: 2,
+                name: '微博推广',
+                icon: 'fab fa-weibo',
+                bgClass: 'weibo-bg',
+                status: 'active',
+                reach: '3,240',
+                clicks: '856',
+                conversions: '89',
+                cost: '¥420',
+                ctr: '26.4%',
+                cvr: '10.4%'
+            },
+            {
+                id: 3,
+                name: '抖音推广',
+                icon: 'fab fa-tiktok',
+                bgClass: 'douyin-bg',
+                status: 'active',
+                reach: '8,960',
+                clicks: '2,156',
+                conversions: '234',
+                cost: '¥890',
+                ctr: '24.1%',
+                cvr: '10.9%'
+            },
+            {
+                id: 4,
+                name: '小红书',
+                icon: 'fas fa-book',
+                bgClass: 'xiaohongshu-bg',
+                status: 'active',
+                reach: '2,180',
+                clicks: '567',
+                conversions: '78',
+                cost: '¥320',
+                ctr: '26.0%',
+                cvr: '13.8%'
+            },
+            {
+                id: 5,
+                name: '短信推广',
+                icon: 'fas fa-sms',
+                bgClass: 'sms-bg',
+                status: 'inactive',
+                reach: '1,500',
+                clicks: '234',
+                conversions: '23',
+                cost: '¥150',
+                ctr: '15.6%',
+                cvr: '9.8%'
+            },
+            {
+                id: 6,
+                name: '邮件推广',
+                icon: 'fas fa-envelope',
+                bgClass: 'email-bg',
+                status: 'active',
+                reach: '980',
+                clicks: '156',
+                conversions: '19',
+                cost: '¥80',
+                ctr: '15.9%',
+                cvr: '12.2%'
+            }
+        ];
+
+        // 标签页切换
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                currentTab = this.getAttribute('data-tab');
+                document.getElementById(currentTab + '-tab').classList.remove('hidden');
+                
+                if (currentTab === 'channels') {
+                    renderChannels();
+                } else if (currentTab === 'analytics') {
+                    initAnalyticsCharts();
+                }
+            });
+        });
+
+        // 渲染推广渠道
+        function renderChannels() {
+            const grid = document.getElementById('channels-grid');
+            grid.innerHTML = '';
+            
+            channels.forEach(channel => {
+                const channelCard = createChannelCard(channel);
+                grid.appendChild(channelCard);
+            });
+        }
+
+        // 创建渠道卡片
+        function createChannelCard(channel) {
+            const card = document.createElement('div');
+            card.className = 'channel-card bg-white p-6 rounded-lg shadow-sm border border-gray-200';
+            
+            const statusClass = `channel-status-${channel.status}`;
+            
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="channel-icon ${channel.bgClass}">
+                            <i class="${channel.icon}"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">${channel.name}</h3>
+                            <span class="${statusClass} text-xs px-2 py-1 rounded-full">
+                                ${channel.status === 'active' ? '活跃' : '暂停'}
+                            </span>
+                        </div>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600" onclick="toggleChannelStatus(${channel.id})">
+                        <i class="fas fa-toggle-${channel.status === 'active' ? 'on text-green-500' : 'off text-gray-400'}"></i>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="text-center">
+                        <div class="text-lg font-bold text-gray-900">${channel.reach}</div>
+                        <div class="text-xs text-gray-600">曝光量</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-bold text-gray-900">${channel.clicks}</div>
+                        <div class="text-xs text-gray-600">点击量</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-bold text-gray-900">${channel.conversions}</div>
+                        <div class="text-xs text-gray-600">转化量</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-bold text-gray-900">${channel.cost}</div>
+                        <div class="text-xs text-gray-600">成本</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between text-sm mb-4">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600">CTR: <span class="font-medium text-green-600">${channel.ctr}</span></span>
+                        <span class="text-gray-600">CVR: <span class="font-medium text-blue-600">${channel.cvr}</span></span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <button class="text-blue-600 hover:text-blue-700 text-sm" onclick="configureChannel(${channel.id})">
+                        <i class="fas fa-cog mr-1"></i>配置
+                    </button>
+                    <button class="text-green-600 hover:text-green-700 text-sm" onclick="viewChannelStats(${channel.id})">
+                        <i class="fas fa-chart-line mr-1"></i>统计
+                    </button>
+                    <button class="text-orange-600 hover:text-orange-700 text-sm" onclick="createCampaign(${channel.id})">
+                        <i class="fas fa-plus mr-1"></i>推广
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // 初始化分析图表
+        function initAnalyticsCharts() {
+            // 渠道效果对比
+            const performanceCtx = document.getElementById('channel-performance-chart');
+            if (performanceCtx) {
+                new Chart(performanceCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['曝光量', '点击率', '转化率', '成本效益', '用户质量'],
+                        datasets: [{
+                            label: '微信',
+                            data: [85, 90, 88, 75, 92],
+                            borderColor: '#07c160',
+                            backgroundColor: 'rgba(7, 193, 96, 0.2)'
+                        }, {
+                            label: '抖音',
+                            data: [95, 85, 82, 70, 85],
+                            borderColor: '#000000',
+                            backgroundColor: 'rgba(0, 0, 0, 0.1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            // 转化漏斗分析
+            const funnelCtx = document.getElementById('conversion-funnel-chart');
+            if (funnelCtx) {
+                new Chart(funnelCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['曝光', '点击', '访问', '注册', '转化'],
+                        datasets: [{
+                            label: '用户数量',
+                            data: [10000, 2500, 1800, 800, 200],
+                            backgroundColor: [
+                                '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            // 推广成本分析
+            const costCtx = document.getElementById('cost-analysis-chart');
+            if (costCtx) {
+                new Chart(costCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['微信', '抖音', '微博', '小红书', '其他'],
+                        datasets: [{
+                            data: [580, 890, 420, 320, 290],
+                            backgroundColor: [
+                                '#07c160', '#000000', '#e6162d', '#ff2442', '#6b7280'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            // 时间趋势分析
+            const trendCtx = document.getElementById('time-trend-chart');
+            if (trendCtx) {
+                new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                        datasets: [{
+                            label: '曝光量',
+                            data: [8000, 12000, 15000, 18000, 16000, 20000],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        }, {
+                            label: '转化量',
+                            data: [800, 1200, 1500, 1800, 1600, 2000],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        }
+
+        // 事件处理函数
+        function toggleChannelStatus(id) {
+            const channel = channels.find(c => c.id === id);
+            if (channel) {
+                channel.status = channel.status === 'active' ? 'inactive' : 'active';
+                renderChannels();
+            }
+        }
+
+        function configureChannel(id) {
+            console.log('配置渠道:', id);
+        }
+
+        function viewChannelStats(id) {
+            console.log('查看统计:', id);
+        }
+
+        function createCampaign(id) {
+            console.log('创建推广:', id);
+        }
+
+        // 按钮事件
+        document.getElementById('create-campaign-btn').addEventListener('click', function() {
+            console.log('创建推广活动');
+        });
+
+        document.getElementById('template-btn').addEventListener('click', function() {
+            console.log('推广模板');
+        });
+
+        document.getElementById('upload-material-btn').addEventListener('click', function() {
+            console.log('上传素材');
+        });
+
+        document.getElementById('create-link-btn').addEventListener('click', function() {
+            console.log('创建推广链接');
+        });
+
+        document.getElementById('create-automation-btn').addEventListener('click', function() {
+            console.log('创建自动化规则');
+        });
+
+        // 初始化
+        renderChannels();
+    </script>
+</body>
+</html>

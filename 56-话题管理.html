@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>话题管理 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        .sidebar-collapsed .sidebar-text {
+            display: none;
+        }
+        .sidebar-collapsed .sidebar-icon {
+            margin: 0 auto;
+        }
+        .main-content-expanded {
+            margin-left: 4rem;
+        }
+        .modal {
+            display: none;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .topic-item {
+            transition: all 0.3s ease;
+        }
+        .topic-item:hover {
+            background-color: #f9fafb;
+        }
+        .tag {
+            transition: all 0.2s ease;
+        }
+        .tag:hover {
+            transform: scale(1.05);
+        }
+        .trend-up {
+            color: #10b981;
+        }
+        .trend-down {
+            color: #ef4444;
+        }
+        .trend-stable {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transition-all duration-300 z-50">
+        <!-- Logo区域 -->
+        <div class="flex items-center justify-between p-4 border-b">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white"></i>
+                </div>
+                <span class="sidebar-text font-bold text-gray-800">香草生活</span>
+            </div>
+            <button id="toggle-sidebar" class="p-1 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-bars text-gray-600"></i>
+            </button>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="mt-4">
+            <div class="px-4 py-2">
+                <p class="sidebar-text text-xs font-semibold text-gray-400 uppercase tracking-wider">主要功能</p>
+            </div>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600">
+                <i class="sidebar-icon fas fa-tachometer-alt w-5"></i>
+                <span class="sidebar-text ml-3">仪表盘</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600">
+                <i class="sidebar-icon fas fa-box w-5"></i>
+                <span class="sidebar-text ml-3">商品管理</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600">
+                <i class="sidebar-icon fas fa-shopping-cart w-5"></i>
+                <span class="sidebar-text ml-3">订单管理</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600">
+                <i class="sidebar-icon fas fa-users w-5"></i>
+                <span class="sidebar-text ml-3">用户管理</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-green-50 hover:text-green-600">
+                <i class="sidebar-icon fas fa-seedling w-5"></i>
+                <span class="sidebar-text ml-3">香草图鉴</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 bg-green-50 text-green-600 border-r-2 border-green-500">
+                <i class="sidebar-icon fas fa-comments w-5"></i>
+                <span class="sidebar-text ml-3">香草阳台</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div id="main-content" class="ml-64 transition-all duration-300">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">话题管理</h1>
+                    <p class="text-gray-600 mt-1">管理社区话题，维护讨论秩序</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="refresh-data" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                    </button>
+                    <button id="export-data" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-download mr-2"></i>导出数据
+                    </button>
+                    <button id="create-topic" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>创建话题
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 统计卡片 -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="stat-card bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">话题总数</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">1,234</p>
+                            <p class="text-green-500 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+12.5%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hashtag text-blue-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">热门话题</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">89</p>
+                            <p class="text-green-500 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+8.3%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-fire text-red-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">参与用户</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">5,678</p>
+                            <p class="text-green-500 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+15.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-green-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">讨论总数</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">23,456</p>
+                            <p class="text-green-500 text-sm mt-1">
+                                <i class="fas fa-arrow-up mr-1"></i>+22.1%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-comments text-yellow-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选和操作栏 -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <!-- 筛选标签 -->
+                        <div class="flex items-center space-x-2">
+                            <button class="filter-btn px-3 py-1 bg-blue-500 text-white text-sm rounded-full" data-filter="all">全部</button>
+                            <button class="filter-btn px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full hover:bg-gray-300" data-filter="hot">热门</button>
+                            <button class="filter-btn px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full hover:bg-gray-300" data-filter="new">最新</button>
+                            <button class="filter-btn px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full hover:bg-gray-300" data-filter="official">官方</button>
+                            <button class="filter-btn px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full hover:bg-gray-300" data-filter="featured">精选</button>
+                        </div>
+
+                        <!-- 分类筛选 -->
+                        <select id="category-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <option value="">全部分类</option>
+                            <option value="growing">种植技巧</option>
+                            <option value="care">养护心得</option>
+                            <option value="recipe">香草食谱</option>
+                            <option value="diy">DIY制作</option>
+                            <option value="sharing">经验分享</option>
+                            <option value="question">问题求助</option>
+                        </select>
+
+                        <!-- 状态筛选 -->
+                        <select id="status-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <option value="">全部状态</option>
+                            <option value="active">活跃</option>
+                            <option value="normal">正常</option>
+                            <option value="featured">精选</option>
+                            <option value="archived">已归档</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <!-- 搜索框 -->
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="搜索话题..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-64">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+
+                        <!-- 排序 -->
+                        <select id="sort-select" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            <option value="created_desc">创建时间↓</option>
+                            <option value="created_asc">创建时间↑</option>
+                            <option value="posts_desc">讨论数↓</option>
+                            <option value="posts_asc">讨论数↑</option>
+                            <option value="participants_desc">参与人数↓</option>
+                            <option value="participants_asc">参与人数↑</option>
+                        </select>
+
+                        <!-- 批量操作 -->
+                        <button id="batch-action-btn" class="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg text-sm cursor-not-allowed" disabled>
+                            <i class="fas fa-tasks mr-2"></i>批量操作
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 话题列表 -->
+            <div class="bg-white rounded-lg shadow-sm border">
+                <div class="p-4 border-b">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <input type="checkbox" id="select-all" class="rounded border-gray-300">
+                            <span class="text-sm text-gray-600">共 <span id="total-count">1,234</span> 个话题</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                            <button class="p-2 text-gray-600">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divide-y divide-gray-200">
+                    <!-- 话题项 -->
+                    <div class="topic-item p-4" data-status="featured" data-category="growing">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="topic-checkbox mt-1 rounded border-gray-300">
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <h3 class="text-lg font-semibold text-gray-800 hover:text-blue-600 cursor-pointer">#薄荷种植技巧分享</h3>
+                                            <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">精选</span>
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">种植技巧</span>
+                                        </div>
+                                        <p class="text-gray-600 text-sm mb-3">分享薄荷种植的各种技巧和经验，包括土壤选择、浇水频率、光照要求等实用知识。</p>
+                                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                                            <span><i class="fas fa-comments mr-1"></i>1,234 讨论</span>
+                                            <span><i class="fas fa-users mr-1"></i>567 参与</span>
+                                            <span><i class="fas fa-eye mr-1"></i>12.3k 浏览</span>
+                                            <span><i class="fas fa-clock mr-1"></i>2024-01-15</span>
+                                            <span class="trend-up"><i class="fas fa-trending-up mr-1"></i>热度上升</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600" title="查看详情">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-green-600" title="编辑">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-yellow-600" title="设为精选">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600" title="归档">
+                                            <i class="fas fa-archive"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="topic-item p-4" data-status="hot" data-category="care">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="topic-checkbox mt-1 rounded border-gray-300">
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <h3 class="text-lg font-semibold text-gray-800 hover:text-blue-600 cursor-pointer">#罗勒叶子发黄怎么办</h3>
+                                            <span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">热门</span>
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">养护心得</span>
+                                        </div>
+                                        <p class="text-gray-600 text-sm mb-3">最近发现我的罗勒叶子开始发黄，求助大家这是什么原因，应该如何处理？</p>
+                                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                                            <span><i class="fas fa-comments mr-1"></i>89 讨论</span>
+                                            <span><i class="fas fa-users mr-1"></i>45 参与</span>
+                                            <span><i class="fas fa-eye mr-1"></i>2.1k 浏览</span>
+                                            <span><i class="fas fa-clock mr-1"></i>2024-01-16</span>
+                                            <span class="trend-up"><i class="fas fa-trending-up mr-1"></i>热度上升</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600" title="查看详情">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-green-600" title="编辑">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-yellow-600" title="设为精选">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600" title="归档">
+                                            <i class="fas fa-archive"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="topic-item p-4" data-status="normal" data-category="recipe">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="topic-checkbox mt-1 rounded border-gray-300">
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <h3 class="text-lg font-semibold text-gray-800 hover:text-blue-600 cursor-pointer">#迷迭香烤鸡食谱</h3>
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">正常</span>
+                                            <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">香草食谱</span>
+                                        </div>
+                                        <p class="text-gray-600 text-sm mb-3">用自己种的迷迭香做烤鸡，香味浓郁，大家一起来分享香草料理的制作方法吧！</p>
+                                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                                            <span><i class="fas fa-comments mr-1"></i>23 讨论</span>
+                                            <span><i class="fas fa-users mr-1"></i>18 参与</span>
+                                            <span><i class="fas fa-eye mr-1"></i>456 浏览</span>
+                                            <span><i class="fas fa-clock mr-1"></i>2024-01-14</span>
+                                            <span class="trend-stable"><i class="fas fa-minus mr-1"></i>热度稳定</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600" title="查看详情">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-green-600" title="编辑">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-yellow-600" title="设为精选">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600" title="归档">
+                                            <i class="fas fa-archive"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="topic-item p-4" data-status="archived" data-category="diy">
+                        <div class="flex items-start space-x-4">
+                            <input type="checkbox" class="topic-checkbox mt-1 rounded border-gray-300">
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <h3 class="text-lg font-semibold text-gray-400 hover:text-blue-600 cursor-pointer">#薰衣草香包制作</h3>
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">已归档</span>
+                                            <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">DIY制作</span>
+                                        </div>
+                                        <p class="text-gray-500 text-sm mb-3">教大家如何用薰衣草制作天然香包，既实用又环保，还能享受制作的乐趣。</p>
+                                        <div class="flex items-center space-x-6 text-sm text-gray-400">
+                                            <span><i class="fas fa-comments mr-1"></i>156 讨论</span>
+                                            <span><i class="fas fa-users mr-1"></i>89 参与</span>
+                                            <span><i class="fas fa-eye mr-1"></i>3.2k 浏览</span>
+                                            <span><i class="fas fa-clock mr-1"></i>2023-12-20</span>
+                                            <span class="trend-down"><i class="fas fa-trending-down mr-1"></i>热度下降</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-2 text-gray-400 hover:text-blue-600" title="查看详情">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-green-600" title="恢复">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-400 hover:text-red-600" title="删除">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分页 -->
+                <div class="p-4 border-t">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-600">
+                            显示 1-20 条，共 1,234 条记录
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" disabled>
+                                上一页
+                            </button>
+                            <button class="px-3 py-1 bg-blue-500 text-white rounded text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">3</button>
+                            <span class="px-2 text-gray-500">...</span>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">62</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
+                                下一页
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建话题模态框 -->
+    <div id="create-topic-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div class="flex items-center justify-between p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-800">创建新话题</h3>
+                <button id="close-create-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <form id="create-topic-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">话题标题</label>
+                        <input type="text" id="topic-title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入话题标题">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">话题描述</label>
+                        <textarea id="topic-description" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入话题描述"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">话题分类</label>
+                            <select id="topic-category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">请选择分类</option>
+                                <option value="growing">种植技巧</option>
+                                <option value="care">养护心得</option>
+                                <option value="recipe">香草食谱</option>
+                                <option value="diy">DIY制作</option>
+                                <option value="sharing">经验分享</option>
+                                <option value="question">问题求助</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">话题状态</label>
+                            <select id="topic-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="normal">正常</option>
+                                <option value="featured">精选</option>
+                                <option value="official">官方</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">话题标签</label>
+                        <input type="text" id="topic-tags" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="请输入标签，用逗号分隔">
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="topic-pinned" class="rounded border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">置顶话题</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="topic-featured" class="rounded border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">推荐话题</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="flex items-center justify-end space-x-3 p-6 border-t">
+                <button id="cancel-create" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    取消
+                </button>
+                <button id="save-draft" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                    保存草稿
+                </button>
+                <button id="create-submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    创建话题
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量操作模态框 -->
+    <div id="batch-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div class="flex items-center justify-between p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-800">批量操作</h3>
+                <button id="close-batch-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">操作类型</label>
+                        <select id="batch-action" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="">请选择操作</option>
+                            <option value="feature">设为精选</option>
+                            <option value="unfeature">取消精选</option>
+                            <option value="archive">归档话题</option>
+                            <option value="restore">恢复话题</option>
+                            <option value="delete">删除话题</option>
+                            <option value="category">修改分类</option>
+                        </select>
+                    </div>
+                    
+                    <div id="batch-category-section" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">目标分类</label>
+                        <select id="batch-category" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="growing">种植技巧</option>
+                            <option value="care">养护心得</option>
+                            <option value="recipe">香草食谱</option>
+                            <option value="diy">DIY制作</option>
+                            <option value="sharing">经验分享</option>
+                            <option value="question">问题求助</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">操作说明</label>
+                        <textarea id="batch-note" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="请输入操作说明（可选）"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-3 p-6 border-t">
+                <button id="cancel-batch" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    取消
+                </button>
+                <button id="execute-batch" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                    执行操作
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('toggle-sidebar').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+        });
+
+        // 刷新数据
+        document.getElementById('refresh-data').addEventListener('click', function() {
+            console.log('刷新话题数据');
+            // 模拟刷新动画
+            const icon = this.querySelector('i');
+            icon.classList.add('fa-spin');
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                alert('数据已刷新！');
+            }, 1000);
+        });
+
+        // 导出数据
+        document.getElementById('export-data').addEventListener('click', function() {
+            console.log('导出话题数据');
+            alert('正在导出数据，请稍候...');
+        });
+
+        // 筛选功能
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 更新按钮状态
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.className = 'filter-btn px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full hover:bg-gray-300';
+                });
+                this.className = 'filter-btn px-3 py-1 bg-blue-500 text-white text-sm rounded-full';
+                
+                const filter = this.dataset.filter;
+                console.log('筛选话题:', filter);
+                filterTopics();
+            });
+        });
+
+        // 分类筛选
+        document.getElementById('category-filter').addEventListener('change', function() {
+            console.log('按分类筛选:', this.value);
+            filterTopics();
+        });
+
+        // 状态筛选
+        document.getElementById('status-filter').addEventListener('change', function() {
+            console.log('按状态筛选:', this.value);
+            filterTopics();
+        });
+
+        // 搜索功能
+        document.getElementById('search-input').addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            console.log('搜索话题:', query);
+            filterTopics();
+        });
+
+        // 排序功能
+        document.getElementById('sort-select').addEventListener('change', function() {
+            console.log('排序方式:', this.value);
+            sortTopics(this.value);
+        });
+
+        // 全选功能
+        document.getElementById('select-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.topic-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBatchButton();
+        });
+
+        // 单个选择
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('topic-checkbox')) {
+                updateBatchButton();
+                
+                // 更新全选状态
+                const checkboxes = document.querySelectorAll('.topic-checkbox');
+                const checkedBoxes = document.querySelectorAll('.topic-checkbox:checked');
+                const selectAll = document.getElementById('select-all');
+                
+                if (checkedBoxes.length === 0) {
+                    selectAll.indeterminate = false;
+                    selectAll.checked = false;
+                } else if (checkedBoxes.length === checkboxes.length) {
+                    selectAll.indeterminate = false;
+                    selectAll.checked = true;
+                } else {
+                    selectAll.indeterminate = true;
+                }
+            }
+        });
+
+        // 更新批量操作按钮状态
+        function updateBatchButton() {
+            const checkedBoxes = document.querySelectorAll('.topic-checkbox:checked');
+            const batchBtn = document.getElementById('batch-action-btn');
+            
+            if (checkedBoxes.length > 0) {
+                batchBtn.disabled = false;
+                batchBtn.className = 'px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600';
+                batchBtn.innerHTML = `<i class="fas fa-tasks mr-2"></i>批量操作 (${checkedBoxes.length})`;
+            } else {
+                batchBtn.disabled = true;
+                batchBtn.className = 'px-4 py-2 bg-gray-300 text-gray-500 rounded-lg text-sm cursor-not-allowed';
+                batchBtn.innerHTML = '<i class="fas fa-tasks mr-2"></i>批量操作';
+            }
+        }
+
+        // 批量操作
+        document.getElementById('batch-action-btn').addEventListener('click', function() {
+            if (!this.disabled) {
+                document.getElementById('batch-modal').classList.add('show');
+            }
+        });
+
+        // 话题操作
+        document.addEventListener('click', function(e) {
+            const topicItem = e.target.closest('.topic-item');
+            if (!topicItem) return;
+            
+            if (e.target.closest('[title="查看详情"]')) {
+                console.log('查看话题详情');
+                // 跳转到话题详情页
+            } else if (e.target.closest('[title="编辑"]')) {
+                console.log('编辑话题');
+                // 打开编辑模态框
+            } else if (e.target.closest('[title="设为精选"]')) {
+                console.log('设为精选话题');
+                if (confirm('确定要将此话题设为精选吗？')) {
+                    const statusSpan = topicItem.querySelector('.px-2.py-1:first-child');
+                    statusSpan.className = 'px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full';
+                    statusSpan.textContent = '精选';
+                    topicItem.dataset.status = 'featured';
+                }
+            } else if (e.target.closest('[title="归档"]')) {
+                console.log('归档话题');
+                if (confirm('确定要归档此话题吗？')) {
+                    const statusSpan = topicItem.querySelector('.px-2.py-1:first-child');
+                    statusSpan.className = 'px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full';
+                    statusSpan.textContent = '已归档';
+                    topicItem.dataset.status = 'archived';
+                    
+                    // 更新样式为灰色
+                    const title = topicItem.querySelector('h3');
+                    const description = topicItem.querySelector('p');
+                    const stats = topicItem.querySelectorAll('.text-gray-500');
+                    
+                    title.className = title.className.replace('text-gray-800', 'text-gray-400');
+                    description.className = description.className.replace('text-gray-600', 'text-gray-500');
+                    stats.forEach(stat => {
+                        stat.className = stat.className.replace('text-gray-500', 'text-gray-400');
+                    });
+                }
+            } else if (e.target.closest('[title="恢复"]')) {
+                console.log('恢复话题');
+                if (confirm('确定要恢复此话题吗？')) {
+                    const statusSpan = topicItem.querySelector('.px-2.py-1:first-child');
+                    statusSpan.className = 'px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full';
+                    statusSpan.textContent = '正常';
+                    topicItem.dataset.status = 'normal';
+                    
+                    // 恢复正常样式
+                    const title = topicItem.querySelector('h3');
+                    const description = topicItem.querySelector('p');
+                    const stats = topicItem.querySelectorAll('.text-gray-400');
+                    
+                    title.className = title.className.replace('text-gray-400', 'text-gray-800');
+                    description.className = description.className.replace('text-gray-500', 'text-gray-600');
+                    stats.forEach(stat => {
+                        stat.className = stat.className.replace('text-gray-400', 'text-gray-500');
+                    });
+                }
+            } else if (e.target.closest('[title="删除"]')) {
+                console.log('删除话题');
+                if (confirm('确定要删除此话题吗？此操作不可恢复！')) {
+                    topicItem.remove();
+                    updateTotalCount();
+                }
+            }
+        });
+
+        // 创建话题
+        document.getElementById('create-topic').addEventListener('click', function() {
+            document.getElementById('create-topic-modal').classList.add('show');
+        });
+
+        // 关闭创建模态框
+        document.getElementById('close-create-modal').addEventListener('click', function() {
+            document.getElementById('create-topic-modal').classList.remove('show');
+        });
+
+        document.getElementById('cancel-create').addEventListener('click', function() {
+            document.getElementById('create-topic-modal').classList.remove('show');
+        });
+
+        // 提交创建
+        document.getElementById('create-submit').addEventListener('click', function() {
+            const title = document.getElementById('topic-title').value;
+            const description = document.getElementById('topic-description').value;
+            const category = document.getElementById('topic-category').value;
+            const status = document.getElementById('topic-status').value;
+            const tags = document.getElementById('topic-tags').value;
+            
+            if (!title.trim()) {
+                alert('请输入话题标题');
+                return;
+            }
+            
+            if (!description.trim()) {
+                alert('请输入话题描述');
+                return;
+            }
+            
+            if (!category) {
+                alert('请选择话题分类');
+                return;
+            }
+            
+            console.log('创建话题:', { title, description, category, status, tags });
+            alert('话题创建成功！');
+            document.getElementById('create-topic-modal').classList.remove('show');
+            
+            // 重置表单
+            document.getElementById('create-topic-form').reset();
+        });
+
+        // 保存草稿
+        document.getElementById('save-draft').addEventListener('click', function() {
+            console.log('保存话题草稿');
+            alert('草稿已保存！');
+        });
+
+        // 批量操作相关
+        document.getElementById('batch-action').addEventListener('change', function() {
+            const action = this.value;
+            const categorySection = document.getElementById('batch-category-section');
+            
+            if (action === 'category') {
+                categorySection.classList.remove('hidden');
+            } else {
+                categorySection.classList.add('hidden');
+            }
+        });
+
+        // 关闭批量操作模态框
+        document.getElementById('close-batch-modal').addEventListener('click', function() {
+            document.getElementById('batch-modal').classList.remove('show');
+        });
+
+        document.getElementById('cancel-batch').addEventListener('click', function() {
+            document.getElementById('batch-modal').classList.remove('show');
+        });
+
+        // 执行批量操作
+        document.getElementById('execute-batch').addEventListener('click', function() {
+            const action = document.getElementById('batch-action').value;
+            const note = document.getElementById('batch-note').value;
+            
+            if (!action) {
+                alert('请选择批量操作类型');
+                return;
+            }
+            
+            const checkedBoxes = document.querySelectorAll('.topic-checkbox:checked');
+            console.log('执行批量操作:', action, '数量:', checkedBoxes.length);
+            
+            if (confirm(`确定要对 ${checkedBoxes.length} 个话题执行批量操作吗？`)) {
+                alert('批量操作已执行！');
+                document.getElementById('batch-modal').classList.remove('show');
+                
+                // 清除选择
+                checkedBoxes.forEach(checkbox => checkbox.checked = false);
+                document.getElementById('select-all').checked = false;
+                updateBatchButton();
+            }
+        });
+
+        // 筛选话题
+        function filterTopics() {
+            const activeFilter = document.querySelector('.filter-btn.bg-blue-500').dataset.filter;
+            const categoryFilter = document.getElementById('category-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            
+            const topics = document.querySelectorAll('.topic-item');
+            let visibleCount = 0;
+            
+            topics.forEach(topic => {
+                let show = true;
+                
+                // 按筛选标签过滤
+                if (activeFilter !== 'all') {
+                    const topicStatus = topic.dataset.status;
+                    if (activeFilter === 'hot' && topicStatus !== 'hot') show = false;
+                    if (activeFilter === 'new' && topicStatus === 'archived') show = false;
+                    if (activeFilter === 'official' && topicStatus !== 'official') show = false;
+                    if (activeFilter === 'featured' && topicStatus !== 'featured') show = false;
+                }
+                
+                // 按分类过滤
+                if (categoryFilter && topic.dataset.category !== categoryFilter) {
+                    show = false;
+                }
+                
+                // 按状态过滤
+                if (statusFilter && topic.dataset.status !== statusFilter) {
+                    show = false;
+                }
+                
+                // 按搜索关键词过滤
+                if (searchQuery) {
+                    const title = topic.querySelector('h3').textContent.toLowerCase();
+                    const description = topic.querySelector('p').textContent.toLowerCase();
+                    if (!title.includes(searchQuery) && !description.includes(searchQuery)) {
+                        show = false;
+                    }
+                }
+                
+                topic.style.display = show ? 'block' : 'none';
+                if (show) visibleCount++;
+            });
+            
+            updateTotalCount(visibleCount);
+        }
+
+        // 排序话题
+        function sortTopics(sortBy) {
+            const container = document.querySelector('.divide-y');
+            const topics = Array.from(container.querySelectorAll('.topic-item'));
+            
+            topics.sort((a, b) => {
+                switch (sortBy) {
+                    case 'created_desc':
+                        return new Date(b.querySelector('.fa-clock').parentNode.textContent.split(' ')[1]) - 
+                               new Date(a.querySelector('.fa-clock').parentNode.textContent.split(' ')[1]);
+                    case 'created_asc':
+                        return new Date(a.querySelector('.fa-clock').parentNode.textContent.split(' ')[1]) - 
+                               new Date(b.querySelector('.fa-clock').parentNode.textContent.split(' ')[1]);
+                    case 'posts_desc':
+                        return parseInt(b.querySelector('.fa-comments').parentNode.textContent) - 
+                               parseInt(a.querySelector('.fa-comments').parentNode.textContent);
+                    case 'posts_asc':
+                        return parseInt(a.querySelector('.fa-comments').parentNode.textContent) - 
+                               parseInt(b.querySelector('.fa-comments').parentNode.textContent);
+                    case 'participants_desc':
+                        return parseInt(b.querySelector('.fa-users').parentNode.textContent) - 
+                               parseInt(a.querySelector('.fa-users').parentNode.textContent);
+                    case 'participants_asc':
+                        return parseInt(a.querySelector('.fa-users').parentNode.textContent) - 
+                               parseInt(b.querySelector('.fa-users').parentNode.textContent);
+                    default:
+                        return 0;
+                }
+            });
+            
+            // 重新排列DOM元素
+            topics.forEach(topic => container.appendChild(topic));
+        }
+
+        // 更新总数显示
+        function updateTotalCount(count) {
+            const totalElement = document.getElementById('total-count');
+            if (count !== undefined) {
+                totalElement.textContent = count;
+            } else {
+                const visibleTopics = document.querySelectorAll('.topic-item[style="display: block;"], .topic-item:not([style*="display: none"])');
+                totalElement.textContent = visibleTopics.length;
+            }
+        }
+
+        // 统计卡片点击
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const cardText = this.querySelector('p').textContent;
+                console.log('点击统计卡片:', cardText);
+                
+                // 根据卡片类型进行相应的筛选
+                if (cardText.includes('话题总数')) {
+                    document.querySelector('[data-filter="all"]').click();
+                } else if (cardText.includes('热门话题')) {
+                    document.querySelector('[data-filter="hot"]').click();
+                } else if (cardText.includes('参与用户')) {
+                    // 可以跳转到用户管理页面
+                } else if (cardText.includes('讨论总数')) {
+                    // 可以跳转到讨论管理页面
+                }
+            });
+        });
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('话题管理页面初始化完成');
+            updateBatchButton();
+            updateTotalCount();
+        });
+    </script>
+</body>
+</html>

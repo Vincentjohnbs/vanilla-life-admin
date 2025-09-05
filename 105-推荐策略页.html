@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推荐策略 - 香草生活后台管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .strategy-card {
+            transition: all 0.2s ease;
+        }
+        .strategy-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .modal {
+            backdrop-filter: blur(4px);
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #4F46E5;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">香草生活</h1>
+                    <p class="text-sm text-gray-500">后台管理系统</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-tachometer-alt w-5"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-users w-5"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-lg">
+                    <i class="fas fa-user-tag w-5"></i>
+                    <span>用户画像</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-cog w-5"></i>
+                    <span>系统设置</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="ml-0 transition-all duration-300 ease-in-out" id="main-content">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebar-toggle" class="p-2 rounded-lg hover:bg-gray-100">
+                        <i class="fas fa-bars text-gray-600"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">推荐策略</h1>
+                        <p class="text-sm text-gray-500">配置和管理个性化推荐算法</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-lg hover:bg-gray-100 relative">
+                        <i class="fas fa-bell text-gray-600"></i>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <img src="https://via.placeholder.com/32" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面内容 -->
+        <main class="p-6">
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm">推荐策略</p>
+                            <p class="text-2xl font-bold mt-1">8</p>
+                            <p class="text-blue-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +2
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-brain text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm">推荐点击率</p>
+                            <p class="text-2xl font-bold mt-1">12.8%</p>
+                            <p class="text-green-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +2.3%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mouse-pointer text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm">转化率</p>
+                            <p class="text-2xl font-bold mt-1">8.5%</p>
+                            <p class="text-purple-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +1.2%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-orange-100 text-sm">推荐收入</p>
+                            <p class="text-2xl font-bold mt-1">¥156K</p>
+                            <p class="text-orange-100 text-xs mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>较上月 +18%
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作栏 -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                    <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" placeholder="搜索推荐策略..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>全部类型</option>
+                            <option>协同过滤</option>
+                            <option>内容推荐</option>
+                            <option>混合推荐</option>
+                            <option>热门推荐</option>
+                        </select>
+                        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>全部状态</option>
+                            <option>启用</option>
+                            <option>禁用</option>
+                            <option>测试中</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                            <i class="fas fa-chart-bar mr-2"></i>效果分析
+                        </button>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onclick="openCreateModal()">
+                            <i class="fas fa-plus mr-2"></i>创建策略
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 策略标签页 -->
+            <div class="bg-white rounded-xl shadow-sm mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6" id="strategyTabs">
+                        <button class="py-4 px-2 border-b-2 border-blue-500 text-blue-600 font-medium text-sm" data-tab="strategies">推荐策略</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="algorithms">算法配置</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="abtest">A/B测试</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="performance">效果监控</button>
+                        <button class="py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm" data-tab="optimization">优化建议</button>
+                    </nav>
+                </div>
+
+                <!-- 标签页内容 -->
+                <div class="p-6">
+                    <!-- 推荐策略 -->
+                    <div id="strategiesTab" class="tab-content">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="strategyGrid">
+                            <!-- 策略卡片将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 算法配置 -->
+                    <div id="algorithmsTab" class="tab-content hidden">
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div class="bg-gray-50 rounded-lg p-6">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">协同过滤算法</h3>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">相似度阈值</span>
+                                            <input type="range" min="0" max="1" step="0.1" value="0.7" class="w-32">
+                                            <span class="text-sm font-medium">0.7</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">最小支持度</span>
+                                            <input type="range" min="0" max="100" step="5" value="20" class="w-32">
+                                            <span class="text-sm font-medium">20</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">推荐数量</span>
+                                            <input type="range" min="1" max="20" step="1" value="10" class="w-32">
+                                            <span class="text-sm font-medium">10</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-6">
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-4">内容推荐算法</h3>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">特征权重</span>
+                                            <input type="range" min="0" max="1" step="0.1" value="0.8" class="w-32">
+                                            <span class="text-sm font-medium">0.8</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">时间衰减</span>
+                                            <input type="range" min="0" max="1" step="0.1" value="0.5" class="w-32">
+                                            <span class="text-sm font-medium">0.5</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">多样性因子</span>
+                                            <input type="range" min="0" max="1" step="0.1" value="0.3" class="w-32">
+                                            <span class="text-sm font-medium">0.3</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">混合推荐权重配置</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div class="text-center">
+                                        <label class="block text-sm text-gray-600 mb-2">协同过滤</label>
+                                        <input type="range" min="0" max="100" value="40" class="w-full" orient="vertical">
+                                        <span class="text-sm font-medium">40%</span>
+                                    </div>
+                                    <div class="text-center">
+                                        <label class="block text-sm text-gray-600 mb-2">内容推荐</label>
+                                        <input type="range" min="0" max="100" value="30" class="w-full">
+                                        <span class="text-sm font-medium">30%</span>
+                                    </div>
+                                    <div class="text-center">
+                                        <label class="block text-sm text-gray-600 mb-2">热门推荐</label>
+                                        <input type="range" min="0" max="100" value="20" class="w-full">
+                                        <span class="text-sm font-medium">20%</span>
+                                    </div>
+                                    <div class="text-center">
+                                        <label class="block text-sm text-gray-600 mb-2">随机推荐</label>
+                                        <input type="range" min="0" max="100" value="10" class="w-full">
+                                        <span class="text-sm font-medium">10%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- A/B测试 -->
+                    <div id="abtestTab" class="tab-content hidden">
+                        <div class="mb-6">
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onclick="openABTestModal()">
+                                <i class="fas fa-plus mr-2"></i>创建A/B测试
+                            </button>
+                        </div>
+                        <div class="space-y-6" id="abTestList">
+                            <!-- A/B测试列表将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 效果监控 -->
+                    <div id="performanceTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">点击率趋势</h3>
+                                <canvas id="ctrTrendChart" class="w-full h-64"></canvas>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">转化率趋势</h3>
+                                <canvas id="conversionTrendChart" class="w-full h-64"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">策略效果对比</h3>
+                            <canvas id="strategyComparisonChart" class="w-full h-80"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 优化建议 -->
+                    <div id="optimizationTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>智能优化建议
+                                </h3>
+                                <div class="space-y-4" id="optimizationSuggestions">
+                                    <!-- 优化建议将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-chart-line text-green-500 mr-2"></i>性能指标
+                                </h3>
+                                <div class="space-y-4" id="performanceMetrics">
+                                    <!-- 性能指标将通过JavaScript动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 创建策略模态框 -->
+    <div id="createModal" class="fixed inset-0 bg-black bg-opacity-50 modal hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-800">创建推荐策略</h3>
+                <button onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">策略名称</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="请输入策略名称">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">策略类型</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>协同过滤</option>
+                            <option>内容推荐</option>
+                            <option>混合推荐</option>
+                            <option>热门推荐</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">策略描述</label>
+                    <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="3" placeholder="请输入策略描述"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">目标用户群</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>全部用户</option>
+                            <option>新用户</option>
+                            <option>活跃用户</option>
+                            <option>高价值用户</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">推荐场景</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>首页推荐</option>
+                            <option>商品详情页</option>
+                            <option>购物车页面</option>
+                            <option>搜索结果页</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">推荐数量</label>
+                        <input type="number" min="1" max="20" value="10" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">权重</label>
+                        <input type="number" min="0" max="100" value="50" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">优先级</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>高</option>
+                            <option>中</option>
+                            <option>低</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="enableStrategy" class="mr-2">
+                        <label for="enableStrategy" class="text-sm text-gray-700">立即启用策略</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="enableABTest" class="mr-2">
+                        <label for="enableABTest" class="text-sm text-gray-700">启用A/B测试</label>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="flex space-x-3 mt-6">
+                <button onclick="closeCreateModal()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">取消</button>
+                <button class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">创建策略</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- A/B测试模态框 -->
+    <div id="abTestModal" class="fixed inset-0 bg-black bg-opacity-50 modal hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-800">创建A/B测试</h3>
+                <button onclick="closeABTestModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">测试名称</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="请输入测试名称">
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">策略A</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>协同过滤推荐</option>
+                            <option>内容推荐</option>
+                            <option>热门推荐</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">策略B</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option>混合推荐</option>
+                            <option>个性化推荐</option>
+                            <option>随机推荐</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">流量分配A (%)</label>
+                        <input type="number" min="0" max="100" value="50" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">流量分配B (%)</label>
+                        <input type="number" min="0" max="100" value="50" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">开始时间</label>
+                        <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">结束时间</label>
+                        <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">评估指标</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2" checked>
+                            <span class="text-sm">点击率</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2" checked>
+                            <span class="text-sm">转化率</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2">
+                            <span class="text-sm">停留时间</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2">
+                            <span class="text-sm">收入</span>
+                        </label>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="flex space-x-3 mt-6">
+                <button onclick="closeABTestModal()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">取消</button>
+                <button class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">创建测试</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 侧边栏切换
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                mainContent.classList.remove('ml-64');
+            } else {
+                mainContent.classList.add('ml-64');
+            }
+        });
+
+        // 推荐策略数据
+        const strategyData = [
+            {
+                id: 1,
+                name: '协同过滤推荐',
+                type: '协同过滤',
+                status: 'active',
+                ctr: 12.8,
+                conversion: 8.5,
+                revenue: 45600,
+                users: '全部用户',
+                scene: '首页推荐',
+                description: '基于用户行为相似性的推荐算法'
+            },
+            {
+                id: 2,
+                name: '内容推荐',
+                type: '内容推荐',
+                status: 'active',
+                ctr: 10.2,
+                conversion: 6.8,
+                revenue: 32400,
+                users: '新用户',
+                scene: '商品详情页',
+                description: '基于商品特征相似性的推荐算法'
+            },
+            {
+                id: 3,
+                name: '热门推荐',
+                type: '热门推荐',
+                status: 'active',
+                ctr: 15.6,
+                conversion: 12.3,
+                revenue: 58900,
+                users: '活跃用户',
+                scene: '首页推荐',
+                description: '基于商品热度和销量的推荐算法'
+            },
+            {
+                id: 4,
+                name: '个性化混合推荐',
+                type: '混合推荐',
+                status: 'testing',
+                ctr: 14.2,
+                conversion: 9.7,
+                revenue: 52300,
+                users: '高价值用户',
+                scene: '购物车页面',
+                description: '结合多种算法的个性化推荐策略'
+            },
+            {
+                id: 5,
+                name: '新品推荐',
+                type: '内容推荐',
+                status: 'inactive',
+                ctr: 8.9,
+                conversion: 5.2,
+                revenue: 18700,
+                users: '香草爱好者',
+                scene: '搜索结果页',
+                description: '针对新上架商品的推荐策略'
+            },
+            {
+                id: 6,
+                name: '跨品类推荐',
+                type: '协同过滤',
+                status: 'active',
+                ctr: 11.5,
+                conversion: 7.8,
+                revenue: 39200,
+                users: '全部用户',
+                scene: '商品详情页',
+                description: '推荐不同品类的相关商品'
+            }
+        ];
+
+        // A/B测试数据
+        const abTestData = [
+            {
+                id: 1,
+                name: '首页推荐算法对比',
+                strategyA: '协同过滤',
+                strategyB: '混合推荐',
+                status: 'running',
+                progress: 65,
+                startDate: '2024-01-15',
+                endDate: '2024-02-15',
+                trafficA: 50,
+                trafficB: 50,
+                ctrA: 12.8,
+                ctrB: 14.2,
+                conversionA: 8.5,
+                conversionB: 9.7
+            },
+            {
+                id: 2,
+                name: '商品页推荐位置测试',
+                strategyA: '内容推荐',
+                strategyB: '热门推荐',
+                status: 'completed',
+                progress: 100,
+                startDate: '2024-01-01',
+                endDate: '2024-01-31',
+                trafficA: 40,
+                trafficB: 60,
+                ctrA: 10.2,
+                ctrB: 15.6,
+                conversionA: 6.8,
+                conversionB: 12.3
+            }
+        ];
+
+        let currentTab = 'strategies';
+
+        // 标签页切换
+        function initTabs() {
+            const tabs = document.querySelectorAll('#strategyTabs button');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有活跃状态
+                    tabs.forEach(t => {
+                        t.classList.remove('border-blue-500', 'text-blue-600');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    
+                    // 添加当前活跃状态
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    this.classList.add('border-blue-500', 'text-blue-600');
+                    
+                    // 隐藏所有标签页内容
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // 显示当前标签页内容
+                    const tabId = this.dataset.tab + 'Tab';
+                    document.getElementById(tabId).classList.remove('hidden');
+                    
+                    currentTab = this.dataset.tab;
+                    
+                    // 根据标签页初始化相应内容
+                    if (currentTab === 'abtest') {
+                        renderABTests();
+                    } else if (currentTab === 'performance') {
+                        initPerformanceCharts();
+                    } else if (currentTab === 'optimization') {
+                        renderOptimizationContent();
+                    }
+                });
+            });
+        }
+
+        // 渲染策略卡片
+        function renderStrategyCards() {
+            const strategyGrid = document.getElementById('strategyGrid');
+            
+            strategyGrid.innerHTML = strategyData.map(strategy => {
+                const statusColor = {
+                    'active': 'bg-green-100 text-green-600',
+                    'inactive': 'bg-gray-100 text-gray-600',
+                    'testing': 'bg-yellow-100 text-yellow-600'
+                }[strategy.status];
+                
+                const statusText = {
+                    'active': '启用',
+                    'inactive': '禁用',
+                    'testing': '测试中'
+                }[strategy.status];
+                
+                return `
+                    <div class="strategy-card bg-white border border-gray-200 rounded-lg p-6 cursor-pointer" onclick="viewStrategyDetail(${strategy.id})">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-gray-800">${strategy.name}</h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-1 ${statusColor} rounded-full text-xs font-medium">${statusText}</span>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" ${strategy.status === 'active' ? 'checked' : ''} onchange="toggleStrategy(${strategy.id})">
+                                    <span class="slider"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p class="text-sm text-gray-600 mb-4">${strategy.description}</p>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">点击率</span>
+                                <span class="font-semibold text-blue-600">${strategy.ctr}%</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">转化率</span>
+                                <span class="font-semibold text-green-600">${strategy.conversion}%</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">收入贡献</span>
+                                <span class="font-semibold text-purple-600">¥${strategy.revenue.toLocaleString()}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <span>${strategy.users}</span>
+                                <span>${strategy.scene}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 flex space-x-2">
+                            <button class="flex-1 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-sm" onclick="event.stopPropagation(); editStrategy(${strategy.id})">
+                                <i class="fas fa-edit mr-1"></i>编辑
+                            </button>
+                            <button class="flex-1 px-3 py-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 text-sm" onclick="event.stopPropagation(); viewAnalytics(${strategy.id})">
+                                <i class="fas fa-chart-bar mr-1"></i>分析
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 渲染A/B测试
+        function renderABTests() {
+            const abTestList = document.getElementById('abTestList');
+            
+            abTestList.innerHTML = abTestData.map(test => {
+                const statusColor = {
+                    'running': 'bg-blue-100 text-blue-600',
+                    'completed': 'bg-green-100 text-green-600',
+                    'paused': 'bg-yellow-100 text-yellow-600'
+                }[test.status];
+                
+                const statusText = {
+                    'running': '进行中',
+                    'completed': '已完成',
+                    'paused': '已暂停'
+                }[test.status];
+                
+                return `
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-gray-800">${test.name}</h3>
+                            <span class="px-3 py-1 ${statusColor} rounded-full text-sm font-medium">${statusText}</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <h4 class="font-medium text-blue-800 mb-2">策略A: ${test.strategyA}</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-blue-600">流量分配:</span>
+                                        <span class="text-sm font-medium">${test.trafficA}%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-blue-600">点击率:</span>
+                                        <span class="text-sm font-medium">${test.ctrA}%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-blue-600">转化率:</span>
+                                        <span class="text-sm font-medium">${test.conversionA}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-50 rounded-lg p-4">
+                                <h4 class="font-medium text-green-800 mb-2">策略B: ${test.strategyB}</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-green-600">流量分配:</span>
+                                        <span class="text-sm font-medium">${test.trafficB}%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-green-600">点击率:</span>
+                                        <span class="text-sm font-medium">${test.ctrB}%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-green-600">转化率:</span>
+                                        <span class="text-sm font-medium">${test.conversionB}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm text-gray-600">测试进度</span>
+                                <span class="text-sm font-medium">${test.progress}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: ${test.progress}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                            <span>开始时间: ${test.startDate}</span>
+                            <span>结束时间: ${test.endDate}</span>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-sm">
+                                <i class="fas fa-chart-line mr-1"></i>查看详情
+                            </button>
+                            ${test.status === 'running' ? `
+                                <button class="px-4 py-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-100 text-sm">
+                                    <i class="fas fa-pause mr-1"></i>暂停测试
+                                </button>
+                            ` : ''}
+                            ${test.status === 'completed' ? `
+                                <button class="px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 text-sm">
+                                    <i class="fas fa-download mr-1"></i>导出报告
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 初始化性能监控图表
+        function initPerformanceCharts() {
+            // 点击率趋势
+            const ctrCtx = document.getElementById('ctrTrendChart')?.getContext('2d');
+            if (ctrCtx) {
+                new Chart(ctrCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                        datasets: [{
+                            label: '协同过滤',
+                            data: [11.2, 11.8, 12.1, 12.5, 12.8, 13.2],
+                            borderColor: '#3B82F6',
+                            tension: 0.4
+                        }, {
+                            label: '内容推荐',
+                            data: [9.5, 9.8, 10.0, 10.2, 10.5, 10.8],
+                            borderColor: '#10B981',
+                            tension: 0.4
+                        }, {
+                            label: '热门推荐',
+                            data: [14.2, 14.8, 15.1, 15.4, 15.6, 15.9],
+                            borderColor: '#F59E0B',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 20
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 转化率趋势
+            const conversionCtx = document.getElementById('conversionTrendChart')?.getContext('2d');
+            if (conversionCtx) {
+                new Chart(conversionCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                        datasets: [{
+                            label: '协同过滤',
+                            data: [7.8, 8.1, 8.3, 8.5, 8.7, 8.9],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }, {
+                            label: '内容推荐',
+                            data: [6.2, 6.4, 6.6, 6.8, 7.0, 7.2],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 15
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 策略效果对比
+            const comparisonCtx = document.getElementById('strategyComparisonChart')?.getContext('2d');
+            if (comparisonCtx) {
+                new Chart(comparisonCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['点击率', '转化率', '收入贡献', '用户满意度', '多样性', '新颖性'],
+                        datasets: [{
+                            label: '协同过滤',
+                            data: [85, 80, 90, 75, 60, 70],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)'
+                        }, {
+                            label: '内容推荐',
+                            data: [70, 65, 75, 85, 90, 95],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)'
+                        }, {
+                            label: '热门推荐',
+                            data: [95, 90, 85, 60, 40, 30],
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'rgba(245, 158, 11, 0.2)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // 渲染优化建议内容
+        function renderOptimizationContent() {
+            const suggestions = document.getElementById('optimizationSuggestions');
+            const metrics = document.getElementById('performanceMetrics');
+
+            suggestions.innerHTML = `
+                <div class="p-4 bg-white rounded-lg border border-blue-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>算法优化建议
+                    </h4>
+                    <p class="text-sm text-gray-600 mb-2">建议增加协同过滤算法的相似度阈值，可提升推荐精准度15%。</p>
+                    <button class="text-xs text-blue-600 hover:text-blue-800">应用建议</button>
+                </div>
+                <div class="p-4 bg-white rounded-lg border border-green-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-users text-green-500 mr-2"></i>用户分群优化
+                    </h4>
+                    <p class="text-sm text-gray-600 mb-2">新用户群体的推荐效果较差，建议针对性优化冷启动策略。</p>
+                    <button class="text-xs text-green-600 hover:text-green-800">查看详情</button>
+                </div>
+                <div class="p-4 bg-white rounded-lg border border-purple-200">
+                    <h4 class="font-semibold text-gray-800 mb-2">
+                        <i class="fas fa-chart-line text-purple-500 mr-2"></i>A/B测试建议
+                    </h4>
+                    <p class="text-sm text-gray-600 mb-2">建议对混合推荐策略进行A/B测试，预期可提升转化率8%。</p>
+                    <button class="text-xs text-purple-600 hover:text-purple-800">创建测试</button>
+                </div>
+            `;
+
+            metrics.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
+                        <span class="text-sm text-gray-600">平均响应时间</span>
+                        <span class="font-semibold text-green-600">120ms</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
+                        <span class="text-sm text-gray-600">推荐覆盖率</span>
+                        <span class="font-semibold text-blue-600">85%</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
+                        <span class="text-sm text-gray-600">算法准确率</span>
+                        <span class="font-semibold text-purple-600">92%</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
+                        <span class="text-sm text-gray-600">用户满意度</span>
+                        <span class="font-semibold text-orange-600">4.2/5.0</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border">
+                        <span class="text-sm text-gray-600">系统负载</span>
+                        <span class="font-semibold text-red-600">68%</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 策略操作函数
+        function toggleStrategy(id) {
+            const strategy = strategyData.find(s => s.id === id);
+            if (strategy) {
+                strategy.status = strategy.status === 'active' ? 'inactive' : 'active';
+                renderStrategyCards();
+            }
+        }
+
+        function viewStrategyDetail(id) {
+            console.log('查看策略详情:', id);
+        }
+
+        function editStrategy(id) {
+            console.log('编辑策略:', id);
+        }
+
+        function viewAnalytics(id) {
+            console.log('查看策略分析:', id);
+        }
+
+        // 模态框控制
+        function openCreateModal() {
+            document.getElementById('createModal').classList.remove('hidden');
+            document.getElementById('createModal').classList.add('flex');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+            document.getElementById('createModal').classList.remove('flex');
+        }
+
+        function openABTestModal() {
+            document.getElementById('abTestModal').classList.remove('hidden');
+            document.getElementById('abTestModal').classList.add('flex');
+        }
+
+        function closeABTestModal() {
+            document.getElementById('abTestModal').classList.add('hidden');
+            document.getElementById('abTestModal').classList.remove('flex');
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initTabs();
+            renderStrategyCards();
+        });
+    </script>
+</body>
+</html>
